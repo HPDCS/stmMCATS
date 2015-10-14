@@ -551,7 +551,7 @@ inline void stm_tune_scheduler(){
 		total_tx_wasted_time+=thread->total_wasted_time;
 		total_tx_spin_time+=thread->total_spin_time;
 		total_committed_transactions_by_collector_threads+=thread->committed_transactions_as_a_collector_thread;
-		total_committed_transactions=thread->committed_transactions;
+		total_committed_transactions+=thread->committed_transactions;
 		tx_conflict_table_times+=thread->aborted_transactions;
 		for(i=0;i<max_concurrent_threads+1;i++){
 			wasted_time_k[i]+=thread->total_tx_wasted_per_active_transactions[i];
