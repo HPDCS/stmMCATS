@@ -598,8 +598,7 @@ inline void stm_tune_scheduler(){
 	}
 	*/
 	tx->start_no_tx_time=STM_TIMER_READ();
-
-	printf("\nPredicted: %f, measured: %f, max txs: %i",th, max_concurrent_threads*(float)commited_txs/((float)(total_tx_time+total_no_tx_time+total_tx_wasted_time+total_tx_spin_time)/(float)1000000), tx_info_table[0][1]);
+	printf("\nPredicted: %f, measured: %f, max txs: %i",th, (float)commited_txs/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
 	fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
 #endif
