@@ -570,7 +570,7 @@ inline void stm_tune_scheduler(){
 		if((wasted_time_k[i]>0 || useful_time_k[i]>0) && commit_active_threads[i] > 0){
 			mu_k[i]= 1.0 / ((((float) wasted_time_k[i] / (float)1000000) / (float)commit_active_threads[i]) + (((float) useful_time_k[i]/(float)1000000) / (float) commit_active_threads[i]));
 		}else{
-			mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) commited_txs));
+			mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) total_committed_transactions_by_collector_threads));
 		}
 	}
 	float th = get_throughput(lambda,mu_k,m);
@@ -595,7 +595,7 @@ inline void stm_tune_scheduler(){
 		else if(tx_conflict_table_times>0)w_m=((float)total_tx_wasted_time/(float)1000000)/(float)tx_conflict_table_times;
 		if(commit_active_threads[m]>0)
 			u_m = ((float)useful_time_k[m]/(float)1000000)/(float)commit_active_threads[m];
-		else u_m = ((float)total_tx_time/(float)1000000)/(float)commited_txs;
+		else u_m = ((float)total_tx_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads;
 		mu_k[m + 1]= 1.0/((w_m * avg_restart_k_plus_1) + u_m );
 		th_plus_1 = get_throughput(lambda,mu_k,m + 1);
 		if(th_plus_1 > th) tx_info_table[0][1]++;
@@ -603,8 +603,7 @@ inline void stm_tune_scheduler(){
 	*/
 	tx->start_no_tx_time=STM_TIMER_READ();
 	printf("\nPredicted: %f, measured: %f, max txs: %i",th, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
-	total_commited_txs+=total_committed_transactions_by_collector_threads;
-	printf("\tTotal committed: %i",total_commited_txs);
+	printf("\tTotal committed: %i",total_committed_transactions);
 	fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
 #endif
