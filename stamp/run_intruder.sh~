@@ -1,0 +1,3 @@
+#!/bin/bash
+
+./intruder/intruder -a10 -l128 -n262144 -s1 -1 4 -2 4 -3 4 -w 0 -y 1000000 -j 100 -z 32 -t$1
