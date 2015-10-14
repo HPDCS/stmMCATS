@@ -257,6 +257,7 @@ void reset_local_stats(stm_tx_t *tx){
 	  tx->total_spin_time=0;
 	  tx->start_no_tx_time=0;
 	  tx->last_k=0;
+	  tx->committed_transactions_as_a_collector_thread=0;
 	  tx->committed_transactions=0;
 	  tx->aborted_transactions=0;
 	  memset(tx->total_tx_wasted_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(stm_time_t));
@@ -536,38 +537,40 @@ inline void stm_tune_scheduler(){
 	memset(commit_active_threads, 0, (max_concurrent_threads+1) * sizeof(long));
 	memset(wasted_time_k, 0, (max_concurrent_threads+1) * sizeof(stm_time_t));
 	memset(useful_time_k, 0, (max_concurrent_threads+1) * sizeof(stm_time_t));
-	long commited_txs=0;
+	long total_committed_transactions_by_collector_threads=0;
+	long total_committed_transactions=0;
 	long tx_conflict_table_times=0;
 	float avg_running_tx=0;
 
 	tx->total_no_tx_time+=now - tx->start_no_tx_time ;
-	stm_tx_t *transaction=_tinystm.threads;
+	stm_tx_t *thread=_tinystm.threads;
 	int i=0;
-	while(transaction!=NULL){
-		total_tx_time+=transaction->total_useful_time;
-		total_no_tx_time+=transaction->total_no_tx_time;
-		total_tx_wasted_time+=transaction->total_wasted_time;
-		total_tx_spin_time+=transaction->total_spin_time;
-		commited_txs+=transaction->committed_transactions;
-		tx_conflict_table_times+=transaction->aborted_transactions;
+	while(thread!=NULL){
+		total_tx_time+=thread->total_useful_time;
+		total_no_tx_time+=thread->total_no_tx_time;
+		total_tx_wasted_time+=thread->total_wasted_time;
+		total_tx_spin_time+=thread->total_spin_time;
+		total_committed_transactions_by_collector_threads+=thread->committed_transactions_as_a_collector_thread;
+		total_committed_transactions=thread->committed_transactions;
+		tx_conflict_table_times+=thread->aborted_transactions;
 		for(i=0;i<max_concurrent_threads+1;i++){
-			wasted_time_k[i]+=transaction->total_tx_wasted_per_active_transactions[i];
-			useful_time_k[i]+=transaction->total_tx_useful_per_active_transactions[i];
-			commit_active_threads[i]+=transaction->total_tx_committed_per_active_transactions[i];
-			avg_running_tx+=(float)i * (float) transaction->total_tx_committed_per_active_transactions[i];
-			conflict_active_threads[i]+=transaction->total_conflict_per_active_transactions[i];
+			wasted_time_k[i]+=thread->total_tx_wasted_per_active_transactions[i];
+			useful_time_k[i]+=thread->total_tx_useful_per_active_transactions[i];
+			commit_active_threads[i]+=thread->total_tx_committed_per_active_transactions[i];
+			avg_running_tx+=(float)i * (float) thread->total_tx_committed_per_active_transactions[i];
+			conflict_active_threads[i]+=thread->total_conflict_per_active_transactions[i];
 		}
-		reset_local_stats(transaction);
-		transaction=transaction->next;
+		reset_local_stats(thread);
+		thread=thread->next;
 	}
-	avg_running_tx=avg_running_tx/(float)commited_txs;
+	avg_running_tx=avg_running_tx/(float)total_committed_transactions_by_collector_threads;
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
-	float lambda = 1.0 / (((float) total_no_tx_time/(float)1000000)/(float) commited_txs);
+	float lambda = 1.0 / (((float) total_no_tx_time/(float)1000000)/(float) total_committed_transactions_by_collector_threads);
 	for (i=0;i<max_concurrent_threads+1;i++){
 		if((wasted_time_k[i]>0 || useful_time_k[i]>0) && commit_active_threads[i] > 0){
 			mu_k[i]= 1.0 / ((((float) wasted_time_k[i] / (float)1000000) / (float)commit_active_threads[i]) + (((float) useful_time_k[i]/(float)1000000) / (float) commit_active_threads[i]));
 		}else{
-			mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)commited_txs)+(((float)total_tx_time/(float)1000000) / (float) commited_txs));
+			mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) commited_txs));
 		}
 	}
 	float th = get_throughput(lambda,mu_k,m);
@@ -599,8 +602,8 @@ inline void stm_tune_scheduler(){
 	}
 	*/
 	tx->start_no_tx_time=STM_TIMER_READ();
-	printf("\nPredicted: %f, measured: %f, max txs: %i",th, (float)commited_txs/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
-	total_commited_txs+=commited_txs;
+	printf("\nPredicted: %f, measured: %f, max txs: %i",th, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
+	total_commited_txs+=total_committed_transactions_by_collector_threads;
 	printf("\tTotal committed: %i",total_commited_txs);
 	fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
@@ -642,6 +645,7 @@ stm_commit(void)
 	int ret;
 	ret=int_stm_commit(tx);
 #ifdef STM_MCATS
+	tx->total_committed_transactions++;
 	if (tx->i_am_the_collector_thread==1 && ret==1) {
 		stm_word_t active=tx_info_table[0][0];
 		tx->start_no_tx_time=STM_TIMER_READ();
@@ -649,15 +653,14 @@ stm_commit(void)
 		stm_time_t useful = tx->start_no_tx_time - tx->last_start_tx_time;
 		tx->last_k=0;
 		tx->total_wasted_time+=tx->last_start_tx_time-tx->first_start_tx_time;
-		tx->committed_transactions++;
+		tx->committed_transactions_as_a_collector_thread++;
 		tx->total_tx_useful_per_active_transactions[active]+=useful;
 		tx->total_tx_committed_per_active_transactions[active]++;
 		tx->total_useful_time+=useful;
-		if(tx->committed_transactions==tx_per_tuning_cycle){
+		if(tx->committed_transactions_as_a_collector_thread==tx_per_tuning_cycle){
 			if(tx->thread_identifier==max_concurrent_threads - 1) stm_tune_scheduler();
 			current_collector_thread =(current_collector_thread + 1)% max_concurrent_threads;
 			tx->i_am_the_collector_thread=0;
-
 		}
 
 	}else if(current_collector_thread==tx->thread_identifier){
