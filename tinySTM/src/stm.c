@@ -41,7 +41,7 @@
 /* ################################################################### *
  * DEFINES
  * ################################################################### */
-
+#define STM_MCATS
 #ifdef PRINT_STATS_INFO
 #define PRINT_STATS(...)			printf(__VA_ARGS__)
 #else
@@ -72,7 +72,7 @@ global_t _tinystm =
 #endif /* IRREVOCABLE_ENABLED */
     };
 
-#  ifdef TINYSTM_CONCURRENCY
+#  ifdef STM_MCATS
 	int number_of_tx_class;
 	static volatile stm_word_t tx_info_table[TX_CLASSES][2];
 	unsigned long max_concurrent_threads;
@@ -81,7 +81,7 @@ global_t _tinystm =
 	int current_collector_thread;
 	stm_time_t last_tuning_time;
 
-#endif /* ! TINYSTM_CONCURRENCY */
+#endif /* ! STM_MCATS */
 
 
 /* ################################################################### *
@@ -241,7 +241,7 @@ signal_catcher(int sig)
 }
 #endif /* SIGNAL_HANDLER */
 
-#ifdef TINYSTM_CONCURRENCY
+#ifdef STM_MCATS
 inline void update_conflict_table(int id1, int id2) {
 		TX_GET;
 		tx->aborted_transactions++;
@@ -263,7 +263,7 @@ void reset_local_stats(stm_tx_t *tx){
 	  memset(tx->total_conflict_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(long));
 	  memset(tx->total_tx_useful_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(stm_time_t));
 }
-#endif /* ! TINYSTM_CONCURRENCY */
+#endif /* ! STM_MCATS */
 
 /* ################################################################### *
  * STM FUNCTIONS
@@ -272,7 +272,7 @@ void reset_local_stats(stm_tx_t *tx){
 /*
  * Called once (from main) to initialize STM infrastructure.
  */
-#  ifdef TINYSTM_CONCURRENCY
+#  ifdef STM_MCATS
 
 void stm_init(int threads, int tx_classes, int initial_max_tx_per_class, unsigned long max_tx_per_tuning_cycle)
 {
@@ -292,7 +292,7 @@ void stm_init(int threads, int tx_classes, int initial_max_tx_per_class, unsigne
 void stm_init()
 {
 
-#endif /* ! TINYSTM_CONCURRENCY */
+#endif /* ! STM_MCATS */
 
 #if CM == CM_MODULAR
   char *s;
@@ -413,7 +413,7 @@ stm_start(stm_tx_attr_t attr)
   return ret;
 }
 
-#  ifdef TINYSTM_CONCURRENCY
+#  ifdef STM_MCATS
 _CALLCONV stm_tx_t *
 stm_pre_init_thread(int id){
 	stm_tx_t *tx;
@@ -518,8 +518,8 @@ float get_throughput(float lambda, float *mu, int m) {
 	}
 	return th;
 }
-inline void stm_tuning_one_class(){
-#ifdef STM_TUNING
+inline void stm_tune_scheduler(){
+#ifdef STM_MCATS
 	TX_GET;
 	int m=tx_info_table[0][1];
 	stm_time_t now=STM_TIMER_READ();
@@ -596,7 +596,7 @@ inline void stm_tuning_one_class(){
 		if(th_plus_1 > th) tx_info_table[0][1]++;
 	}
 	tx->start_no_tx_time=STM_TIMER_READ();
-	printf("\nPredicted: %f, measure: %f",th, ((float)commited_txs)/((float)now-(float)last_tuning_time)/(float)1000000);
+	printf("\nPredicted: %f, measure: %f",th, max_concurrent_threads*(float)commited_txs/((float)(now-last_tuning_time)/(float)1000000));
 	fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
 #endif
@@ -611,14 +611,14 @@ void stm_wait(int id) {
 void stm_signal() {
 
 }
-void stm_tuning(){
+void STM_MCATS(){
 
 }
-void stm_tuning_one_class(){
+void stm_tune_scheduler(){
 
 }
 
-#  endif /* TINYSTM_CONCURRENCY */
+#  endif /* STM_MCATS */
 
 
 _CALLCONV sigjmp_buf *
@@ -636,7 +636,7 @@ stm_commit(void)
 	TX_GET;
 	int ret;
 	ret=int_stm_commit(tx);
-#ifdef TINYSTM_CONCURRENCY
+#ifdef STM_MCATS
 	if (tx->i_am_the_collector_thread==1 && ret==1) {
 		stm_word_t active=tx_info_table[0][0];
 		tx->start_no_tx_time=STM_TIMER_READ();
@@ -649,7 +649,7 @@ stm_commit(void)
 		tx->total_tx_committed_per_active_transactions[active]++;
 		tx->total_useful_time+=useful;
 		if(tx->committed_transactions==tx_per_tuning_cycle){
-			if(tx->thread_identifier==max_concurrent_threads - 1) stm_tuning_one_class();
+			if(tx->thread_identifier==max_concurrent_threads - 1) stm_tune_scheduler();
 			current_collector_thread =(current_collector_thread + 1)% max_concurrent_threads;
 			tx->i_am_the_collector_thread=0;
 
