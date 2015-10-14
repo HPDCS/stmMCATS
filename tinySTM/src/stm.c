@@ -570,6 +570,7 @@ inline void stm_tune_scheduler(){
 		}
 	}
 	float th = get_throughput(lambda,mu_k,m);
+		/*
 	float th_minus_1=0.0,th_plus_1=0.0,th_minus_2=0.0;
 	if(m>3){
 		th_minus_1=get_throughput(lambda,mu_k,m-1);
@@ -595,6 +596,7 @@ inline void stm_tune_scheduler(){
 		th_plus_1 = get_throughput(lambda,mu_k,m + 1);
 		if(th_plus_1 > th) tx_info_table[0][1]++;
 	}
+	*/
 	tx->start_no_tx_time=STM_TIMER_READ();
 	printf("\nPredicted: %f, measured: %f, max txs: %i",th, max_concurrent_threads*(float)commited_txs/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
 	fflush(stdout);
