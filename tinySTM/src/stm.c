@@ -645,7 +645,7 @@ stm_commit(void)
 	int ret;
 	ret=int_stm_commit(tx);
 #ifdef STM_MCATS
-	tx->total_committed_transactions++;
+	tx->committed_transactions++;
 	if (tx->i_am_the_collector_thread==1 && ret==1) {
 		stm_word_t active=tx_info_table[0][0];
 		tx->start_no_tx_time=STM_TIMER_READ();
