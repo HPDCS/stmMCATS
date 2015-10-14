@@ -80,6 +80,7 @@ global_t _tinystm =
 	int main_thread;
 	int current_collector_thread;
 	stm_time_t last_tuning_time;
+	long total_commited_txs=0;
 
 #endif /* ! STM_MCATS */
 
@@ -599,6 +600,8 @@ inline void stm_tune_scheduler(){
 	*/
 	tx->start_no_tx_time=STM_TIMER_READ();
 	printf("\nPredicted: %f, measured: %f, max txs: %i",th, (float)commited_txs/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
+	total_commited_txs+=commited_txs;
+	printf("\tTotal committed: %i",total_commited_txs);
 	fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
 #endif
