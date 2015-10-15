@@ -85,11 +85,18 @@
 #define PARAM_DEFAULT_INPUTPREFIX ("")
 #define PARAM_DEFAULT_NUMTHREAD   (1L)
 #define PARAM_DEFAULT_ANGLE       (20.0)
+#define PARAM_DEFAULT_TX_CLASSES	(1)
+#define PARAM_DEFAULT_INITIAL_MAX_TX_PER_CLASS	(1)
+#define PARAM_DEFAULT_MAX_TX_PER_TUNING_CYCLE	(1000)
 
 
 char*    global_inputPrefix     = PARAM_DEFAULT_INPUTPREFIX;
 long     global_numThread       = PARAM_DEFAULT_NUMTHREAD;
 double   global_angleConstraint = PARAM_DEFAULT_ANGLE;
+long tx_classes					= PARAM_DEFAULT_TX_CLASSES;
+long initial_max_tx_per_class	= PARAM_DEFAULT_INITIAL_MAX_TX_PER_CLASS;
+long max_tx_per_tuning_cycle	= PARAM_DEFAULT_MAX_TX_PER_TUNING_CYCLE;
+
 int		 maxTx1;
 mesh_t*  global_meshPtr;
 heap_t*  global_workHeapPtr;
@@ -125,7 +132,7 @@ parseArgs (long argc, char* const argv[])
 
     opterr = 0;
 
-    while ((opt = getopt(argc, argv, "a:i:t:1:")) != -1) {
+    while ((opt = getopt(argc, argv, "a:i:t:1:w:y:z:")) != -1) {
         switch (opt) {
             case 'a':
                 global_angleConstraint = atof(optarg);
@@ -136,8 +143,14 @@ parseArgs (long argc, char* const argv[])
             case 't':
                 global_numThread = atol(optarg);
                 break;
-        	case '1':
-                maxTx1=atol(optarg);
+            case 'w':
+            	tx_classes = atol(optarg);
+                break;
+            case 'y':
+            	initial_max_tx_per_class = atol(optarg);
+                break;
+            case 'z':
+            	max_tx_per_tuning_cycle = atol(optarg);
                 break;
             case '?':
             default:
@@ -281,11 +294,10 @@ MAIN(argc, argv)
      */
     setenv("STM_STATS","1",0);
     parseArgs(argc, (char** const)argv);
-    int  max_tx_per_class[MAX_NUMBER_OF_TX_CLASS];
-    max_tx_per_class[0]=maxTx1;
     SIM_GET_NUM_CPU(global_numThread);
+
 #ifdef TINYSTM_CONCURRENCY
-    TM_STARTUP(global_numThread, MAX_NUMBER_OF_TX_CLASS, max_tx_per_class, 0, 0, global_numThread, global_numThread);
+    TM_STARTUP(global_numThread, tx_classes, initial_max_tx_per_class, max_tx_per_tuning_cycle);
 #else
     TM_STARTUP(nthreads);
 #endif

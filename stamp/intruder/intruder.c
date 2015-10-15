@@ -280,7 +280,6 @@ MAIN(argc, argv)
 
 
 #ifdef TINYSTM_CONCURRENCY
-
     TM_STARTUP(nthreads, tx_classes, initial_max_tx_per_class, max_tx_per_tuning_cycle);
 #else
     TM_STARTUP(nthreads);
