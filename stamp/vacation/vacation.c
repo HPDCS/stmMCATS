@@ -97,13 +97,9 @@ enum param_types {
     PARAM_RELATIONS    = (unsigned char)'r',
     PARAM_TRANSACTIONS = (unsigned char)'t',
     PARAM_USER         = (unsigned char)'u',
-    PARAM_MAXT1	 		= (unsigned char)'1',
-    PARAM_MAXT2	 		= (unsigned char)'2',
-    PARAM_MAXT3			= (unsigned char)'3',
-    PARAM_MIN_RATIO		= (unsigned char)'w',
-    PARAM_MAX_RATIO		= (unsigned char)'y',
-    PARAM_MAX_STARTED	= (unsigned char)'j',
-    PARAM_MAX_THREAD	= (unsigned char)'z',
+	PARAM_TX_CLASSES			= (unsigned char)'w',
+	PARAM_INITIAL_MAX_TX_PER_CLASS	= (unsigned char)'y',
+	PARAM_MAX_TX_PER_TUNING_CYCLE	= (unsigned char)'z'
 };
 
 #define PARAM_DEFAULT_CLIENTS      (1)
@@ -112,12 +108,12 @@ enum param_types {
 #define PARAM_DEFAULT_RELATIONS    (1 << 16)
 #define PARAM_DEFAULT_TRANSACTIONS (1 << 26)
 #define PARAM_DEFAULT_USER         (80)
+#define PARAM_DEFAULT_TX_CLASSES	(1)
+#define PARAM_IDEFAULT_NITIAL_MAX_TX_PER_CLASS	(1)
+#define PARAM_DEFAULT_MAX_TX_PER_TUNING_CYCLE	(1000)
 
 double global_params[256]; /* 256 = ascii limit */
-float global_params_2[256] = { /* 256 = ascii limit */
-		[PARAM_MIN_RATIO]	= PARAM_MIN_RATIO,
-		[PARAM_MAX_RATIO]	= PARAM_MAX_RATIO,
-};
+
 
 /* =============================================================================
  * displayUsage
@@ -157,13 +153,11 @@ setDefaultParams ()
     global_params[PARAM_RELATIONS]    = PARAM_DEFAULT_RELATIONS;
     global_params[PARAM_TRANSACTIONS] = PARAM_DEFAULT_TRANSACTIONS;
     global_params[PARAM_USER]         = PARAM_DEFAULT_USER;
-    global_params[PARAM_MAXT1]	 	= PARAM_MAXT1;
-    global_params[PARAM_MAXT2]	 	= PARAM_MAXT2;
-    global_params[PARAM_MAXT3]		= PARAM_MAXT3;
-    global_params[PARAM_MAX_STARTED]	= PARAM_MAX_STARTED;
-    global_params[PARAM_MAX_THREAD]	= PARAM_MAX_THREAD;
-}
+    global_params[PARAM_TX_CLASSES]	  = PARAM_DEFAULT_TX_CLASSES;
+    global_params[PARAM_INITIAL_MAX_TX_PER_CLASS]	 	= PARAM_IDEFAULT_NITIAL_MAX_TX_PER_CLASS;
+    global_params[PARAM_MAX_TX_PER_TUNING_CYCLE]		= PARAM_DEFAULT_MAX_TX_PER_TUNING_CYCLE;
 
+}
 
 /* =============================================================================
  * parseArgs
@@ -179,7 +173,7 @@ parseArgs (long argc, char* const argv[])
 
     setDefaultParams();
 
-    while ((opt = getopt(argc, argv, "c:n:q:r:t:u:1:2:3:w:y:j:z:")) != -1) {
+    while ((opt = getopt(argc, argv, "c:n:q:r:t:u:w:y:z:")) != -1) {
         switch (opt) {
             case 'c':
             case 'n':
@@ -187,16 +181,10 @@ parseArgs (long argc, char* const argv[])
             case 'r':
             case 't':
             case 'u':
-            case '1':
-            case '2':
-            case '3':
-            case 'j':
-            case 'z':
-                global_params[(unsigned char)opt] = atol(optarg);
-                break;
             case 'w':
             case 'y':
-                global_params_2[(unsigned char)opt] = atof(optarg);
+            case 'z':
+                global_params[(unsigned char)opt] = atol(optarg);
                 break;
             case '?':
             default:
@@ -446,13 +434,10 @@ MAIN(argc, argv)
     /* Initialization */
     setenv("STM_STATS","1",0);
     parseArgs(argc, (char** const)argv);
-    int maxTx1= global_params[PARAM_MAXT1];
-    int maxTx2= global_params[PARAM_MAXT2];
-    int maxTx3= global_params[PARAM_MAXT3];
-    float min_ratio= global_params_2[PARAM_MIN_RATIO];
-    float max_ratio= global_params_2[PARAM_MAX_RATIO];
-    unsigned int max_started= global_params[PARAM_MAX_STARTED];
-    unsigned int max_threads= global_params[PARAM_MAX_THREAD];
+    long nthreads = global_params[PARAM_CLIENTS];
+    unsigned int tx_classes= global_params[PARAM_TX_CLASSES];
+    unsigned int initial_max_tx_per_class= global_params[PARAM_INITIAL_MAX_TX_PER_CLASS];
+    unsigned int max_tx_per_tuning_cycle= global_params[PARAM_MAX_TX_PER_TUNING_CYCLE];
     SIM_GET_NUM_CPU(global_params[PARAM_CLIENTS]);
     managerPtr = initializeManager();
     assert(managerPtr != NULL);
@@ -460,8 +445,7 @@ MAIN(argc, argv)
     assert(clients != NULL);
     long numThread = global_params[PARAM_CLIENTS];
     int  max_tx_per_class[TX_CLASS_NUMBER];
-    max_tx_per_class[0]=maxTx1;
-    TM_STARTUP(numThread, TX_CLASS_NUMBER, max_tx_per_class, max_started, max_threads);
+    TM_STARTUP(nthreads, tx_classes, initial_max_tx_per_class, max_tx_per_tuning_cycle);
     P_MEMORY_STARTUP(numThread);
     thread_startup(numThread);
 
