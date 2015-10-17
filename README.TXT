@@ -1,4 +1,4 @@
-- You can use "compile.sh" to compile TinySTM with MCATS and three applications of STAMP (Intruder, Yada and Vacation)
+- You can use "compile.sh" to compile TinySTM (with MCATS) and three applications of STAMP (Intruder, Yada and Vacation)
 
 - To run an application, in addition to the input parameters required by the application (see STAMP documentation), the following ones are required by MCATS:
 	-z: length of the observation window in terms of number of executed transactions 
