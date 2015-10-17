@@ -445,7 +445,11 @@ MAIN(argc, argv)
     assert(clients != NULL);
     long numThread = global_params[PARAM_CLIENTS];
     int  max_tx_per_class[TX_CLASS_NUMBER];
+#ifdef STM_MCATS
     TM_STARTUP(nthreads, tx_classes, initial_max_tx_per_class, max_tx_per_tuning_cycle);
+#else
+    TM_STARTUP(nthreads);
+#endif
     P_MEMORY_STARTUP(numThread);
     thread_startup(numThread);
 
@@ -465,7 +469,7 @@ MAIN(argc, argv)
     GOTO_REAL();
     TIMER_READ(stop);
     //puts("done.");
-    printf("Elapsed time    = %fs ", TIMER_DIFF_SECONDS(start, stop));
+    printf("\nThreads: %i\tElapsed time: %fs ",numThread, TIMER_DIFF_SECONDS(start, stop));
     fflush(stdout);
     checkTables(managerPtr);
 
@@ -484,7 +488,7 @@ MAIN(argc, argv)
 	if (getenv("STM_STATS") != NULL) {
 		unsigned long u;
 		if (stm_get_global_stats("global_nb_commits", &u) != 0){
-			printf(" throughput : %f\n",u/TIMER_DIFF_SECONDS(start, stop));
+			printf("\tThroughput : %f\n",u/TIMER_DIFF_SECONDS(start, stop));
 		}
 	}
 

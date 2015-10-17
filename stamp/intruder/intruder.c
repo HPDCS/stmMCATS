@@ -279,7 +279,7 @@ MAIN(argc, argv)
     SIM_GET_NUM_CPU(nthreads);
 
 
-#ifdef TINYSTM_CONCURRENCY
+#ifdef STM_MCATS
     TM_STARTUP(nthreads, tx_classes, initial_max_tx_per_class, max_tx_per_tuning_cycle);
 #else
     TM_STARTUP(nthreads);
@@ -343,7 +343,7 @@ MAIN(argc, argv)
     GOTO_REAL();
     TIMER_T stopTime;
     TIMER_READ(stopTime);
-    printf("\nThread %i Elapsed time   %f ",nthreads, TIMER_DIFF_SECONDS(startTime, stopTime));
+    printf("\nThreads: %i\tElapsed time: %f ",nthreads, TIMER_DIFF_SECONDS(startTime, stopTime));
 
     /*
      * Check solution
@@ -380,7 +380,7 @@ MAIN(argc, argv)
 	if (getenv("STM_STATS") != NULL) {
 		unsigned long u;
 		if (stm_get_global_stats("global_nb_commits", &u) != 0){
-			printf(" throughput : %f\n",u/TIMER_DIFF_SECONDS(startTime, stopTime));
+			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(startTime, stopTime));
 		}
 	}
     P_MEMORY_SHUTDOWN();

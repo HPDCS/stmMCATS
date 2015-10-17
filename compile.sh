@@ -4,21 +4,16 @@ cd tinySTM
 make clean
 make
 cd ..
-cd Stamp/intruder
+cd stamp/intruder
 make -f Makefile.stm clean
 make -f Makefile.stm
 cd ..
-cd genome
+cd yada
 make -f Makefile.stm clean
 make -f Makefile.stm
 cd ..
 cd vacation
 make -f Makefile.stm clean
 make -f Makefile.stm
-cd ..
-cd kmeans
-make -f Makefile.stm clean
-make -f Makefile.stm
 
-echo "Compilazione terminata"
 

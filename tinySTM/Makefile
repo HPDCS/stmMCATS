@@ -188,8 +188,16 @@ DEFINES += -UDEBUG2
 DEFINES += -UPRINT_STATS_INFO
 
 ########################################################################
+# Enable MCATS 
+########################################################################
+
+#DEFINES += -DSTM_MCATS
+DEFINES += -USTM_MCATS
+
+########################################################################
 # Catch SIGBUS and SIGSEGV signals
 ########################################################################
+
 
 # DEFINES += -DSIGNAL_HANDLER
 DEFINES += -USIGNAL_HANDLER

@@ -296,7 +296,7 @@ MAIN(argc, argv)
     parseArgs(argc, (char** const)argv);
     SIM_GET_NUM_CPU(global_numThread);
 
-#ifdef TINYSTM_CONCURRENCY
+#ifdef STM_MCATS
     TM_STARTUP(global_numThread, tx_classes, initial_max_tx_per_class, max_tx_per_tuning_cycle);
 #else
     TM_STARTUP(nthreads);
@@ -338,8 +338,7 @@ MAIN(argc, argv)
     TIMER_READ(stop);
 
     //puts(" done.");
-    printf("Elapsed time                    = %0.3lf ",
-           TIMER_DIFF_SECONDS(start, stop));
+    printf("\nThreads: %i\tElapsed time: %0.3lf ", global_numThread, TIMER_DIFF_SECONDS(start, stop));
     fflush(stdout);
 
     /*
@@ -368,7 +367,7 @@ MAIN(argc, argv)
     if (getenv("STM_STATS") != NULL) {
     		unsigned long u;
     		if (stm_get_global_stats("global_nb_commits", &u) != 0){
-    			printf(" throughput : %f\n",u/TIMER_DIFF_SECONDS(start, stop));
+    			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(start, stop));
     		}
     	}
     P_MEMORY_SHUTDOWN();

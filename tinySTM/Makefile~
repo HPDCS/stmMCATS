@@ -188,12 +188,11 @@ DEFINES += -UDEBUG2
 DEFINES += -UPRINT_STATS_INFO
 
 ########################################################################
-# Enables the code that takes into account the concurrency between 
-# different classes of transactions
+# Enable MCATS 
 ########################################################################
 
-#DEFINES += -DTINYSTM_CONCURRENCY
-DEFINES += -UTINYSTM_CONCURRENCY
+#DEFINES += -DSTM_MCATS
+DEFINES += -USTM_MCATS
 
 ########################################################################
 # Catch SIGBUS and SIGSEGV signals

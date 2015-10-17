@@ -75,10 +75,8 @@
 #ifndef _STM_H_
 # define _STM_H_
 
-#define TINYSTM_CONCURRENCY
 
-
-#ifdef TINYSTM_CONCURRENCY
+#ifdef STM_MCATS
 
 #define INVISIBLE_TRACKING
 #define STM_TUNING
@@ -95,7 +93,7 @@
 
 	typedef unsigned long long stm_time_t;
 
-#endif /* TINYSTM_CONCURRENCY */
+#endif /* STM_MCATS */
 
 # include <setjmp.h>
 # include <stdint.h>
@@ -295,7 +293,7 @@ enum {
  * the main thread, before any access to the other functions of the
  * library.
  */
-#  ifdef TINYSTM_CONCURRENCY
+#  ifdef STM_MCATS
 void stm_init(int threads, int tx_classes, int initial_max_tx_per_class, unsigned long max_tx_per_tuning_cycle);
 _CALLCONV struct stm_tx *stm_pre_init_thread(int id);
 void stm_wait(int id);
@@ -310,7 +308,7 @@ void stm_wait(int id);
 void stm_signal();
 void stm_tuning();
 void stm_tuning_one_class();
-#endif /* ! TINYSTM_CONCURRENCY */
+#endif /* ! STM_MCATS */
 
 
 /**

@@ -454,9 +454,9 @@
 #      define TM_SHUTDOWN()             if (getenv("STM_STATS") != NULL) { \
                                           unsigned long u,v; \
                                           if (stm_get_global_stats("global_nb_commits", &u) != 0) \
-                                            printf("commit %lu", u); \
+                                            printf("\tCommits: %lu", u); \
                                           if (stm_get_global_stats("global_nb_aborts", &v) != 0) \
-                                            printf(" abort %lu", v); \
+                                            printf("\tAborts: %lu", v); \
                                         } \
                                         stm_exit()
 
