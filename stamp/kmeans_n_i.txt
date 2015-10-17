@@ -1,2 +1,0 @@
-
-Thread 1 maxTx 1 Elapsed 35.847530 commit 9874166 abort 0 throughput : 275448.992743
