@@ -427,7 +427,7 @@
 
 #      include <mod_mem.h>
 #      include <mod_stats.h>
-#ifdef TINYSTM_CONCURRENCY
+#ifdef STM_MCATS
 #      define TM_STARTUP(nthreads, tx_classes, initial_max_tx_per_class, max_tx_per_tuning_cycle) \
 										if (sizeof(long) != sizeof(void *)) { \
                                           fprintf(stderr, "Error: unsupported long and pointer sizes\n"); \
