@@ -583,9 +583,8 @@ inline void stm_tune_scheduler(){
 		th_minus_2=get_throughput(lambda,mu_k,m-2);
 	}else if(m>2)th_minus_1=get_throughput(lambda,mu_k,m-1);
 	if(th_minus_2 >= th && th_minus_2 >= th_minus_1) {
-		printf("\nSelected th_minus_2");
-	}
 		tx_info_table[0][1]-=2;
+		printf("\nSelected th_minus_2");
 	}else if(th_minus_1>=th){
 		tx_info_table[0][1]--;
 		printf("\nSelected th_minus_1");
