@@ -563,6 +563,7 @@ inline void stm_tune_scheduler(){
 
 		for(i=0;i<max_concurrent_threads+1;i++){
 			wasted_time_k[i]+=thread->total_tx_wasted_per_active_transactions[i];
+			printf("\nwasted_time_k[%i] %llu", i, wasted_time_k[i]);
 			sum_wasted_time_k+=thread->total_tx_wasted_per_active_transactions[i];
 			useful_time_k[i]+=thread->total_tx_useful_per_active_transactions[i];
 			sum_useful_time_k+=thread->total_tx_useful_per_active_transactions[i];
