@@ -1,5 +1,10 @@
+*Introduction*
+MCATS (Markov Chain-based Adaptive Transaction Scheduler) is an adaptive transaction scheduler for Transactional Memory(TM). The objective of MCATS is the one of maximizing the system throughput by dynamically regulating the maximum number of concurrent transactions admitted to run along the lifetime of the STM application. MCATS exploits a TM performance model based on Markov Chain. 
+
+*Compile*
 - You can use "compile.sh" to compile TinySTM (with MCATS) and three applications of STAMP (Intruder, Yada and Vacation)
 
+*Run*
 - To run an application, in addition to the input parameters required by the application (see STAMP documentation), the following ones are required by MCATS:
 	-z: length of the observation window in terms of number of executed transactions 
 	-y: initial number of concurrent transactions admitted by the scheduler
