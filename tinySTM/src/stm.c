@@ -516,9 +516,11 @@ float get_throughput(float lambda, float *mu, int m) {
 	//th
 	for (k=1;k<=m;k++){
 		th+=p[k]*k*mu[k];
+		printf("\n%f\t%i\t%f", p[k], k, mu[k]);
 	}
 	for (k=m+1;k<=N;k++){
 		th+=p[k]*m*mu[m];
+		printf("\n%f\t%i\t%f", p[k], m, mu[m]);
 	}
 
 	return th;
@@ -576,6 +578,7 @@ inline void stm_tune_scheduler(){
 			printf("\nk:%i\tmu_k: %f", i, mu_k[i]);
 		}else{
 			mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) total_committed_transactions_by_collector_threads));
+			printf("\nk:%i\tmu_k: %f", i, mu_k[i]);
 		}
 	}
 
