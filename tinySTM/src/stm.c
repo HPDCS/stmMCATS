@@ -579,10 +579,8 @@ inline void stm_tune_scheduler(){
 			mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) total_committed_transactions_by_collector_threads));
 		}
 	}
-	printf("\lambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) total_committed_transactions_by_collector_threads)));
-	for (i=0;i<max_concurrent_threads+1;i++){
-		//printf("- i: %3.0f", i, mu_k[i]);
-	}
+
+
 
 	float th = get_throughput(lambda,mu_k,m);
 	float th_minus_1=0.0,th_plus_1=0.0,th_minus_2=0.0;
@@ -621,6 +619,8 @@ inline void stm_tune_scheduler(){
 	tx->start_no_tx_time=STM_TIMER_READ();
 	printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
 	printf("\tTotal committed: %i",total_committed_transactions);
+	printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) total_committed_transactions_by_collector_threads)));
+	printf("\nAvg_running_tx: %f", avg_running_tx, 1.0);
 	fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
 
