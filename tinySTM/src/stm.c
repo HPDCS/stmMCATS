@@ -549,6 +549,8 @@ inline void stm_tune_scheduler(){
 	tx->total_no_tx_time+=now - tx->start_no_tx_time ;
 	stm_tx_t *thread=_tinystm.threads;
 	int i=0;
+	float sum_wasted_time_k=0; //da eliminare
+	float sum_useful_time_k=0; //da eliminare
 	while(thread!=NULL){
 		total_tx_time+=thread->total_useful_time;
 		total_no_tx_time+=thread->total_no_tx_time;
@@ -557,9 +559,12 @@ inline void stm_tune_scheduler(){
 		total_committed_transactions_by_collector_threads+=thread->committed_transactions_as_a_collector_thread;
 		total_committed_transactions+=thread->committed_transactions;
 		tx_conflict_table_times+=thread->aborted_transactions;
+
 		for(i=0;i<max_concurrent_threads+1;i++){
 			wasted_time_k[i]+=thread->total_tx_wasted_per_active_transactions[i];
+			sum_wasted_time_k+=thread->total_tx_wasted_per_active_transactions[i];
 			useful_time_k[i]+=thread->total_tx_useful_per_active_transactions[i];
+			sum_useful_time_k+=thread->total_tx_useful_per_active_transactions[i];
 			commit_active_threads[i]+=thread->total_tx_committed_per_active_transactions[i];
 			avg_running_tx+=(float)i * (float) thread->total_tx_committed_per_active_transactions[i];
 			conflict_active_threads[i]+=thread->total_conflict_per_active_transactions[i];
@@ -567,6 +572,7 @@ inline void stm_tune_scheduler(){
 		reset_local_stats(thread);
 		thread=thread->next;
 	}
+	printf("\ntotal_tx_time %f, sum_useful_time_k %f, total_tx_wasted_time%f, sum_wasted_time_k %f"total_tx_time, sum_useful_time_k, total_tx_wasted_time, sum_wasted_time_k);
 	avg_running_tx=avg_running_tx/(float)total_committed_transactions_by_collector_threads;
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
 	float lambda = 1.0 / (((float) total_no_tx_time/(float)1000000)/(float) total_committed_transactions_by_collector_threads);
