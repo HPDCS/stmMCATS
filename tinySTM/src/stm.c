@@ -576,6 +576,11 @@ inline void stm_tune_scheduler(){
 			mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) total_committed_transactions_by_collector_threads));
 		}
 	}
+	printf("\lambda: %f");
+	for (i=0;i<max_concurrent_threads+1;i++){
+		printf("- i: %f", i, mu_k[i]);
+	}
+
 	float th = get_throughput(lambda,mu_k,m);
 	float th_minus_1=0.0,th_plus_1=0.0,th_minus_2=0.0;
 	if(m>3){
