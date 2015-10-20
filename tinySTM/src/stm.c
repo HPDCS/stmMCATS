@@ -549,8 +549,8 @@ inline void stm_tune_scheduler(){
 	tx->total_no_tx_time+=now - tx->start_no_tx_time ;
 	stm_tx_t *thread=_tinystm.threads;
 	int i=0;
-	float sum_wasted_time_k=0; //da eliminare
-	float sum_useful_time_k=0; //da eliminare
+	long sum_wasted_time_k=0; //da eliminare
+	long sum_useful_time_k=0; //da eliminare
 	while(thread!=NULL){
 		total_tx_time+=thread->total_useful_time;
 		total_no_tx_time+=thread->total_no_tx_time;
