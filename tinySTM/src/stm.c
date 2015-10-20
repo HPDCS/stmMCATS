@@ -611,9 +611,9 @@ inline void stm_tune_scheduler(){
 	}
 
 	tx->start_no_tx_time=STM_TIMER_READ();
-	//printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
-	//printf("\tTotal committed: %i",total_committed_transactions);
-	//fflush(stdout);
+	printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
+	printf("\tTotal committed: %i",total_committed_transactions);
+	fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
 
 }
