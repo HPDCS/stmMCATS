@@ -578,7 +578,7 @@ inline void stm_tune_scheduler(){
 	}
 	printf("\lambda: %f");
 	for (i=0;i<max_concurrent_threads+1;i++){
-		printf("- i: %f", i, mu_k[i]);
+		printf("- i: %3.0f", i, mu_k[i]);
 	}
 
 	float th = get_throughput(lambda,mu_k,m);
