@@ -519,6 +519,7 @@ float get_throughput(float lambda, float *mu, int m) {
 	}
 	for (k=m+1;k<=N;k++){
 		th+=p[k]*m*mu[m];
+		printf("\n%f\t%f\t%f", p[k], m, mu[m]);
 	}
 	return th;
 }
