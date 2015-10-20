@@ -583,9 +583,12 @@ inline void stm_tune_scheduler(){
 		th_minus_2=get_throughput(lambda,mu_k,m-2);
 	}else if(m>2)th_minus_1=get_throughput(lambda,mu_k,m-1);
 	if(th_minus_2 >= th && th_minus_2 >= th_minus_1) {
+		printf("\nSelected th_minus_2");
+	}
 		tx_info_table[0][1]-=2;
 	}else if(th_minus_1>=th){
 		tx_info_table[0][1]--;
+		printf("\nSelected th_minus_1");
 	}else if(m<max_concurrent_threads){
 		float avg_restart_k= (float)conflict_active_threads[m]/(float)commit_active_threads[m];
 		float p_a_k = avg_restart_k /(1.0 + avg_restart_k);
@@ -600,11 +603,16 @@ inline void stm_tune_scheduler(){
 		else u_m = ((float)total_tx_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads;
 		mu_k[m + 1]= 1.0/((w_m * avg_restart_k_plus_1) + u_m );
 		th_plus_1 = get_throughput(lambda,mu_k,m + 1);
-		if(th_plus_1 > th) tx_info_table[0][1]++;
+		if(th_plus_1 > th) {
+			tx_info_table[0][1]++;
+			printf("\nSelected th_plus_1");
+		} else {
+			printf("\nSelected th");
+		}
 	}
 
 	tx->start_no_tx_time=STM_TIMER_READ();
-	printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i",th_minus_1, th, th_plus_1,th_minus_2, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
+	printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
 	//printf("\tTotal committed: %i",total_committed_transactions);
 	//fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
