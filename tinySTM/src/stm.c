@@ -602,10 +602,10 @@ inline void stm_tune_scheduler(){
 	}
 
 	tx->start_no_tx_time=STM_TIMER_READ();
-	//printf("\nPredicted: %f, measured: %f, max txs: %i",th, max_concurrent_threads * (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
+	printf("\nPredicted: %f, measured: %f, max txs: %i",th, max_concurrent_threads * (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
 	//printf("\tTotal committed: %i",total_committed_transactions);
 	//fflush(stdout);
-	//last_tuning_time=STM_TIMER_READ();
+	last_tuning_time=STM_TIMER_READ();
 
 }
 
@@ -617,10 +617,6 @@ void stm_wait(int id) {
 
 }
 void stm_signal() {
-
-}
-
-void stm_tune_scheduler(){
 
 }
 
