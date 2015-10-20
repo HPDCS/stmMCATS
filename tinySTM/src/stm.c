@@ -573,7 +573,7 @@ inline void stm_tune_scheduler(){
 	for (i=0;i<max_concurrent_threads+1;i++){
 		if((wasted_time_k[i]>0 || useful_time_k[i]>0) && commit_active_threads[i] > 0){
 			mu_k[i]= 1.0 / ((((float) wasted_time_k[i] / (float)1000000) / (float)commit_active_threads[i]) + (((float) useful_time_k[i]/(float)1000000) / (float) commit_active_threads[i]));
-			printf("\tk:%i\tmu_k: %f", i, mu[i]);
+			printf("\tk:%i\tmu_k: %f", i, mu_k[i]);
 		}else{
 			mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) total_committed_transactions_by_collector_threads));
 		}
