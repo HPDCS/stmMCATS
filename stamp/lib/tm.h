@@ -494,8 +494,7 @@
 
 #    define TM_BEGIN_RO()               TM_START(1)
 
-#    define TM_END()                    stm_commit(); \
-										stm_signal()
+#    define TM_END()                    stm_commit()
 #    define TM_RESTART()                stm_abort(0)
 
 #    define TM_EARLY_RELEASE(var)       /* nothing */
