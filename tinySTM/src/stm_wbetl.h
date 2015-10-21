@@ -71,7 +71,7 @@ stm_wbetl_validate(stm_tx_t *tx,int committing)
 # endif /* UNIT_TX */
         }
 #endif /* CONFLICT_TRACKING */
-#ifdef STM_MCATS_CONFLICT_TRACKING
+#ifdef STM_MCATS
       if(tx->i_am_the_collector_thread==1){
     	  stm_tx_t *other = ((w_entry_t *)LOCK_GET_ADDR(l))->tx;
     	  update_conflict_table(tx->attr.id, other->attr.id);

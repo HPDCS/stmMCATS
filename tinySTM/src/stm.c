@@ -250,6 +250,7 @@ inline void update_conflict_table(int id1, int id2) {
 		tx->aborted_transactions++;
 		tx->last_k=tx_info_table[0][0];
 		tx->total_conflict_per_active_transactions[tx->last_k]++;
+		printf("\nupdate_conflict_table k=%i", tx->last_k);
 }
 
 void reset_local_stats(stm_tx_t *tx){
