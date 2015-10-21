@@ -1099,7 +1099,6 @@ stm_rollback(stm_tx_t *tx, unsigned int reason)
   if(tx->i_am_the_collector_thread){
 	  stm_time_t conflict_time=STM_TIMER_READ();
 	  tx->total_tx_wasted_per_active_transactions[tx->last_k]+=conflict_time - tx->last_start_tx_time;
-	  printf("\nk=%i", tx->last_k);
 	  tx->last_start_tx_time=conflict_time;
   }
 #endif
