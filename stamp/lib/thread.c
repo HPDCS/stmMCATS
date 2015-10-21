@@ -78,7 +78,7 @@
 #include "types.h"
 #include "errno.h"
 #include "stdio.h"
-#include "../../rapl-power/rapl.h"
+#include "rapl.h"
 //#include <stdio.h> //debug
 
 static THREAD_LOCAL_T    global_threadId;
@@ -91,8 +91,6 @@ static void            (*global_funcPtr)(void*) = NULL;
 static void*             global_argPtr          = NULL;
 static volatile bool_t   global_doShutdown      = FALSE;
 
-void startEnergy();
-void endEnergy();
 
 /* =============================================================================
  * threadWait
