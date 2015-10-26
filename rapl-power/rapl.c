@@ -1542,13 +1542,13 @@ void endEnergyAMD()
             printf("\nfreq %llu -> %llu\n", delta[ret].frequency, delta[ret].count);
     }
 
-    /*delta_power = 0.0;
+    delta_power = 0.0;
     float rangecpupower = maxcpupower - mincpupower;
     for (ret = 0; ret <= maxfreq; ret++) {
         if(total_time > 0 && maxfreq > 0)
-            delta_power = (maxcpupower - rangecpupower * ret / maxfreq) * delta[ret].count / 100;//Watt * 10ms
-        info->cpupower += delta_power;
-    }*/
+            delta_power += (maxcpupower - rangecpupower * ret / maxfreq) * delta[ret].count / 100;//Watt * 10ms
+    }
+    printf("\tpower: %f", delta_power);
 }
 
 /* RAPL stuff */
