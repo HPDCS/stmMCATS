@@ -295,7 +295,7 @@ enum {
  * library.
  */
 #  ifdef STM_MCATS
-void stm_init(int threads, int tx_classes, int initial_max_tx_per_class, unsigned long max_tx_per_tuning_cycle);
+void stm_init(int threads);
 _CALLCONV struct stm_tx *stm_pre_init_thread(int id);
 void stm_wait(int id);
 void stm_signal();

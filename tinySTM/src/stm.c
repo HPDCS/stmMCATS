@@ -75,8 +75,8 @@ global_t _tinystm =
     };
 
 #  ifdef STM_MCATS
-	int number_of_tx_class;
-	static volatile stm_word_t tx_info_table[TX_CLASSES][2];
+	volatile stm_word_t running_transactions;
+	volatile stm_word_t max_allowed_running_transactions;
 	unsigned long max_concurrent_threads;
 	int tx_per_tuning_cycle;
 	int main_thread;
@@ -248,7 +248,7 @@ signal_catcher(int sig)
 inline void update_conflict_table(int id1, int id2) {
 		TX_GET;
 		tx->aborted_transactions++;
-		tx->last_k=tx_info_table[0][0];
+		tx->last_k=running_transactions;
 		tx->total_conflict_per_active_transactions[tx->last_k]++;
 }
 
@@ -278,17 +278,27 @@ void reset_local_stats(stm_tx_t *tx){
  */
 #  ifdef STM_MCATS
 
-void stm_init(int threads, int tx_classes, int initial_max_tx_per_class, unsigned long max_tx_per_tuning_cycle)
-{
-	max_concurrent_threads=threads;
-	number_of_tx_class=tx_classes;
-	tx_per_tuning_cycle=max_tx_per_tuning_cycle/max_concurrent_threads;
-	main_thread=current_collector_thread=0;
-  	int k=0;
-  	for (k=0;k<number_of_tx_class;k++) {
-  		tx_info_table[k][1]=initial_max_tx_per_class;
-  		tx_info_table[k][0]=0;
-  	}
+void stm_init(int threads) {
+
+	int max_tx_per_tuning_cycle;
+
+	max_concurrent_threads = threads;
+
+	FILE* fid;
+	if ((fid = fopen("mcats_conf.txt", "r")) == NULL) {
+		printf("\nError opening MCATS configuration file.\n");
+		exit(1);
+	}
+
+	if (fscanf(fid, "TX_PER_CYCLE=%d INITIAL_MAX_ADMITTED_TX=%d", &max_tx_per_tuning_cycle, &max_allowed_running_transactions)!=2) {
+		printf("\nThe number of input parameters of the MCATS configuration file does not match the number of required parameters.\n");
+		exit(1);
+	}
+
+	tx_per_tuning_cycle = max_tx_per_tuning_cycle / max_concurrent_threads;
+	main_thread = current_collector_thread = 0;
+	running_transactions = 0;
+
   	/* Set on conflict callback */
 
 #else
@@ -445,10 +455,10 @@ void stm_wait(int id) {
 
 	int active_txs,max_txs,entered=0;
 	stm_time_t start_spin_time;
-	active_txs=tx_info_table[id][0];
-	max_txs=tx_info_table[id][1];
+	active_txs=running_transactions;
+	max_txs=max_allowed_running_transactions;
 	if(active_txs<max_txs){
-		if (ATOMIC_CAS_FULL(&tx_info_table[id][0], active_txs, active_txs+1) != 0){
+		if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1) != 0){
 			if(tx->i_am_the_collector_thread==1){
 				tx->first_start_tx_time=tx->last_start_tx_time=start_spin_time=STM_TIMER_READ();
 				tx->total_no_tx_time+=start_spin_time - tx->start_no_tx_time;
@@ -463,10 +473,10 @@ void stm_wait(int id) {
 		}
 		int cycle=300000,i=1;
 		while(1){
-			active_txs=tx_info_table[id][0];
-			max_txs=tx_info_table[id][1];
+			active_txs=running_transactions;
+			max_txs=max_allowed_running_transactions;
 			if(active_txs<max_txs)
-				if (ATOMIC_CAS_FULL(&tx_info_table[id][0], active_txs, active_txs+1) != 0) break;
+				if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1) != 0) break;
 			tx->i_am_waiting=1;
 			for(i=0;i<cycle;i++){
 				if(tx->i_am_waiting==0)break;
@@ -527,7 +537,7 @@ float get_throughput(float lambda, float *mu, int m) {
 
 inline void stm_tune_scheduler(){
 	TX_GET;
-	int m=tx_info_table[0][1];
+	int m=max_allowed_running_transactions;
 	stm_time_t now=STM_TIMER_READ();
 	stm_time_t total_tx_wasted_time=0;
 	stm_time_t total_tx_time=0;
@@ -592,10 +602,10 @@ inline void stm_tune_scheduler(){
 		th_minus_2=get_throughput(lambda,mu_k,m-2);
 	}else if(m>2)th_minus_1=get_throughput(lambda,mu_k,m-1);
 	if(th_minus_2 >= th && th_minus_2 >= th_minus_1) {
-		tx_info_table[0][1]-=2;
+		max_allowed_running_transactions-=2;
 		//printf("\nSelected th_minus_2");
 	}else if(th_minus_1>=th){
-		tx_info_table[0][1]--;
+		max_allowed_running_transactions--;
 		//printf("\nSelected th_minus_1");
 	}else if(m<max_concurrent_threads){
 		float avg_restart_k= (float)conflict_active_threads[m]/(float)commit_active_threads[m];
@@ -612,7 +622,7 @@ inline void stm_tune_scheduler(){
 		mu_k[m + 1]= 1.0/((w_m * avg_restart_k_plus_1) + u_m );
 		th_plus_1 = get_throughput(lambda,mu_k,m + 1);
 		if(th_plus_1 > th) {
-			tx_info_table[0][1]++;
+			max_allowed_running_transactions++;
 			//printf("\nSelected th_plus_1");
 		} else {
 			//printf("\nSelected th");
@@ -620,12 +630,12 @@ inline void stm_tune_scheduler(){
 	}//disanzo@dis.uniroma1.it
 
 	tx->start_no_tx_time=STM_TIMER_READ();
-	//printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), tx_info_table[0][1]);
-	//printf("\tTotal committed: %i",total_committed_transactions);
-	//printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) total_committed_transactions_by_collector_threads)));
-	//printf("\nAvg_running_tx: %f", avg_running_tx, 1.0);
-	//fflush(stdout);
-	//last_tuning_time=STM_TIMER_READ();
+	printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), max_allowed_running_transactions);
+	printf("\tTotal committed: %i",total_committed_transactions);
+	printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) total_committed_transactions_by_collector_threads)));
+	printf("\nAvg_running_tx: %f", avg_running_tx, 1.0);
+	fflush(stdout);
+	last_tuning_time=STM_TIMER_READ();
 
 }
 
@@ -661,9 +671,9 @@ stm_commit(void)
 #ifdef STM_MCATS
 	tx->committed_transactions++;
 	if (tx->i_am_the_collector_thread==1 && ret==1) {
-		stm_word_t active=tx_info_table[0][0];
+		stm_word_t active=running_transactions;
 		tx->start_no_tx_time=STM_TIMER_READ();
-		ATOMIC_FETCH_DEC_FULL(&tx_info_table[tx->attr.id][0]);
+		ATOMIC_FETCH_DEC_FULL(&running_transactions);
 		stm_time_t useful = tx->start_no_tx_time - tx->last_start_tx_time;
 		tx->last_k=0;
 		tx->total_wasted_time+=tx->last_start_tx_time-tx->first_start_tx_time;
@@ -679,9 +689,9 @@ stm_commit(void)
 
 	}else if(current_collector_thread==tx->thread_identifier){
 		tx->start_no_tx_time=STM_TIMER_READ();
-		ATOMIC_FETCH_DEC_FULL(&tx_info_table[tx->attr.id][0]);
+		ATOMIC_FETCH_DEC_FULL(&running_transactions);
 		tx->i_am_the_collector_thread=1;
-	}else ATOMIC_FETCH_DEC_FULL(&tx_info_table[tx->attr.id][0]);
+	}else ATOMIC_FETCH_DEC_FULL(&running_transactions);
 	stm_tx_t *transaction=_tinystm.threads;
 	int i;
 	for (i=1;i< max_concurrent_threads-1;i++){
