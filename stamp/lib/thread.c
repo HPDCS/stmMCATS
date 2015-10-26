@@ -153,7 +153,7 @@ thread_startup (long numThread)
     assert(global_threads == NULL);
     global_threads = (THREAD_T*)malloc(numThread * sizeof(THREAD_T));
     assert(global_threads);
-
+    printf("startEnergy()");
     startEnergy();
 
     /* Set up pool */
