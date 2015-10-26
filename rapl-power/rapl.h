@@ -19,10 +19,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 #ifndef _h_rapl
 #define _h_rapl
-
-float maxcpupower = 30.0f;       // in Watts
-float mincpupower = 18.0f;        // in Watts
-
 #include <stdint.h>
 
 #include <stdio.h>

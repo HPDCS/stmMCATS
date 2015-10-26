@@ -19,6 +19,11 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
  * Intel(r) Power Governor library implementation
  */
 
+
+float maxcpupower = 30.0f;       // in Watts
+float mincpupower = 18.0f;        // in Watts
+
+
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
