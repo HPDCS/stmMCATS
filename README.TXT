@@ -4,32 +4,15 @@ MCATS (Markov Chain-based Adaptive Transaction Scheduler) is an adaptive transac
 *Compile*
 - You can use "compile.sh" to compile TinySTM (with MCATS) and three applications of STAMP (Intruder, Yada and Vacation)
 
+*MCATS configuration*
+- MCATS requires the configuration file "mcast_conf.txt" in the path where the application is executed. The file should containts the following line:
+"TX_PER_CYCLE=X INITIAL_MAX_ADMITTED_TX=Y",
+where
+- X is the length of MCATS observation window in term of subsequect committed transactions ny a thread
+- Y is initial number of maximum admitted transactions by the scheduler  
+
 *Run*
-- To run an application, in addition to the input parameters required by the application (see STAMP documentation), the following ones are required by MCATS:
-	-z: length of the observation window in terms of number of executed transactions 
-	-y: initial number of concurrent transactions admitted by the scheduler
-	-w: number of tx classes (currenlty only one class is supported!)
-	
-Examples:
+To run one of the applications of STAMP, please, refer to "README" file inlcuded in the application code path        
 
-1) the following command
-"./intruder -a10 -l128 -n262144 -s1 -t8 -z1000 -y8 -w1"
-runs Intruder with:
-	- observation window=1000
-	- initial number of concurrent transactions equal to 8
-	- number of tx classes equal to 1
-
-2) the following command
-"./yada -a15 -i inputs/ttimeu100000.2 -t16 -z20000 -y6 -w1"
-runs Yada with:
-	- observation window=20000
-	- initial number of concurrent transactions equal to 6
-	- number of tx classes equal to 1
 	
-3) the following command
-"./vacation -n2 -q60 -u90 -r32768 -t1048576 -c4 -z5000 -y2 -w1"
-runs Yada with:
-	- observation window=5000
-	- initial number of concurrent transactions equal to 2
-	- number of tx classes equal to 1	
 	
