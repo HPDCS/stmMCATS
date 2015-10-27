@@ -1566,7 +1566,7 @@ void startEnergyIntel() {
 	int res = init_rapl();
 	if (res != 0) {
 		printf("RAPL could not be initialized\n");
-		exit(1);
+		return;
     }
     get_pkg_total_energy_consumed(0, &pSample);
 }
@@ -1577,7 +1577,7 @@ void endEnergyIntel() {
 	if (delta < 0) {
 		delta += MAX_ENERGY_STATUS_JOULES;
 	}
-	printf("\nEnergy = %0.6lf\n", delta);
+	printf("\nEnergy = %0.6lf", delta);
 }
 
 
