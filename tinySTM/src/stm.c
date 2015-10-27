@@ -296,7 +296,6 @@ void stm_init(int threads) {
 	}
 
 	tx_per_tuning_cycle = max_tx_per_tuning_cycle / max_concurrent_threads;
-	printf("\ntx_per_tuning_cycle = %i", tx_per_tuning_cycle);
 	main_thread = current_collector_thread = 0;
 	running_transactions = 0;
 

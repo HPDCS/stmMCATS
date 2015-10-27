@@ -209,7 +209,7 @@ process ()
 
         element_t* elementPtr;
 
-        TM_BEGIN(0);
+        TM_BEGIN();
         elementPtr = TMHEAP_REMOVE(workHeapPtr);
         TM_END();
         if (elementPtr == NULL) {
@@ -217,7 +217,7 @@ process ()
         }
 
         bool_t isGarbage;
-        TM_BEGIN(0);
+        TM_BEGIN();
         isGarbage = TMELEMENT_ISGARBAGE(elementPtr);
         TM_END();
         if (isGarbage) {
@@ -230,12 +230,12 @@ process ()
 
         long numAdded;
 
-        TM_BEGIN(0);
+        TM_BEGIN();
         PREGION_CLEARBAD(regionPtr);
         numAdded = TMREGION_REFINE(regionPtr, elementPtr, meshPtr);
         TM_END();
 
-        TM_BEGIN(0);
+        TM_BEGIN();
         TMELEMENT_SETISREFERENCED(elementPtr, FALSE);
         isGarbage = TMELEMENT_ISGARBAGE(elementPtr);
         TM_END();
@@ -248,7 +248,7 @@ process ()
 
         totalNumAdded += numAdded;
 
-        TM_BEGIN(0);
+        TM_BEGIN();
         TMREGION_TRANSFERBAD(regionPtr, workHeapPtr);
         TM_END();
 
@@ -256,7 +256,7 @@ process ()
 
     }
 
-    TM_BEGIN(0);
+    TM_BEGIN();
     TM_SHARED_WRITE(global_totalNumAdded,
                     TM_SHARED_READ(global_totalNumAdded) + totalNumAdded);
     TM_SHARED_WRITE(global_numProcess,

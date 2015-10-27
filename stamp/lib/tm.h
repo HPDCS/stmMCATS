@@ -492,6 +492,8 @@
 
 #    define TM_BEGIN(id)                TM_START(id,0)
 
+#    define TM_BEGIN()                TM_START(0,0)
+
 #    define TM_BEGIN_RO()               TM_START(1)
 
 #    define TM_END()                    stm_commit()
