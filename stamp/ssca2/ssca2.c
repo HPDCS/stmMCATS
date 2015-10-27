@@ -569,7 +569,7 @@ MAIN(argc, argv)
 	if (getenv("STM_STATS") != NULL) {
 		unsigned long u;
 		if (stm_get_global_stats("global_nb_commits", &u) != 0){
-			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(startTime, stopTime));
+			printf("\tThroughput: %f\n",u/totalTime);
 		}
 	}
     P_MEMORY_SHUTDOWN();

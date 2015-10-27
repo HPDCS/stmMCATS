@@ -349,13 +349,12 @@ MAIN(argc, argv)
      */
 
     TM_SHUTDOWN();
-    //Added for MCATS stats
-	if (getenv("STM_STATS") != NULL) {
-		unsigned long u;
-		if (stm_get_global_stats("global_nb_commits", &u) != 0){
-			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(start, stop));
-		}
-	}
+    if (getenv("STM_STATS") != NULL) {
+    		unsigned long u;
+    		if (stm_get_global_stats("global_nb_commits", &u) != 0){
+    			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(start, stop));
+    		}
+    	}
     P_MEMORY_SHUTDOWN();
 
     GOTO_SIM();
