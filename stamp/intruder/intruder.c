@@ -355,7 +355,7 @@ MAIN(argc, argv)
     stream_free(streamPtr);
     dictionary_free(dictionaryPtr);
     TM_SHUTDOWN();
-    //Aggiunta per stampa
+    //Added for MCATS stats
 	if (getenv("STM_STATS") != NULL) {
 		unsigned long u;
 		if (stm_get_global_stats("global_nb_commits", &u) != 0){

@@ -486,7 +486,7 @@ MAIN(argc, argv)
 
 #endif /* ENABLE_KERNEL4 */
 
-    //printf("\nTime taken for all is %9.6f sec.\n\n", totalTime);
+    printf("\tThreads: %i\tElapsed time: %f ",THREADS, totalTime);
 
     /* -------------------------------------------------------------------------
      * Cleanup
@@ -565,6 +565,13 @@ MAIN(argc, argv)
     P_FREE(SDGdata);
 
     TM_SHUTDOWN();
+    //Added for MCATS stats
+	if (getenv("STM_STATS") != NULL) {
+		unsigned long u;
+		if (stm_get_global_stats("global_nb_commits", &u) != 0){
+			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(startTime, stopTime));
+		}
+	}
     P_MEMORY_SHUTDOWN();
 
     GOTO_SIM();
