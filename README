@@ -8,11 +8,11 @@ MCATS (Markov Chain-based Adaptive Transaction Scheduler) is an adaptive transac
 - MCATS requires the configuration file "mcast_conf.txt" in the path where the application is executed. The file should containts the following line:
 "TX_PER_CYCLE=X INITIAL_MAX_ADMITTED_TX=Y",
 where
-- X is the length of MCATS observation window in term of subsequect committed transactions ny a thread
+- X is the length of MCATS observation window (number of subsequent committed transactions by a thread)
 - Y is initial number of maximum admitted transactions by the scheduler  
 
 *Run*
-To run one of the applications of STAMP, please, refer to "README" file inlcuded in the application code path        
+To run one of the STAMP applications, please, refer to the "README" file inlcuded in the application path        
 
 	
 	
