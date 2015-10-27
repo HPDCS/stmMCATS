@@ -469,7 +469,7 @@ MAIN(argc, argv)
     GOTO_REAL();
     TIMER_READ(stop);
     //puts("done.");
-    printf("\nThreads: %i\tElapsed time: %fs ",numThread, TIMER_DIFF_SECONDS(start, stop));
+    printf("\tThreads: %i\tElapsed time: %fs ",numThread, TIMER_DIFF_SECONDS(start, stop));
     fflush(stdout);
     checkTables(managerPtr);
 

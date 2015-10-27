@@ -12,7 +12,7 @@
 CFLAGS   += -DSTM -I$(STM)/include
 CPPFLAGS := $(CFLAGS)
 LDFLAGS  += -L$(STM)/lib
-LIBS     += -lstm
+LIBS     += -lstm -L../../rapl-power -lrapl
 
 
 # ==============================================================================

@@ -449,7 +449,7 @@ stm_pre_init_thread(int id){
 	return tx;
 }
 
-void stm_wait(int id) {
+inline void stm_wait(int id) {
 
 	TX_GET;
 
@@ -494,11 +494,6 @@ void stm_wait(int id) {
 
 
 }
-
-void stm_signal() {
-	return;
-}
-
 
 float get_throughput(float lambda, float *mu, int m) {
 	int N=max_concurrent_threads;
@@ -627,7 +622,7 @@ inline void stm_tune_scheduler(){
 		} else {
 			//printf("\nSelected th");
 		}
-	}//disanzo@dis.uniroma1.it
+	}//
 
 	tx->start_no_tx_time=STM_TIMER_READ();
 	printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), max_allowed_running_transactions);
@@ -644,9 +639,6 @@ _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
 	return stm_init_thread();
 }
 void stm_wait(int id) {
-
-}
-void stm_signal() {
 
 }
 

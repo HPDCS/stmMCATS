@@ -338,7 +338,7 @@ MAIN(argc, argv)
     TIMER_READ(stop);
 
     //puts(" done.");
-    printf("\nThreads: %i\tElapsed time: %0.3lf ", global_numThread, TIMER_DIFF_SECONDS(start, stop));
+    printf("\tThreads: %i\tElapsed time: %0.3lf ", global_numThread, TIMER_DIFF_SECONDS(start, stop));
     fflush(stdout);
 
     /*
