@@ -296,6 +296,7 @@ void stm_init(int threads) {
 	}
 
 	tx_per_tuning_cycle = max_tx_per_tuning_cycle / max_concurrent_threads;
+	printf("\ntx_per_tuning_cycle = %i", tx_per_tuning_cycle);
 	main_thread = current_collector_thread = 0;
 	running_transactions = 0;
 
@@ -596,7 +597,7 @@ inline void stm_tune_scheduler(){
 		th_minus_1=get_throughput(lambda,mu_k,m-1);
 		th_minus_2=get_throughput(lambda,mu_k,m-2);
 	}else if(m>2)th_minus_1=get_throughput(lambda,mu_k,m-1);
-	if(th_minus_2 >= th && th_minus_2 >= th_minus_1) {
+	if(th_minus_2 >= th && th_minus_2 >= th_minus_1 && m>3) {
 		max_allowed_running_transactions-=2;
 		//printf("\nSelected th_minus_2");
 	}else if(th_minus_1>=th){
@@ -626,7 +627,7 @@ inline void stm_tune_scheduler(){
 
 	tx->start_no_tx_time=STM_TIMER_READ();
 	printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), max_allowed_running_transactions);
-	printf("\tTotal committed: %i",total_committed_transactions);
+	printf("\tTotal commits: %i (as a collector: %i",total_committed_transactions, total_committed_transactions_by_collector_threads);
 	printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) total_committed_transactions_by_collector_threads)));
 	printf("\nAvg_running_tx: %f", avg_running_tx, 1.0);
 	fflush(stdout);
