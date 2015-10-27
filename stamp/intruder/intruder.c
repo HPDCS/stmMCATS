@@ -92,9 +92,6 @@ enum param_types {
     PARAM_NUM    				= (unsigned char)'n',
     PARAM_SEED   				= (unsigned char)'s',
     PARAM_THREAD			 	= (unsigned char)'t',
-	PARAM_TX_CLASSES			= (unsigned char)'w',
-	PARAM_INITIAL_MAX_TX_PER_CLASS	= (unsigned char)'y',
-	PARAM_MAX_TX_PER_TUNING_CYCLE	= (unsigned char)'z',
 };
 
 enum param_defaults {
@@ -103,9 +100,6 @@ enum param_defaults {
     PARAM_DEFAULT_NUM    = 1 << 20,
     PARAM_DEFAULT_SEED   = 1,
     PARAM_DEFAULT_THREAD = 1,
-	PARAM_DEFAULT_TX_CLASSES = 1,
-	PARAM_IDEFAULT_NITIAL_MAX_TX_PER_CLASS = 1,
-	PARAM_DEFAULT_MAX_TX_PER_TUNING_CYCLE =1
 };
 
 long global_params[256] = { /* 256 = ascii limit */
@@ -113,10 +107,7 @@ long global_params[256] = { /* 256 = ascii limit */
 		[PARAM_LENGTH] = PARAM_DEFAULT_LENGTH,
 		[PARAM_NUM]    = PARAM_DEFAULT_NUM,
 		[PARAM_SEED]   = PARAM_DEFAULT_SEED,
-		[PARAM_THREAD] 		= PARAM_DEFAULT_THREAD,
-		[PARAM_TX_CLASSES]			= PARAM_DEFAULT_TX_CLASSES,
-		[PARAM_INITIAL_MAX_TX_PER_CLASS]	= PARAM_IDEFAULT_NITIAL_MAX_TX_PER_CLASS,
-		[PARAM_MAX_TX_PER_TUNING_CYCLE]	PARAM_DEFAULT_MAX_TX_PER_TUNING_CYCLE
+		[PARAM_THREAD] = PARAM_DEFAULT_THREAD,
 };
 
 typedef struct arg {
@@ -158,16 +149,13 @@ parseArgs (long argc, char* const argv[])
 
     opterr = 0;
 
-    while ((opt = getopt(argc, argv, "a:l:n:s:t:w:y:z:")) != -1) {
+    while ((opt = getopt(argc, argv, "a:l:n:s:t:")) != -1) {
         switch (opt) {
             case 'a':
             case 'l':
             case 'n':
             case 's':
             case 't':
-            case 'w':
-            case 'y':
-            case 'z':
                 global_params[(unsigned char)opt] = atol(optarg);
                 break;
             case '?':
@@ -273,17 +261,8 @@ MAIN(argc, argv)
     setenv("STM_STATS","1",0);
     parseArgs(argc, (char** const)argv);
     long nthreads = global_params[PARAM_THREAD];
-    unsigned int tx_classes= global_params[PARAM_TX_CLASSES];
-    unsigned int initial_max_tx_per_class= global_params[PARAM_INITIAL_MAX_TX_PER_CLASS];
-    unsigned int max_tx_per_tuning_cycle= global_params[PARAM_MAX_TX_PER_TUNING_CYCLE];
     SIM_GET_NUM_CPU(nthreads);
 
-
-#ifdef STM_MCATS
-    TM_STARTUP(nthreads, tx_classes, initial_max_tx_per_class, max_tx_per_tuning_cycle);
-#else
-    TM_STARTUP(nthreads);
-#endif
     P_MEMORY_STARTUP(nthreads);
     thread_startup(nthreads);
 

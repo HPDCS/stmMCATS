@@ -1554,7 +1554,7 @@ void endEnergyAMD()
         if(total_time > 0 && maxfreq > 0)
             delta_power += (maxcpupower - rangecpupower * ret / maxfreq) * delta[ret].count / 100;//Watt * 10ms
     }
-    printf("\Power: %f", delta_power);
+    printf("\nPower: %f", delta_power);
 }
 
 /* RAPL stuff */

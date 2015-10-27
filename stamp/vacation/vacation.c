@@ -97,9 +97,6 @@ enum param_types {
     PARAM_RELATIONS    = (unsigned char)'r',
     PARAM_TRANSACTIONS = (unsigned char)'t',
     PARAM_USER         = (unsigned char)'u',
-	PARAM_TX_CLASSES			= (unsigned char)'w',
-	PARAM_INITIAL_MAX_TX_PER_CLASS	= (unsigned char)'y',
-	PARAM_MAX_TX_PER_TUNING_CYCLE	= (unsigned char)'z'
 };
 
 #define PARAM_DEFAULT_CLIENTS      (1)
@@ -108,9 +105,6 @@ enum param_types {
 #define PARAM_DEFAULT_RELATIONS    (1 << 16)
 #define PARAM_DEFAULT_TRANSACTIONS (1 << 26)
 #define PARAM_DEFAULT_USER         (80)
-#define PARAM_DEFAULT_TX_CLASSES	(1)
-#define PARAM_IDEFAULT_NITIAL_MAX_TX_PER_CLASS	(1)
-#define PARAM_DEFAULT_MAX_TX_PER_TUNING_CYCLE	(1000)
 
 double global_params[256]; /* 256 = ascii limit */
 
@@ -153,10 +147,6 @@ setDefaultParams ()
     global_params[PARAM_RELATIONS]    = PARAM_DEFAULT_RELATIONS;
     global_params[PARAM_TRANSACTIONS] = PARAM_DEFAULT_TRANSACTIONS;
     global_params[PARAM_USER]         = PARAM_DEFAULT_USER;
-    global_params[PARAM_TX_CLASSES]	  = PARAM_DEFAULT_TX_CLASSES;
-    global_params[PARAM_INITIAL_MAX_TX_PER_CLASS]	 	= PARAM_IDEFAULT_NITIAL_MAX_TX_PER_CLASS;
-    global_params[PARAM_MAX_TX_PER_TUNING_CYCLE]		= PARAM_DEFAULT_MAX_TX_PER_TUNING_CYCLE;
-
 }
 
 /* =============================================================================
@@ -173,7 +163,7 @@ parseArgs (long argc, char* const argv[])
 
     setDefaultParams();
 
-    while ((opt = getopt(argc, argv, "c:n:q:r:t:u:w:y:z:")) != -1) {
+    while ((opt = getopt(argc, argv, "c:n:q:r:t:u:")) != -1) {
         switch (opt) {
             case 'c':
             case 'n':
@@ -181,9 +171,6 @@ parseArgs (long argc, char* const argv[])
             case 'r':
             case 't':
             case 'u':
-            case 'w':
-            case 'y':
-            case 'z':
                 global_params[(unsigned char)opt] = atol(optarg);
                 break;
             case '?':
@@ -435,21 +422,15 @@ MAIN(argc, argv)
     setenv("STM_STATS","1",0);
     parseArgs(argc, (char** const)argv);
     long nthreads = global_params[PARAM_CLIENTS];
-    unsigned int tx_classes= global_params[PARAM_TX_CLASSES];
-    unsigned int initial_max_tx_per_class= global_params[PARAM_INITIAL_MAX_TX_PER_CLASS];
-    unsigned int max_tx_per_tuning_cycle= global_params[PARAM_MAX_TX_PER_TUNING_CYCLE];
     SIM_GET_NUM_CPU(global_params[PARAM_CLIENTS]);
     managerPtr = initializeManager();
     assert(managerPtr != NULL);
     clients = initializeClients(managerPtr);
     assert(clients != NULL);
     long numThread = global_params[PARAM_CLIENTS];
-    int  max_tx_per_class[TX_CLASS_NUMBER];
-#ifdef STM_MCATS
-    TM_STARTUP(nthreads, tx_classes, initial_max_tx_per_class, max_tx_per_tuning_cycle);
-#else
+
     TM_STARTUP(nthreads);
-#endif
+
     P_MEMORY_STARTUP(numThread);
     thread_startup(numThread);
 
