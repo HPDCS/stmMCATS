@@ -520,11 +520,11 @@ float get_throughput(float lambda, float *mu, int m) {
 	//th
 	for (k=1;k<=m;k++){
 		th+=p[k]*k*mu[k];
-		printf("\np[%i] %f - c[%i] %f", kp[k], k, mu[k]);
+		printf("\np[%i] %f - c[%i] %f", k, p[k], k, mu[k]);
 	}
 	for (k=m+1;k<=N;k++){
 		th+=p[k]*m*mu[m];
-		printf("\np[%i] %f - c[%i] %f", kp[k], k, mu[k]);
+		printf("\np[%i] %f - c[%i] %f", k, p[k], m, mu[m]);
 	}
 
 	return th;
