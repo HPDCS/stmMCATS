@@ -512,6 +512,7 @@ float get_throughput(float lambda, float *mu, int m) {
 				b+=c[k];
 			}
 	}
+	printf("\na: %f, b: %f",a,b);
 	p[0]=1/(1+a+b);
 	for (k=1;k<=N;k++){
 		p[k]=p[0]*c[k];
