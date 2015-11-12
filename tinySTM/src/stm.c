@@ -248,7 +248,7 @@ signal_catcher(int sig)
 inline void update_conflict_table(int id1, int id2) {
 		TX_GET;
 		tx->aborted_transactions++;
-		tx->last_k=running_trensactions;
+		tx->last_k=running_transactions;
 		tx->total_conflict_per_active_transactions[tx->last_k]++;
 }
 
@@ -660,7 +660,7 @@ stm_commit(void)
 {
 	TX_GET;
 	int ret;
-	tx->last_k=running_trensactions;
+	tx->last_k=running_transactions;
 	ret=int_stm_commit(tx);
 #ifdef STM_MCATS
 	tx->committed_transactions++;
