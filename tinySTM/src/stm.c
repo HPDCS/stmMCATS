@@ -460,7 +460,7 @@ inline void stm_wait(int id) {
 	max_txs=max_allowed_running_transactions;
 
 	ATOMIC_FETCH_INC_FULL(threads_in_transaction);
-	printf("\nthreads_in_transaction: %i", nthreads_in_transaction);
+	printf("\nthreads_in_transaction: %i", threads_in_transaction);
 
 	if(active_txs<max_txs){
 		if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1) != 0){
