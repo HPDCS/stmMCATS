@@ -262,7 +262,7 @@ MAIN(argc, argv)
     parseArgs(argc, (char** const)argv);
     long nthreads = global_params[PARAM_THREAD];
     SIM_GET_NUM_CPU(nthreads);
-
+    TM_STARTUP(nthreads);
     P_MEMORY_STARTUP(nthreads);
     thread_startup(nthreads);
 

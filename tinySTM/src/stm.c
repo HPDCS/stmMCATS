@@ -431,6 +431,8 @@ _CALLCONV stm_tx_t *
 stm_pre_init_thread(int id){
 	stm_tx_t *tx;
 	tx=stm_init_thread();
+	printf("after stm_init_thread");
+	fflush(stdout);
 	tx->total_tx_wasted_per_active_transactions=(stm_time_t*)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	tx->total_tx_committed_per_active_transactions=(long*)malloc((max_concurrent_threads+1)*sizeof(long));
 	tx->total_tx_useful_per_active_transactions = (stm_time_t *)malloc((max_concurrent_threads +1) * sizeof(stm_time_t));
