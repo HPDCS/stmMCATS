@@ -575,7 +575,7 @@ inline void stm_tune_scheduler(){
 		reset_local_stats(thread);
 		thread=thread->next;
 	}
-	printf("\ntotal_tx_time %llu, total_tx_wasted_time %llu, total_committed_transactions_by_collector_threads %i, total_tx_time", total_tx_wasted_time, total_committed_transactions_by_collector_threads);
+	printf("\ntotal_tx_time %llu, total_tx_wasted_time %llu, total_committed_transactions_by_collector_threads %i", total_tx_time, total_tx_wasted_time, total_committed_transactions_by_collector_threads);
 	avg_running_tx=avg_running_tx/(float)total_committed_transactions_by_collector_threads;
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
 	float lambda = 1.0 / (((float) total_no_tx_time/(float)1000000)/(float) total_committed_transactions_by_collector_threads);
