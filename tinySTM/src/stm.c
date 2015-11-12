@@ -478,9 +478,10 @@ inline void stm_wait(int id) {
 			if(active_txs<max_txs)
 				if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1) != 0) break;
 			tx->i_am_waiting=1;
-			for(i=0;i<cycle;i++){
-				if(tx->i_am_waiting==0)break;
-			}
+			usleep(1);
+			//for(i=0;i<cycle;i++){
+			//	if(tx->i_am_waiting==0)break;
+			//}
 			tx->i_am_waiting=0;
 		}
 	}
