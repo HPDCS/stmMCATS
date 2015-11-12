@@ -1103,7 +1103,7 @@ stm_rollback(stm_tx_t *tx, unsigned int reason)
 		  printf(" %i", tx->last_k);
 		  fflush(stdout);
 	  }
-	  if (tx->last_k) printf("k is zero");
+	  if (tx->last_k==0) printf("k is zero - ");
 	  tx->last_start_tx_time=conflict_time;
   }
 #endif
