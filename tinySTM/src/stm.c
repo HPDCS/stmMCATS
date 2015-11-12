@@ -258,7 +258,6 @@ void reset_local_stats(stm_tx_t *tx){
 	  tx->total_wasted_time=0;
 	  tx->total_spin_time=0;
 	  tx->start_no_tx_time=0;
-	  tx->last_k=0;
 	  tx->committed_transactions_as_a_collector_thread=0;
 	  tx->committed_transactions=0;
 	  tx->aborted_transactions=0;
