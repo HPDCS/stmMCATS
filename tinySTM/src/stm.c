@@ -564,7 +564,7 @@ inline void stm_tune_scheduler(){
 
 		for(i=0;i<max_concurrent_threads+1;i++){
 			wasted_time_k[i]+=thread->total_tx_wasted_per_active_transactions[i];
-			printf("\nwasted_time_k[%i] %llu", i, thread->total_tx_wasted_per_active_transactions[i]);
+			//printf("\nwasted_time_k[%i] %llu", i, thread->total_tx_wasted_per_active_transactions[i]);
 			useful_time_k[i]+=thread->total_tx_useful_per_active_transactions[i];
 			commit_active_threads[i]+=thread->total_tx_committed_per_active_transactions[i];
 			avg_running_tx+=(float)i * (float) thread->total_tx_committed_per_active_transactions[i];
@@ -624,11 +624,11 @@ inline void stm_tune_scheduler(){
 	}//
 
 	tx->start_no_tx_time=STM_TIMER_READ();
-	printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), max_allowed_running_transactions);
-	printf("\tTotal commits: %i (as a collector: %i)",total_committed_transactions, total_committed_transactions_by_collector_threads);
-	printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) total_committed_transactions_by_collector_threads)));
-	printf("\nAvg_running_tx: %f", avg_running_tx, 1.0);
-	fflush(stdout);
+	//printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), max_allowed_running_transactions);
+	//printf("\tTotal commits: %i (as a collector: %i)",total_committed_transactions, total_committed_transactions_by_collector_threads);
+	//printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) total_committed_transactions_by_collector_threads)));
+	//printf("\nAvg_running_tx: %f", avg_running_tx, 1.0);
+	//fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
 
 }
