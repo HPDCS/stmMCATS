@@ -249,6 +249,7 @@ inline void update_conflict_table(int id1, int id2) {
 		TX_GET;
 		tx->aborted_transactions++;
 		tx->last_k=running_transactions;
+		printf("k is = %i", tx->last_k);
 		tx->total_conflict_per_active_transactions[tx->last_k]++;
 }
 
