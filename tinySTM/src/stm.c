@@ -524,11 +524,11 @@ float get_throughput(float lambda, float *mu, int m) {
 	//th
 	for (k=1;k<=m;k++){
 		th+=p[k]*k*mu[k];
-		printf("\np[%i] %f - c[%i] %f", k, p[k], k, mu[k]);
+		//printf("\np[%i] %f - c[%i] %f", k, p[k], k, mu[k]);
 	}
 	for (k=m+1;k<=N;k++){
 		th+=p[k]*m*mu[m];
-		printf("\np[%i] %f - c[%i] %f", k, p[k], m, mu[m]);
+		//printf("\np[%i] %f - c[%i] %f", k, p[k], m, mu[m]);
 	}
 
 	return th;
@@ -570,7 +570,7 @@ inline void stm_tune_scheduler(){
 
 		for(i=0;i<max_concurrent_threads+1;i++){
 			wasted_time_k[i]+=thread->total_tx_wasted_per_active_transactions[i];
-			//printf("\nwasted_time_k[%i] %llu", i, thread->total_tx_wasted_per_active_transactions[i]);
+			printf("\nwasted_time_k[%i] %llu", i, thread->total_tx_wasted_per_active_transactions[i]);
 			useful_time_k[i]+=thread->total_tx_useful_per_active_transactions[i];
 			commit_active_threads[i]+=thread->total_tx_committed_per_active_transactions[i];
 			avg_running_tx+=(float)i * (float) thread->total_tx_committed_per_active_transactions[i];
