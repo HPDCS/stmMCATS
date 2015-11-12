@@ -76,6 +76,7 @@ global_t _tinystm =
 
 #  ifdef STM_MCATS
 	volatile stm_word_t running_transactions;
+	volatile stm_word_t threads_in_transaction;
 	volatile stm_word_t max_allowed_running_transactions;
 	unsigned long max_concurrent_threads;
 	int tx_per_tuning_cycle;
@@ -248,7 +249,7 @@ signal_catcher(int sig)
 inline void update_conflict_table(int id1, int id2) {
 		TX_GET;
 		tx->aborted_transactions++;
-		tx->last_k=running_transactions;
+		tx->last_k=threads_in_transaction;
 		tx->total_conflict_per_active_transactions[tx->last_k]++;
 }
 
@@ -297,6 +298,7 @@ void stm_init(int threads) {
 	tx_per_tuning_cycle = max_tx_per_tuning_cycle / max_concurrent_threads;
 	main_thread = current_collector_thread = 0;
 	running_transactions = 0;
+	threads_in_transaction = 0;
 
   	/* Set on conflict callback */
 
@@ -456,6 +458,10 @@ inline void stm_wait(int id) {
 	stm_time_t start_spin_time;
 	active_txs=running_transactions;
 	max_txs=max_allowed_running_transactions;
+
+	ATOMIC_FETCH_INC_FULL(threads_in_transaction);
+	printf("\nthreads_in_transaction: %i", nthreads_in_transaction);
+
 	if(active_txs<max_txs){
 		if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1) != 0){
 			if(tx->i_am_the_collector_thread==1){
@@ -481,7 +487,6 @@ inline void stm_wait(int id) {
 				if(tx->i_am_waiting==0)break;
 			}
 			tx->i_am_waiting=0;
-
 		}
 	}
 	//Initialization of parameters
@@ -660,7 +665,7 @@ stm_commit(void)
 {
 	TX_GET;
 	int ret;
-	tx->last_k=running_transactions;
+	tx->last_k=threads_in_transaction;
 	ret=int_stm_commit(tx);
 #ifdef STM_MCATS
 	tx->committed_transactions++;
@@ -668,6 +673,7 @@ stm_commit(void)
 		stm_word_t active=running_transactions;
 		tx->start_no_tx_time=STM_TIMER_READ();
 		ATOMIC_FETCH_DEC_FULL(&running_transactions);
+		ATOMIC_FETCH_DEC_FULL(threads_in_transaction);
 		stm_time_t useful = tx->start_no_tx_time - tx->last_start_tx_time;
 		tx->total_wasted_time+=tx->last_start_tx_time-tx->first_start_tx_time;
 		tx->committed_transactions_as_a_collector_thread++;
