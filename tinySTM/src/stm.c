@@ -579,7 +579,7 @@ inline void stm_tune_scheduler(){
 	printf("\ntotal_tx_time %llu, total_tx_wasted_time %llu, total_no_tx_time %llu, total_committed_transactions_by_collector_threads %i", total_tx_time, total_tx_wasted_time, total_no_tx_time, total_committed_transactions_by_collector_threads);
 	avg_running_tx=avg_running_tx/(float)total_committed_transactions_by_collector_threads;
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
-	float lambda = 1.0 / (((float) total_no_tx_time/(float)1000000000)/(float) total_committed_transactions_by_collector_threads);
+	float lambda = 1.0 / (((float) total_no_tx_time/(float)1000000)/(float) total_committed_transactions_by_collector_threads);
 	for (i=0;i<max_concurrent_threads+1;i++){
 		if(0 && (wasted_time_k[i]>0 || useful_time_k[i]>0) && commit_active_threads[i] > 0){
 			mu_k[i]= 1.0 / ((((float) wasted_time_k[i] / (float)1000000000) / (float)commit_active_threads[i]) + (((float) useful_time_k[i]/(float)1000000000) / (float) commit_active_threads[i]));
@@ -611,11 +611,11 @@ inline void stm_tune_scheduler(){
 		float avg_restart_k_plus_1 = ((1.0 - pow((1.0 - p_a_1),m))/ pow((1-p_a_1),m));
 		float w_m=0.0,u_m=0.0;
 		if(conflict_active_threads[m]>0)
-			w_m=((float)wasted_time_k[m]/(float)1000000)/(float)conflict_active_threads[m];
-		else if(tx_conflict_table_times>0)w_m=((float)total_tx_wasted_time/(float)1000000)/(float)tx_conflict_table_times;
+			w_m=((float)wasted_time_k[m]/(float)1000000000)/(float)conflict_active_threads[m];
+		else if(tx_conflict_table_times>0)w_m=((float)total_tx_wasted_time/(float)1000000000)/(float)tx_conflict_table_times;
 		if(commit_active_threads[m]>0)
-			u_m = ((float)useful_time_k[m]/(float)1000000)/(float)commit_active_threads[m];
-		else u_m = ((float)total_tx_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads;
+			u_m = ((float)useful_time_k[m]/(float)1000000000)/(float)commit_active_threads[m];
+		else u_m = ((float)total_tx_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads;
 		mu_k[m + 1]= 1.0/((w_m * avg_restart_k_plus_1) + u_m );
 		th_plus_1 = get_throughput(lambda,mu_k,m + 1);
 		if(th_plus_1 > th) {
@@ -627,9 +627,9 @@ inline void stm_tune_scheduler(){
 	}//
 
 	tx->start_no_tx_time=STM_TIMER_READ();
-	printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000), max_allowed_running_transactions);
+	printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000000), max_allowed_running_transactions);
 	printf("\tTotal commits: %i (as a collector: %i)",total_committed_transactions, total_committed_transactions_by_collector_threads);
-	printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000) / (float) total_committed_transactions_by_collector_threads)));
+	printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads)));
 	printf("\nAvg_running_tx: %f", avg_running_tx, 1.0);
 	fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
