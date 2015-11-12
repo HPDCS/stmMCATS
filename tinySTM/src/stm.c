@@ -459,8 +459,7 @@ inline void stm_wait(int id) {
 	active_txs=running_transactions;
 	max_txs=max_allowed_running_transactions;
 
-	ATOMIC_FETCH_INC_FULL(threads_in_transaction);
-	printf("\nthreads_in_transaction: %i", threads_in_transaction);
+	ATOMIC_FETCH_INC_FULL(&threads_in_transaction);
 
 	if(active_txs<max_txs){
 		if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1) != 0){
@@ -669,11 +668,12 @@ stm_commit(void)
 	ret=int_stm_commit(tx);
 #ifdef STM_MCATS
 	tx->committed_transactions++;
+	ATOMIC_FETCH_DEC_FULL(&threads_in_transaction);
 	if (tx->i_am_the_collector_thread==1 && ret==1) {
 		stm_word_t active=running_transactions;
 		tx->start_no_tx_time=STM_TIMER_READ();
 		ATOMIC_FETCH_DEC_FULL(&running_transactions);
-		ATOMIC_FETCH_DEC_FULL(threads_in_transaction);
+
 		stm_time_t useful = tx->start_no_tx_time - tx->last_start_tx_time;
 		tx->total_wasted_time+=tx->last_start_tx_time-tx->first_start_tx_time;
 		tx->committed_transactions_as_a_collector_thread++;
