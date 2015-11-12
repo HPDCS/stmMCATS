@@ -1100,6 +1100,7 @@ stm_rollback(stm_tx_t *tx, unsigned int reason)
 	  stm_time_t conflict_time=STM_TIMER_READ();
 	  tx->total_tx_wasted_per_active_transactions[tx->last_k]+=conflict_time - tx->last_start_tx_time;
 	  printf(" %i", tx->last_k);
+	  fflush(stdout);
 	  tx->last_start_tx_time=conflict_time;
   }
 #endif
