@@ -660,6 +660,7 @@ stm_commit(void)
 {
 	TX_GET;
 	int ret;
+	tx->last_k=running_transactions;
 	ret=int_stm_commit(tx);
 #ifdef STM_MCATS
 	tx->committed_transactions++;
