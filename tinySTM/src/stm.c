@@ -667,7 +667,6 @@ stm_commit(void)
 		tx->start_no_tx_time=STM_TIMER_READ();
 		ATOMIC_FETCH_DEC_FULL(&running_transactions);
 		stm_time_t useful = tx->start_no_tx_time - tx->last_start_tx_time;
-		tx->last_k=0;
 		tx->total_wasted_time+=tx->last_start_tx_time-tx->first_start_tx_time;
 		tx->committed_transactions_as_a_collector_thread++;
 		tx->total_tx_useful_per_active_transactions[active]+=useful;
