@@ -37,7 +37,7 @@
 #include "utils.h"
 #include "atomic.h"
 #include "gc.h"
-#include "rapl.h"
+#include "../../rapl-power/rapl.h"
 
 /* ################################################################### *
  * DEFINES

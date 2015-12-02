@@ -1623,7 +1623,7 @@ void endEnergyIntel() {
 		delta_pp0en += MAX_ENERGY_STATUS_JOULES;
 	}
 
-	printf("\nElapsed time: %.2f s"
+	printf("\nElapsed time: %.6f s"
            "\nTot PP0 energy: %0.6lf J"
            "\nAvg PP0 power: %0.6lf W\n",
            elapsedTime,
