@@ -37,6 +37,7 @@
 #include "utils.h"
 #include "atomic.h"
 #include "gc.h"
+#include "rapl.h"
 
 /* ################################################################### *
  * DEFINES
@@ -298,6 +299,11 @@ void stm_init(int threads) {
 	main_thread = current_collector_thread = 0;
 	running_transactions = 0;
 
+	if (init_rapl() != 0) {
+		printf("\nRAPL could not be initialized\n");
+		exit(1);
+	}
+
   	/* Set on conflict callback */
 
 #else
@@ -377,6 +383,8 @@ stm_exit(void)
     return;
   tls_exit();
   stm_quiesce_exit();
+
+  terminate_rapl();
 
 #ifdef EPOCH_GC
   gc_exit();
@@ -538,6 +546,7 @@ float get_throughput(float lambda, float *mu, int m) {
 inline void stm_tune_scheduler(){
 	TX_GET;
 	int m=max_allowed_running_transactions;
+    endEnergy();
 	stm_time_t now=STM_TIMER_READ();
 	stm_time_t total_tx_wasted_time=0;
 	stm_time_t total_tx_time=0;
@@ -636,6 +645,7 @@ inline void stm_tune_scheduler(){
 	printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads)));
 	printf("\nAvg_running_tx: %f", avg_running_tx, 1.0);
 	fflush(stdout);
+    startEnergy();
 	last_tuning_time=STM_TIMER_READ();
 
 }

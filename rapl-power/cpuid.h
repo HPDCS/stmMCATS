@@ -27,5 +27,6 @@ typedef struct cpuid_info_t {
 void cpuid(uint32_t eax_in, uint32_t ecx_in, cpuid_info_t *info);
 uint32_t get_processor_signature();
 cpuid_info_t get_processor_topology(uint32_t level);
+void get_vendor(char* vendor);
 
 #endif
