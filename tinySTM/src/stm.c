@@ -603,8 +603,6 @@ inline void stm_tune_scheduler(){
 		}
 	}//disanzo@dis.uniroma1.it
 
-
-
 	float th = get_throughput(lambda,mu_k,m);
 	float th_minus_1=0.0,th_plus_1=0.0,th_minus_2=0.0;
 	if(m>3){

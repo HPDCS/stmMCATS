@@ -273,7 +273,8 @@ MAIN(argc, argv)
     //printf("Percent attack  = %li\n", percentAttack);
     //printf("Max data length = %li\n", maxDataLength);
     //printf("Num flow        = %li\n", numFlow);
-    //printf("Random seed     = %li\n", randomSeed);
+    printf("Random seed     = %li\n", randomSeed);
+    fflush(stdout);
 
     dictionary_t* dictionaryPtr = dictionary_alloc();
     assert(dictionaryPtr);
