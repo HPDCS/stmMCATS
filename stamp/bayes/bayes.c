@@ -250,7 +250,7 @@ MAIN(argc, argv)
     SIM_GET_NUM_CPU(numThread);
 
 
-    TM_STARTUP(nthreads);
+    TM_STARTUP(numThread);
 
     P_MEMORY_STARTUP(numThread);
     thread_startup(numThread);
