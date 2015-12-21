@@ -113,7 +113,7 @@ threadWait (void* argPtr)
         global_funcPtr(global_argPtr);
         THREAD_BARRIER(global_barrierPtr, threadId); /* wait for end parallel */
         if (threadId == 0) {
-        	endEnergy();
+
             break;
         }
     }
@@ -153,8 +153,6 @@ thread_startup (long numThread)
     assert(global_threads == NULL);
     global_threads = (THREAD_T*)malloc(numThread * sizeof(THREAD_T));
     assert(global_threads);
-
-    startEnergy();
 
     /* Set up pool */
     THREAD_ATTR_INIT(global_threadAttr);
