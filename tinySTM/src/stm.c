@@ -441,7 +441,6 @@ _CALLCONV stm_tx_t *
 stm_pre_init_thread(int id){
 	stm_tx_t *tx;
 	tx=stm_init_thread();
-	fflush(stdout);
 	tx->total_tx_wasted_per_active_transactions=(stm_time_t*)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	tx->total_tx_committed_per_active_transactions=(long*)malloc((max_concurrent_threads+1)*sizeof(long));
 	tx->total_tx_useful_per_active_transactions = (stm_time_t *)malloc((max_concurrent_threads +1) * sizeof(stm_time_t));
@@ -547,7 +546,7 @@ float get_throughput(float lambda, float *mu, int m) {
 inline void stm_tune_scheduler(){
 	TX_GET;
 	int m=max_allowed_running_transactions;
-    endEnergy();
+    //endEnergy();
 	stm_time_t now=STM_TIMER_READ();
 	stm_time_t total_tx_wasted_time=0;
 	stm_time_t total_tx_time=0;
@@ -644,7 +643,7 @@ inline void stm_tune_scheduler(){
 	printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads)));
 	printf("\nAvg_running_tx: %f", avg_running_tx, 1.0);
 	fflush(stdout);
-    startEnergy();
+    //startEnergy();
 	last_tuning_time=STM_TIMER_READ();
 
 }
