@@ -450,7 +450,7 @@ MAIN(argc, argv)
     GOTO_REAL();
     TIMER_READ(stop);
     //puts("done.");
-    printf("\tThreads: %i\tElapsed time: %fs ",numThread, TIMER_DIFF_SECONDS(start, stop));
+    printf("Threads: %i\tElapsed time: %f",numThread, TIMER_DIFF_SECONDS(start, stop));
     fflush(stdout);
     checkTables(managerPtr);
 
@@ -469,7 +469,7 @@ MAIN(argc, argv)
 	if (getenv("STM_STATS") != NULL) {
 		unsigned long u;
 		if (stm_get_global_stats("global_nb_commits", &u) != 0){
-			printf("\tThroughput : %f\n",u/TIMER_DIFF_SECONDS(start, stop));
+			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(start, stop));
 		}
 	}
 

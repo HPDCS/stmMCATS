@@ -79,6 +79,8 @@
 #include "tm.h"
 #include "types.h"
 
+#define TX_CLASS_NUMBER 15
+
 enum param_types {
     PARAM_EDGE    = (unsigned char)'e',
     PARAM_INSERT  = (unsigned char)'i',
@@ -246,10 +248,14 @@ MAIN(argc, argv)
     global_insertPenalty = global_params[PARAM_INSERT];
     global_maxNumEdgeLearned = global_params[PARAM_EDGE];
     SIM_GET_NUM_CPU(numThread);
-    TM_STARTUP(numThread);
+
+
+    TM_STARTUP(nthreads);
+
     P_MEMORY_STARTUP(numThread);
     thread_startup(numThread);
 
+    /*
     printf("Random seed                = %li\n", randomSeed);
     printf("Number of vars             = %li\n", numVar);
     printf("Number of records          = %li\n", numRecord);
@@ -259,13 +265,14 @@ MAIN(argc, argv)
     printf("Max num edge learned / var = %li\n", global_maxNumEdgeLearned);
     printf("Operation quality factor   = %f\n", global_operationQualityFactor);
     fflush(stdout);
+    */
 
     /*
      * Generate data
      */
 
-    printf("Generating data... ");
-    fflush(stdout);
+    //printf("Generating data... ");
+    //fflush(stdout);
 
     random_t* randomPtr = random_alloc();
     assert(randomPtr);
@@ -274,8 +281,8 @@ MAIN(argc, argv)
     data_t* dataPtr = data_alloc(numVar, numRecord, randomPtr);
     assert(dataPtr);
     net_t* netPtr = data_generate(dataPtr, -1, maxNumParent, percentParent);
-    puts("done.");
-    fflush(stdout);
+    //puts("done.");
+    //fflush(stdout);
 
     /*
      * Generate adtree
@@ -284,8 +291,8 @@ MAIN(argc, argv)
     adtree_t* adtreePtr = adtree_alloc();
     assert(adtreePtr);
 
-    printf("Generating adtree... ");
-    fflush(stdout);
+    //printf("Generating adtree... ");
+    //fflush(stdout);
 
     TIMER_T adtreeStartTime;
     TIMER_READ(adtreeStartTime);
@@ -295,11 +302,10 @@ MAIN(argc, argv)
     TIMER_T adtreeStopTime;
     TIMER_READ(adtreeStopTime);
 
-    puts("done.");
-    fflush(stdout);
-    printf("Adtree time = %f\n",
-           TIMER_DIFF_SECONDS(adtreeStartTime, adtreeStopTime));
-    fflush(stdout);
+    //puts("done.");
+    //fflush(stdout);
+    //printf("Adtree time = %f\n",TIMER_DIFF_SECONDS(adtreeStartTime, adtreeStopTime));
+    //fflush(stdout);
 
     /*
      * Score original network
@@ -316,8 +322,8 @@ MAIN(argc, argv)
     assert(learnerPtr);
     data_free(dataPtr); /* save memory */
 
-    printf("Learning structure...");
-    fflush(stdout);
+    //printf("Learning structure...");
+    //fflush(stdout);
 
     TIMER_T learnStartTime;
     TIMER_READ(learnStartTime);
@@ -329,10 +335,9 @@ MAIN(argc, argv)
     TIMER_T learnStopTime;
     TIMER_READ(learnStopTime);
 
-    puts("done.");
-    fflush(stdout);
-    printf("Learn time = %f\n",
-           TIMER_DIFF_SECONDS(learnStartTime, learnStopTime));
+    //puts("done.");
+    //fflush(stdout);
+    printf("Threads: %i\tElapsed time: %f", numThread, TIMER_DIFF_SECONDS(learnStartTime, learnStopTime));
     fflush(stdout);
 
     /*
@@ -344,9 +349,9 @@ MAIN(argc, argv)
 
 #ifndef SIMULATOR
     float learnScore = learner_score(learnerPtr);
-    printf("Learn score  = %f\n", learnScore);
+    //printf("Learn score  = %f\n", learnScore);
 #endif
-    printf("Actual score = %f\n", actualScore);
+    //printf("Actual score = %f\n", actualScore);
 
     /*
      * Clean up
@@ -362,6 +367,12 @@ MAIN(argc, argv)
 #endif
 
     TM_SHUTDOWN();
+	if (getenv("STM_STATS") != NULL) {
+		unsigned long u;
+		if (stm_get_global_stats("global_nb_commits", &u) != 0){
+			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(learnStartTime, learnStopTime));
+		}
+	}
     P_MEMORY_SHUTDOWN();
 
     GOTO_SIM();
@@ -377,4 +388,4 @@ MAIN(argc, argv)
  * End of bayes.c
  *
  * =============================================================================
- */
+ * */

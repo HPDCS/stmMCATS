@@ -83,6 +83,7 @@
 #include "tm.h"
 #include "vector.h"
 
+#define TX_CLASS_NUMBER 5
 
 enum param_types {
     PARAM_GENE    = (unsigned char)'g',
@@ -190,15 +191,18 @@ MAIN (argc,argv)
     parseArgs(argc, (char** const)argv);
     SIM_GET_NUM_CPU(global_params[PARAM_THREAD]);
 
-    printf("Creating gene and segments... ");
-    fflush(stdout);
+    //printf("Creating gene and segments... ");
+    //fflush(stdout);
 
     long geneLength = global_params[PARAM_GENE];
     long segmentLength = global_params[PARAM_SEGMENT];
     long minNumSegment = global_params[PARAM_NUMBER];
     long numThread = global_params[PARAM_THREAD];
 
+
     TM_STARTUP(numThread);
+
+
     P_MEMORY_STARTUP(numThread);
     thread_startup(numThread);
 
@@ -217,15 +221,17 @@ MAIN (argc,argv)
     sequencer_t* sequencerPtr = sequencer_alloc(geneLength, segmentLength, segmentsPtr);
     assert(sequencerPtr != NULL);
 
+    /*
     puts("done.");
     printf("Gene length     = %li\n", genePtr->length);
     printf("Segment length  = %li\n", segmentsPtr->length);
     printf("Number segments = %li\n", vector_getSize(segmentsPtr->contentsPtr));
     fflush(stdout);
+    */
 
     /* Benchmark */
-    printf("Sequencing gene... ");
-    fflush(stdout);
+    //printf("Sequencing gene... ");
+    //fflush(stdout);
     TIMER_READ(start);
     GOTO_SIM();
 #ifdef OTM
@@ -238,34 +244,40 @@ MAIN (argc,argv)
 #endif
     GOTO_REAL();
     TIMER_READ(stop);
-    puts("done.");
-    printf("Time = %lf\n", TIMER_DIFF_SECONDS(start, stop));
-    fflush(stdout);
+    //puts("done.");
+    printf("Threads: %i\tElapsed time: %f", numThread, TIMER_DIFF_SECONDS(start, stop));
+    //fflush(stdout);
 
     /* Check result */
     {
         char* sequence = sequencerPtr->sequence;
         int result = strcmp(gene, sequence);
-        printf("Sequence matches gene: %s\n", (result ? "no" : "yes"));
+       //printf("Sequence matches gene: %s\n", (result ? "no" : "yes"));
         if (result) {
-            printf("gene     = %s\n", gene);
-            printf("sequence = %s\n", sequence);
+            //printf("gene     = %s\n", gene);
+            //printf("sequence = %s\n", sequence);
         }
-        fflush(stdout);
+        //fflush(stdout);
         assert(strlen(sequence) >= strlen(gene));
     }
 
     /* Clean up */
-    printf("Deallocating memory... ");
-    fflush(stdout);
+    //printf("Deallocating memory... ");
+    //fflush(stdout);
     sequencer_free(sequencerPtr);
     segments_free(segmentsPtr);
     gene_free(genePtr);
     random_free(randomPtr);
-    puts("done.");
-    fflush(stdout);
+    //puts("done.");
+    //fflush(stdout);
 
     TM_SHUTDOWN();
+	if (getenv("STM_STATS") != NULL) {
+		unsigned long u;
+		if (stm_get_global_stats("global_nb_commits", &u) != 0){
+			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(start, stop));
+		}
+	}
     P_MEMORY_SHUTDOWN();
 
     GOTO_SIM();

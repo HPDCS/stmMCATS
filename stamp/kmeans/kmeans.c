@@ -362,16 +362,16 @@ MAIN(argc, argv)
     {
         /* Output: the coordinates of the cluster centres */
         for (i = 0; i < best_nclusters; i++) {
-            printf("%d ", i);
+            //printf("%d ", i);
             for (j = 0; j < numAttributes; j++) {
-                printf("%f ", cluster_centres[i][j]);
+                //printf("%f ", cluster_centres[i][j]);
             }
-            printf("\n");
+            //printf("\n");
         }
     }
 #endif /* OUTPUT TO_STDOUT */
 
-    printf("Time: %lg seconds\n", global_time);
+    printf("Threads: %i\tElapsed time: %f",nthreads, global_time);
 
     free(cluster_assign);
     free(attributes);
@@ -380,6 +380,12 @@ MAIN(argc, argv)
     free(buf);
 
     TM_SHUTDOWN();
+	if (getenv("STM_STATS") != NULL) {
+		unsigned long u;
+		if (stm_get_global_stats("global_nb_commits", &u) != 0){
+			printf("\tThroughput: %f\n",u/global_time);
+		}
+	}
 
     GOTO_SIM();
 

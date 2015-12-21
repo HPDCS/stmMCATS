@@ -322,7 +322,7 @@ MAIN(argc, argv)
     GOTO_REAL();
     TIMER_T stopTime;
     TIMER_READ(stopTime);
-    printf("\tThreads: %i\tElapsed time: %f ",nthreads, TIMER_DIFF_SECONDS(startTime, stopTime));
+    printf("Threads: %i\tElapsed time: %f",nthreads, TIMER_DIFF_SECONDS(startTime, stopTime));
 
     /*
      * Check solution

@@ -486,7 +486,7 @@ MAIN(argc, argv)
 
 #endif /* ENABLE_KERNEL4 */
 
-    printf("\tThreads: %i\tElapsed time: %f ",THREADS, totalTime);
+    printf("Threads: %i\tElapsed time: %f",THREADS, totalTime);
 
     /* -------------------------------------------------------------------------
      * Cleanup
