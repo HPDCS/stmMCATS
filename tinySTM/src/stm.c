@@ -42,7 +42,6 @@
  * DEFINES
  * ################################################################### */
 
-#define STM_MCATS
 
 #ifdef PRINT_STATS_INFO
 #define PRINT_STATS(...)			printf(__VA_ARGS__)
@@ -663,7 +662,9 @@ stm_commit(void)
 {
 	TX_GET;
 	int ret;
+#ifdef STM_MCATS
 	tx->last_k=running_transactions;
+#endif
 	ret=int_stm_commit(tx);
 #ifdef STM_MCATS
 	tx->committed_transactions++;
