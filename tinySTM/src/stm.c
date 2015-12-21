@@ -299,10 +299,12 @@ void stm_init(int threads) {
 	main_thread = current_collector_thread = 0;
 	running_transactions = 0;
 
+	/*
 	if (init_rapl() != 0) {
 		printf("\nRAPL could not be initialized\n");
 		exit(1);
 	}
+	*/
 
   	/* Set on conflict callback */
 
@@ -439,7 +441,6 @@ _CALLCONV stm_tx_t *
 stm_pre_init_thread(int id){
 	stm_tx_t *tx;
 	tx=stm_init_thread();
-	printf("after stm_init_thread");
 	fflush(stdout);
 	tx->total_tx_wasted_per_active_transactions=(stm_time_t*)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	tx->total_tx_committed_per_active_transactions=(long*)malloc((max_concurrent_threads+1)*sizeof(long));
