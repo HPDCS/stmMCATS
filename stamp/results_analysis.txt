@@ -1,0 +1,20 @@
+bayes
+Threads: 1	Elapsed time: 0.009289	Commits: 479	Aborts: 0	Throughput: 51566.223044
+Threads: 2	Elapsed time: 0.007436	Commits: 472	Aborts: 2	Throughput: 63476.705400
+genome
+Threads: 1	Elapsed time: 21.919663	Commits: 3036463	Aborts: 0	Throughput: 138526.901923
+Threads: 2	Elapsed time: 12.538366	Commits: 3036463	Aborts: 41227	Throughput: 242173.744053
+intruder
+Threads: 1	Elapsed time: 19.778990	Commits: 13544275	Aborts: 0	Throughput: 684780.920525
+Threads: 2	Elapsed time: 11.812606	Commits: 13544276	Aborts: 1919778	Throughput: 1146595.100437
+kmeans
+Threads: 1	Elapsed time: 0.005066	Commits: 5462	Aborts: 0	Throughput: 1078134.898019
+Threads: 2	Elapsed time: 0.004079	Commits: 5464	Aborts: 1697	Throughput: 1339510.027237
+labyrinth
+ssca2
+Threads: 1	Elapsed time: 4.946926	Commits: 5557485	Aborts: 0	Throughput: 1123421.872214
+Threads: 2	Elapsed time: 3.737423	Commits: 5557489	Aborts: 21	Throughput: 1486984.236086
+vacation
+Threads: 1	Elapsed time: 6.304519	Commits: 1048576	Aborts: 0	Throughput: 166321.333999
+Threads: 2	Elapsed time: 3.625397	Commits: 1048576	Aborts: 6526	Throughput: 289230.671721
+yada
