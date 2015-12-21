@@ -14,8 +14,8 @@ while [ $nthread -le $maxThread ]
 	k=0
 	while [ $k -lt $runPerThread ]
 		do
-		echo nice -20 ./bayes/bayes -v32 -r1024 -n2 -p20 -s0 -i2 -e2 -t$nthread 			
-		nice -20 ./bayes/bayes -v32 -r1024 -n2 -p20 -s0 -i2 -e2 -t$nthread >> results_analysis.txt
+		echo nice -20 ./bayes/bayes -v32 -r8096 -n10 -p30 -i2 -e10 -s1 -t$nthread 			
+		nice -20 ./bayes/bayes -v32 -r8096 -n10 -p30 -i2 -e10 -s1 -t$nthread >> results_analysis.txt
 		k=$[$k+1]
 	done
 	nthread=$[$nthread+1]
@@ -119,8 +119,8 @@ while [ $nthread -le $maxThread ]
 	k=0
 	while [ $k -lt $runPerThread ]
 		do
-		echo nice -20 ./yada/yada -a10 -i yada/inputs/ttimeu1000000.2 -t$nthread 			
-		nice -20 ./yada/yada -a10 -i yada/inputs/ttimeu1000000.2 -t$nthread  >> results_analysis.txt
+		echo nice -20 ./yada/yada -a10 -i yada/inputs/ttimeu100000.2 -t$nthread 			
+		nice -20 ./yada/yada -a10 -i yada/inputs/ttimeu100000.2 -t$nthread  >> results_analysis.txt
 		k=$[$k+1]
 	done
 	nthread=$[$nthread+1]
