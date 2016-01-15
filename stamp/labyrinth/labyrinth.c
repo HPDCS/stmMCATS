@@ -238,7 +238,7 @@ MAIN(argc, argv)
         numPathRouted += vector_getSize(pathVectorPtr);
     }
     //printf("Paths routed    = %li\n", numPathRouted);
-    printf("%i  %f\n", numThread,  TIMER_DIFF_SECONDS(startTime, stopTime));
+    printf("Threads: %i\tElapsed time: %f",numThread, TIMER_DIFF_SECONDS(startTime, stopTime));
 
     /*
      * Check solution and clean up
@@ -251,6 +251,13 @@ MAIN(argc, argv)
     router_free(routerPtr);
 
     TM_SHUTDOWN();
+    //Added for MCATS stats
+	if (getenv("STM_STATS") != NULL) {
+		unsigned long u;
+		if (stm_get_global_stats("global_nb_commits", &u) != 0){
+			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(startTime, stopTime));
+		}
+	}
     P_MEMORY_SHUTDOWN();
 
     GOTO_SIM();
