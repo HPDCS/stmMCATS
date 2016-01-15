@@ -237,8 +237,8 @@ MAIN(argc, argv)
         vector_t* pathVectorPtr = (vector_t*)list_iter_next(&it, pathVectorListPtr);
         numPathRouted += vector_getSize(pathVectorPtr);
     }
-    printf("Paths routed    = %li\n", numPathRouted);
-    printf("Elapsed time    = %f seconds\n", TIMER_DIFF_SECONDS(startTime, stopTime));
+    //printf("Paths routed    = %li\n", numPathRouted);
+    printf("Threads: %i\tElapsed time: %f",numThread, TIMER_DIFF_SECONDS(startTime, stopTime));
 
     /*
      * Check solution and clean up
@@ -246,11 +246,18 @@ MAIN(argc, argv)
     assert(numPathRouted <= numPathToRoute);
     bool_t status = maze_checkPaths(mazePtr, pathVectorListPtr, global_doPrint);
     assert(status == TRUE);
-    puts("Verification passed.");
+    //puts("Verification passed.");
     maze_free(mazePtr);
     router_free(routerPtr);
 
     TM_SHUTDOWN();
+    //Added for MCATS stats
+	if (getenv("STM_STATS") != NULL) {
+		unsigned long u;
+		if (stm_get_global_stats("global_nb_commits", &u) != 0){
+			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(startTime, stopTime));
+		}
+	}
     P_MEMORY_SHUTDOWN();
 
     GOTO_SIM();
