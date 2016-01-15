@@ -258,8 +258,8 @@ maze_read (maze_t* mazePtr, char* inputFileName)
     addToGrid(gridPtr, wallVectorPtr, "wall");
     addToGrid(gridPtr, srcVectorPtr,  "source");
     addToGrid(gridPtr, dstVectorPtr,  "destination");
-    printf("Maze dimensions = %li x %li x %li\n", width, height, depth);
-    printf("Paths to route  = %li\n", list_getSize(workListPtr));
+    //printf("Maze dimensions = %li x %li x %li\n", width, height, depth);
+   // printf("Paths to route  = %li\n", list_getSize(workListPtr));
 
     /*
      * Initialize work queue
