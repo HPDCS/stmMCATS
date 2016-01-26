@@ -273,8 +273,7 @@ MAIN(argc, argv)
     //printf("Percent attack  = %li\n", percentAttack);
     //printf("Max data length = %li\n", maxDataLength);
     //printf("Num flow        = %li\n", numFlow);
-    printf("Random seed     = %li\n", randomSeed);
-    fflush(stdout);
+    //printf("Random seed     = %li\n", randomSeed);
 
     dictionary_t* dictionaryPtr = dictionary_alloc();
     assert(dictionaryPtr);
@@ -323,7 +322,7 @@ MAIN(argc, argv)
     GOTO_REAL();
     TIMER_T stopTime;
     TIMER_READ(stopTime);
-    printf("\tThreads: %i\tElapsed time: %f ",nthreads, TIMER_DIFF_SECONDS(startTime, stopTime));
+    printf("Threads: %i\tElapsed time: %f",nthreads, TIMER_DIFF_SECONDS(startTime, stopTime));
 
     /*
      * Check solution
