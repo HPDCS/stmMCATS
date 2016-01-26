@@ -338,7 +338,7 @@ init_rapl()
     sleep(1);
     read_tsc(&post_tsc);
     freq_tsc = post_tsc-pre_tsc;
-    printf("Invariant TSC frequency: %" PRIu64 "Hz\n", freq_tsc);
+    //printf("Invariant TSC frequency: %" PRIu64 "Hz\n", freq_tsc);
 
     if (err != 0)
     {
@@ -1528,7 +1528,7 @@ void startEnergyAMD()
     closedir(dir);
 }
 
-void endEnergyAMD()
+float endEnergyAMD()
 {
     DIR *dir;
     struct dirent *dirent;
@@ -1596,7 +1596,9 @@ void endEnergyAMD()
         if(total_time > 0 && maxfreq > 0)
             delta_power += (maxcpupower - rangecpupower * ret / maxfreq) * delta[ret].count / 100;//Watt * 10ms
     }
-    printf("\nPower: %f\n", delta_power);
+    //printf("\nPower: %f\n", delta_power);
+
+    return delta_power;
 }
 
 /* RAPL stuff */
@@ -1609,7 +1611,7 @@ void startEnergyIntel() {
     get_pp0_total_energy_consumed(0, &pre_pp0en); //verifica node = 0?
 }
 
-void endEnergyIntel() {
+double endEnergyIntel() {
 
     double elapsedTime = 0.0, delta_pp0en = 0.0;
 
@@ -1622,13 +1624,16 @@ void endEnergyIntel() {
 	if (delta_pp0en < 0) {
 		delta_pp0en += MAX_ENERGY_STATUS_JOULES;
 	}
-
+	/*
 	printf("\nElapsed time: %.6f s"
            "\nTot PP0 energy: %0.6lf J"
            "\nAvg PP0 power: %0.6lf W\n",
            elapsedTime,
            delta_pp0en,
            delta_pp0en/elapsedTime);
+*/
+	return delta_pp0en;
+
 }
 
 
@@ -1643,7 +1648,7 @@ void startEnergy()
     if (isIntel == -1){
         get_vendor(vendor);
         if (strstr(vendor, "Intel")){
-            printf("\n%s\n", vendor);
+            //printf("\n%s\n", vendor);
             isIntel = 1;
         }
         else{
@@ -1659,11 +1664,11 @@ void startEnergy()
     }
 }
 
-void endEnergy() {
+float endEnergy() {
     if (isIntel) {
-        endEnergyIntel();
+        return (float)endEnergyIntel();
     } else {
-        endEnergyAMD();
+    	return (float) endEnergyAMD();
     }
 }
 

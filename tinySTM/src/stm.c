@@ -37,13 +37,13 @@
 #include "utils.h"
 #include "atomic.h"
 #include "gc.h"
-#include "../../rapl-power/rapl.h"
+
 
 /* ################################################################### *
  * DEFINES
  * ################################################################### */
 
-#define STM_MCATS
+
 
 #ifdef PRINT_STATS_INFO
 #define PRINT_STATS(...)			printf(__VA_ARGS__)
@@ -299,13 +299,6 @@ void stm_init(int threads) {
 	main_thread = current_collector_thread = 0;
 	running_transactions = 0;
 
-	/*
-	if (init_rapl() != 0) {
-		printf("\nRAPL could not be initialized\n");
-		exit(1);
-	}
-	*/
-
   	/* Set on conflict callback */
 
 #else
@@ -371,6 +364,8 @@ void stm_init()
   }
 #endif /* SIGNAL_HANDLER */
   _tinystm.initialized = 1;
+
+
 }
 
 /*
@@ -386,12 +381,14 @@ stm_exit(void)
   tls_exit();
   stm_quiesce_exit();
 
-  terminate_rapl();
+
 
 #ifdef EPOCH_GC
   gc_exit();
 #endif /* EPOCH_GC */
   _tinystm.initialized = 0;
+
+
 }
 
 /*
@@ -523,7 +520,7 @@ float get_throughput(float lambda, float *mu, int m) {
 				b+=c[k];
 			}
 	}
-	printf("\na: %f, b: %f",a,b);
+	//printf("\na: %f, b: %f",a,b);
 	p[0]=1/(1+a+b);
 	for (k=1;k<=N;k++){
 		p[k]=p[0]*c[k];
@@ -532,11 +529,11 @@ float get_throughput(float lambda, float *mu, int m) {
 	//th
 	for (k=1;k<=m;k++){
 		th+=p[k]*k*mu[k];
-		printf("\np[%i] %f - c[%i] %f", k, p[k], k, mu[k]);
+		//printf("\np[%i] %f - c[%i] %f", k, p[k], k, mu[k]);
 	}
 	for (k=m+1;k<=N;k++){
 		th+=p[k]*m*mu[m];
-		printf("\np[%i] %f - c[%i] %f", k, p[k], m, mu[m]);
+		//printf("\np[%i] %f - c[%i] %f", k, p[k], m, mu[m]);
 	}
 
 	return th;
@@ -588,18 +585,18 @@ inline void stm_tune_scheduler(){
 		reset_local_stats(thread);
 		thread=thread->next;
 	}
-	for(i=0;i<max_concurrent_threads+1;i++) printf("\nwasted_time_k[%i] %llu", i, wasted_time_k[i]);
-	printf("\ntotal_tx_time %llu, total_tx_wasted_time %llu, total_no_tx_time %llu, total_committed_transactions_by_collector_threads %i", total_tx_time, total_tx_wasted_time, total_no_tx_time, total_committed_transactions_by_collector_threads);
+	//for(i=0;i<max_concurrent_threads+1;i++) printf("\nwasted_time_k[%i] %llu", i, wasted_time_k[i]);
+	//printf("\ntotal_tx_time %llu, total_tx_wasted_time %llu, total_no_tx_time %llu, total_committed_transactions_by_collector_threads %i", total_tx_time, total_tx_wasted_time, total_no_tx_time, total_committed_transactions_by_collector_threads);
 	avg_running_tx=avg_running_tx/(float)total_committed_transactions_by_collector_threads;
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
 	float lambda = 1.0 / (((float) total_no_tx_time/(float)1000000000)/(float) total_committed_transactions_by_collector_threads);
 	for (i=0;i<max_concurrent_threads+1;i++){
 		if((wasted_time_k[i]>0 || useful_time_k[i]>0) && commit_active_threads[i] > 0){
 			mu_k[i]= 1.0 / ((((float) wasted_time_k[i] / (float)1000000000) / (float)commit_active_threads[i]) + (((float) useful_time_k[i]/(float)1000000000) / (float) commit_active_threads[i]));
-			printf("\nk:%i\tmu_k: %f, %llu, %llu, %llu", i, mu_k[i], wasted_time_k[i], useful_time_k[i], commit_active_threads[i]);
+			//printf("\nk:%i\tmu_k: %f, %llu, %llu, %llu", i, mu_k[i], wasted_time_k[i], useful_time_k[i], commit_active_threads[i]);
 		}else{
 			mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads));
-			printf("\nk:%i\tmu_k: %f - average", i, mu_k[i]);
+			//printf("\nk:%i\tmu_k: %f - average", i, mu_k[i]);
 		}
 	}//disanzo@dis.uniroma1.it
 
@@ -638,11 +635,11 @@ inline void stm_tune_scheduler(){
 	}//
 
 	tx->start_no_tx_time=STM_TIMER_READ();
-	printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000000), max_allowed_running_transactions);
-	printf("\tTotal commits: %i (as a collector: %i)",total_committed_transactions, total_committed_transactions_by_collector_threads);
-	printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads)));
-	printf("\nAvg_running_tx: %f", avg_running_tx, 1.0);
-	fflush(stdout);
+	//printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000000), max_allowed_running_transactions);
+	//printf("\tTotal commits: %i (as a collector: %i)",total_committed_transactions, total_committed_transactions_by_collector_threads);
+	//printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads)));
+	//printf("\nAvg_running_tx: %f", avg_running_tx, 1.0);
+	//fflush(stdout);
     //startEnergy();
 	last_tuning_time=STM_TIMER_READ();
 

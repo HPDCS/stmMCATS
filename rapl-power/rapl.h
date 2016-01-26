@@ -155,7 +155,7 @@ extern "C" {
 
 /* TMF */
 void startEnergy();
-void endEnergy();
+float endEnergy();
 void bindThread(long threadId);
 
 __inline__ unsigned long long tick();
