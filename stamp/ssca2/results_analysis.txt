@@ -1,0 +1,49 @@
+ssca2
+ssca2
+Threads: 2	Elapsed time: 8.491931	Commits: 5557489	Aborts: 0	Throughput: 654443.479239
+Threads: 3	Elapsed time: 8.596007	Commits: 5557489	Aborts: 1	Throughput: 646519.823650
+Threads: 4	Elapsed time: 7.609340	Commits: 5557495	Aborts: 6	Throughput: 730351.782771
+Threads: 5	Elapsed time: 7.303894	Commits: 5557499	Aborts: 9	Throughput: 760895.348058
+Threads: 6	Elapsed time: 7.224325	Commits: 5557497	Aborts: 55	Throughput: 769275.587891
+Threads: 7	Elapsed time: 7.175179	Commits: 5557497	Aborts: 53	Throughput: 774544.718171
+Threads: 8	Elapsed time: 6.922655	Commits: 5557505	Aborts: 90	Throughput: 802799.636156
+Threads: 9	Elapsed time: 6.898084	Commits: 5557503	Aborts: 145	Throughput: 805658.942429
+Threads: 10	Elapsed time: 6.735756	Commits: 5557511	Aborts: 136	Throughput: 825076.066542
+Threads: 11	Elapsed time: 6.550627	Commits: 5557505	Aborts: 163	Throughput: 848392.803241
+Threads: 12	Elapsed time: 6.614873	Commits: 5557511	Aborts: 155	Throughput: 840153.855828
+Threads: 13	Elapsed time: 6.419722	Commits: 5557517	Aborts: 297	Throughput: 865694.361367
+Threads: 14	Elapsed time: 6.598486	Commits: 5557513	Aborts: 152	Throughput: 842240.635947
+Threads: 15	Elapsed time: 6.402365	Commits: 5557515	Aborts: 332	Throughput: 868040.954661
+Threads: 16	Elapsed time: 6.555056	Commits: 5557519	Aborts: 295	Throughput: 847821.730181
+ssca2
+Threads: 2	Elapsed time: 18.715301	Commits: 11189203	Aborts: 2	Throughput: 597863.914693
+Threads: 3	Elapsed time: 19.104056	Commits: 11189203	Aborts: 0	Throughput: 585697.766472
+Threads: 4	Elapsed time: 17.312487	Commits: 11189207	Aborts: 8	Throughput: 646308.475094
+Threads: 5	Elapsed time: 16.429698	Commits: 11189207	Aborts: 17	Throughput: 681035.464348
+Threads: 6	Elapsed time: 15.919874	Commits: 11189209	Aborts: 37	Throughput: 702845.336634
+Threads: 7	Elapsed time: 16.054057	Commits: 11189211	Aborts: 63	Throughput: 696970.922395
+Threads: 8	Elapsed time: 15.177749	Commits: 11189215	Aborts: 92	Throughput: 737211.748876
+Threads: 9	Elapsed time: 15.128902	Commits: 11189215	Aborts: 187	Throughput: 739592.021090
+Threads: 10	Elapsed time: 14.918895	Commits: 11189221	Aborts: 147	Throughput: 750003.322401
+Threads: 11	Elapsed time: 14.885868	Commits: 11189227	Aborts: 201	Throughput: 751667.752629
+Threads: 12	Elapsed time: 14.658956	Commits: 11189235	Aborts: 238	Throughput: 763303.685689
+Threads: 13	Elapsed time: 14.376528	Commits: 11189227	Aborts: 270	Throughput: 778298.264730
+Threads: 14	Elapsed time: 14.755595	Commits: 11189227	Aborts: 292	Throughput: 758304.021198
+Threads: 15	Elapsed time: 14.527486	Commits: 11189229	Aborts: 396	Throughput: 770210.959683
+Threads: 16	Elapsed time: 14.812331	Commits: 11189233	Aborts: 321	Throughput: 755399.877932
+ssca2
+Threads: 2	Elapsed time: 2.361833	Commits: 1419091	Aborts: 0	Throughput: 600843.171000
+Threads: 3	Elapsed time: 2.311351	Commits: 1419093	Aborts: 0	Throughput: 613966.880249
+Threads: 4	Elapsed time: 2.193754	Commits: 1419101	Aborts: 2	Throughput: 646882.409378
+Threads: 5	Elapsed time: 2.089396	Commits: 1419097	Aborts: 8	Throughput: 679190.062612
+Threads: 6	Elapsed time: 2.070281	Commits: 1419101	Aborts: 22	Throughput: 685462.978356
+Threads: 7	Elapsed time: 2.028560	Commits: 1419103	Aborts: 39	Throughput: 699561.702369
+Threads: 8	Elapsed time: 2.067778	Commits: 1419103	Aborts: 38	Throughput: 686293.735491
+Threads: 9	Elapsed time: 2.004017	Commits: 1419109	Aborts: 49	Throughput: 708132.175935
+Threads: 10	Elapsed time: 1.994421	Commits: 1419113	Aborts: 60	Throughput: 711541.342708
+Threads: 11	Elapsed time: 2.038345	Commits: 1419113	Aborts: 947	Throughput: 696208.409973
+Threads: 12	Elapsed time: 2.054640	Commits: 1419117	Aborts: 111	Throughput: 690688.781268
+Threads: 13	Elapsed time: 2.022083	Commits: 1419113	Aborts: 68	Throughput: 701807.560030
+Threads: 14	Elapsed time: 1.937455	Commits: 1419119	Aborts: 80	Throughput: 732465.551335
+Threads: 15	Elapsed time: 2.060983	Commits: 1419123	Aborts: 100	Throughput: 688566.106337
+Threads: 16	Elapsed time: 2.113795	Commits: 1419123	Aborts: 93	Throughput: 671362.706337

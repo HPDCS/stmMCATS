@@ -1,0 +1,8 @@
+bayes
+Threads: 2	Elapsed time: 54.687538	Commits: 2243	Aborts: 511	Throughput: 41.014829
+Threads: 3	Elapsed time: 75.797464	Commits: 2445	Aborts: 415788	Throughput: 32.257016
+Threads: 4	Elapsed time: 43.656646	Commits: 2554	Aborts: 4441	Throughput: 58.501975
+bayes
+bayes
+bayes
+bayes

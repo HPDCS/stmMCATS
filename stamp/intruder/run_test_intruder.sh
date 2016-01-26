@@ -7,60 +7,60 @@ runPerThread=1
 
 #------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------
-echo bayes >> results_analysis.txt
+echo intruder >> results_analysis.txt
 nthread=2
 while [ $nthread -le $maxThread ] 
 	do
 	k=0
 	while [ $k -lt $runPerThread ]
 		do
-		echo nice -20 ./bayes -v32 -r2048 -n10 -p40 -i2 -e8 -s1 -t$nthread 			
-		nice -20 ./bayes -v32 -r8096 -n10 -p30 -i2 -e10 -s1 -t$nthread >> results_analysis.txt
+		echo nice -20 ./intruder -a8 -l176 -n109187 -t$nthread 			
+		nice -20 ./intruder -a8 -l176 -n109187 -t$nthread >> results_analysis.txt
 		k=$[$k+1]
 	done
 	nthread=$[$nthread+1]
 done
 #------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------
-echo bayes >> results_analysis.txt
+echo intruder >> results_analysis.txt
 nthread=2
 while [ $nthread -le $maxThread ] 
         do
         k=0
         while [ $k -lt $runPerThread ]
                 do
-                echo nice -20 ./bayes -v32 -r4096 -n10 -p40 -i2 -e8 -s1 -t$nthread                       
-                nice -20 ./bayes -v32 -r8096 -n10 -p30 -i2 -e10 -s1 -t$nthread >> results_analysis.txt
+                echo nice -20 ./intruder -a20 -l16 -n32768 -t$nthread                       
+                nice -20 ./intruder -a20 -l16 -n32768 -t$nthread >> results_analysis.txt
                 k=$[$k+1]
         done
         nthread=$[$nthread+1]
 done
 #------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------
-echo bayes >> results_analysis.txt
+echo intruder >> results_analysis.txt
 nthread=2
 while [ $nthread -le $maxThread ] 
         do
         k=0
         while [ $k -lt $runPerThread ]
                 do
-                echo nice -20 ./bayes -v32 -r8096 -n10 -p30 -i2 -e10 -s1 -t$nthread                       
-                nice -20 ./bayes -v32 -r8096 -n10 -p30 -i2 -e10 -s1 -t$nthread >> results_analysis.txt
+                echo nice -20 ./intruder -a2 -l16 -n262025 -t$nthread                       
+                nice -20 ./intruder -a2 -l16 -n262025 -t$nthread >> results_analysis.txt
                 k=$[$k+1]
         done
         nthread=$[$nthread+1]
 done
 #------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------
-echo bayes >> results_analysis.txt
+echo intruder >> results_analysis.txt
 nthread=2
 while [ $nthread -le $maxThread ] 
         do
         k=0
         while [ $k -lt $runPerThread ]
                 do
-                echo nice -20 ./bayes -v12 -r16384 -n20 -p20 -i2 -e20 -s1 -t$nthread                       
-                nice -20 ./bayes -v32 -r8096 -n10 -p30 -i2 -e10 -s1 -t$nthread >> results_analysis.txt
+                echo nice -20 ./intruder -a20 -l256 -n262025 -t$nthread                       
+                nice -20 ./intruder -a20 -l256 -n262025 -t$nthread >> results_analysis.txt
                 k=$[$k+1]
         done
         nthread=$[$nthread+1]

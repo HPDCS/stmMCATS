@@ -1,6 +1,52 @@
 labyrinth
+Threads: 1	Elapsed time: 0.014908	Commits: 130	Aborts: 0	Throughput: 8720.245650
+Threads: 2	Elapsed time: 0.013214	Commits: 132	Aborts: 8	Throughput: 9989.321016
+Threads: 3	Elapsed time: 0.013466	Commits: 134	Aborts: 21	Throughput: 9951.075354
+Threads: 4	Elapsed time: 0.013315	Commits: 136	Aborts: 22	Throughput: 10213.890274
+Threads: 5	Elapsed time: 0.012015	Commits: 138	Aborts: 30	Throughput: 11485.771163
+Threads: 6	Elapsed time: 0.012166	Commits: 140	Aborts: 45	Throughput: 11507.457866
+Threads: 7	Elapsed time: 0.012989	Commits: 142	Aborts: 44	Throughput: 10932.290162
+Threads: 8	Elapsed time: 0.014326	Commits: 144	Aborts: 50	Throughput: 10051.587272
+Threads: 9	Elapsed time: 0.012599	Commits: 146	Aborts: 50	Throughput: 11588.229203
+Threads: 10	Elapsed time: 0.012314	Commits: 148	Aborts: 50	Throughput: 12018.761099
+Threads: 11	Elapsed time: 0.013053	Commits: 150	Aborts: 48	Throughput: 11491.453725
+Threads: 12	Elapsed time: 0.011958	Commits: 152	Aborts: 61	Throughput: 12711.279194
+Threads: 13	Elapsed time: 0.012893	Commits: 154	Aborts: 54	Throughput: 11944.501655
+Threads: 14	Elapsed time: 0.013576	Commits: 156	Aborts: 65	Throughput: 11490.840223
+Threads: 15	Elapsed time: 0.016040	Commits: 158	Aborts: 61	Throughput: 9850.320793
+Threads: 16	Elapsed time: 0.016035	Commits: 160	Aborts: 62	Throughput: 9978.122993
 labyrinth
+Threads: 1	Elapsed time: 0.017282	Commits: 194	Aborts: 0	Throughput: 11225.546671
+Threads: 2	Elapsed time: 0.013159	Commits: 196	Aborts: 10	Throughput: 14894.977243
+Threads: 3	Elapsed time: 0.014289	Commits: 198	Aborts: 26	Throughput: 13856.907695
+Threads: 4	Elapsed time: 0.014979	Commits: 200	Aborts: 37	Throughput: 13351.915578
+Threads: 5	Elapsed time: 0.014043	Commits: 202	Aborts: 43	Throughput: 14384.295818
+Threads: 6	Elapsed time: 0.011924	Commits: 204	Aborts: 51	Throughput: 17108.312159
+Threads: 7	Elapsed time: 0.011461	Commits: 206	Aborts: 39	Throughput: 17973.968172
+Threads: 8	Elapsed time: 0.013533	Commits: 208	Aborts: 72	Throughput: 15369.976427
+Threads: 9	Elapsed time: 0.013833	Commits: 210	Aborts: 82	Throughput: 15181.038263
+Threads: 10	Elapsed time: 0.013000	Commits: 212	Aborts: 86	Throughput: 16307.677952
+Threads: 11	Elapsed time: 0.014960	Commits: 214	Aborts: 98	Throughput: 14304.992446
+Threads: 12	Elapsed time: 0.013086	Commits: 216	Aborts: 78	Throughput: 16506.388952
+Threads: 13	Elapsed time: 0.015303	Commits: 218	Aborts: 104	Throughput: 14245.669113
+Threads: 14	Elapsed time: 0.013467	Commits: 220	Aborts: 91	Throughput: 16336.140214
+Threads: 15	Elapsed time: 0.012782	Commits: 222	Aborts: 90	Throughput: 17368.042379
+Threads: 16	Elapsed time: 0.016265	Commits: 224	Aborts: 109	Throughput: 13771.974436
 labyrinth
-labyrinth
-labyrinth
+Threads: 1	Elapsed time: 0.066562	Commits: 130	Aborts: 0	Throughput: 1953.068153
+Threads: 2	Elapsed time: 0.042335	Commits: 132	Aborts: 8	Throughput: 3117.985020
+Threads: 3	Elapsed time: 0.037184	Commits: 134	Aborts: 14	Throughput: 3603.700515
+Threads: 4	Elapsed time: 0.030704	Commits: 136	Aborts: 15	Throughput: 4429.387212
+Threads: 5	Elapsed time: 0.033505	Commits: 138	Aborts: 24	Throughput: 4118.792799
+Threads: 6	Elapsed time: 0.030249	Commits: 140	Aborts: 21	Throughput: 4628.233996
+Threads: 7	Elapsed time: 0.031107	Commits: 142	Aborts: 29	Throughput: 4564.896438
+Threads: 8	Elapsed time: 0.029980	Commits: 144	Aborts: 41	Throughput: 4803.211070
+Threads: 9	Elapsed time: 0.029380	Commits: 146	Aborts: 35	Throughput: 4969.352863
+Threads: 10	Elapsed time: 0.029861	Commits: 148	Aborts: 32	Throughput: 4956.301934
+Threads: 11	Elapsed time: 0.030751	Commits: 150	Aborts: 47	Throughput: 4877.891750
+Threads: 12	Elapsed time: 0.035403	Commits: 152	Aborts: 49	Throughput: 4293.419857
+Threads: 13	Elapsed time: 0.034600	Commits: 154	Aborts: 48	Throughput: 4450.864549
+Threads: 14	Elapsed time: 0.034223	Commits: 156	Aborts: 48	Throughput: 4558.327347
+Threads: 15	Elapsed time: 0.041858	Commits: 158	Aborts: 55	Throughput: 3774.670532
+Threads: 16	Elapsed time: 0.031352	Commits: 160	Aborts: 42	Throughput: 5103.335665
 labyrinth
