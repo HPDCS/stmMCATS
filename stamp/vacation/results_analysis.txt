@@ -177,3 +177,5 @@ Threads: 16	Elapsed time: 0.632502	Commits: 524288	Aborts: 38558	Throughput: 828
 Threads: 16	Elapsed time: 0.682467	Commits: 524288	Aborts: 36509	Throughput: 768224.708959
 Threads: 16	Elapsed time: 0.674022	Commits: 524288	Aborts: 40806	Throughput: 777850.028122
 Threads: 16	Elapsed time: 0.671252	Commits: 524288	Aborts: 42047	Throughput: 781059.855955
+vacation
+vacation

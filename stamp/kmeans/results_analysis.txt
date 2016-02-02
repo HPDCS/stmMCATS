@@ -1,54 +1,23 @@
 kmeans
-Threads: 2	Elapsed time: 0.233491	Commits: 262149	Aborts: 160991	Throughput: 1122737.334526
-Threads: 3	Elapsed time: 0.248069	Commits: 262152	Aborts: 315067	Throughput: 1056771.306794
-Threads: 4	Elapsed time: 0.275730	Commits: 262155	Aborts: 704629	Throughput: 950767.418035
-Threads: 5	Elapsed time: 0.556794	Commits: 262158	Aborts: 2326169	Throughput: 470834.674180
-Threads: 6	Elapsed time: 0.496700	Commits: 262161	Aborts: 1567627	Throughput: 527805.464928
-Threads: 7	Elapsed time: 0.732830	Commits: 262164	Aborts: 2462312	Throughput: 357741.881431
-Threads: 8	Elapsed time: 0.829479	Commits: 262167	Aborts: 3063920	Throughput: 316062.168237
-Threads: 9	Elapsed time: 0.898225	Commits: 262170	Aborts: 2112801	Throughput: 291875.698668
-Threads: 10	Elapsed time: 0.975724	Commits: 262173	Aborts: 2464348	Throughput: 268695.865711
-Threads: 11	Elapsed time: 0.959592	Commits: 262176	Aborts: 1998845	Throughput: 273216.155133
-Threads: 12	Elapsed time: 1.290005	Commits: 262179	Aborts: 3634585	Throughput: 203238.752077
-Threads: 13	Elapsed time: 1.206541	Commits: 262182	Aborts: 2687415	Throughput: 217300.519964
-Threads: 14	Elapsed time: 1.253418	Commits: 262185	Aborts: 2397557	Throughput: 209176.034281
-Threads: 15	Elapsed time: 1.418787	Commits: 262188	Aborts: 2080673	Throughput: 184797.294820
-Threads: 16	Elapsed time: 1.477192	Commits: 262191	Aborts: 2447441	Throughput: 177492.846768
-kmeans
-Threads: 2	Elapsed time: 3.083466	Commits: 3233171	Aborts: 2264133	Throughput: 1048550.865947
-Threads: 3	Elapsed time: 2.771904	Commits: 3058440	Aborts: 3991634	Throughput: 1103371.548639
-Threads: 4	Elapsed time: 3.905986	Commits: 3408015	Aborts: 10240815	Throughput: 872510.791993
-Threads: 5	Elapsed time: 5.438191	Commits: 3233282	Aborts: 19318512	Throughput: 594551.025779
-Threads: 6	Elapsed time: 6.087397	Commits: 3058545	Aborts: 19184182	Throughput: 502438.883235
-Threads: 7	Elapsed time: 9.002065	Commits: 3495520	Aborts: 27606984	Throughput: 388302.009531
-Threads: 8	Elapsed time: 9.351328	Commits: 3146004	Aborts: 27977140	Throughput: 336423.236887
-Threads: 9	Elapsed time: 12.116425	Commits: 3058650	Aborts: 28597869	Throughput: 252438.321581
-Threads: 10	Elapsed time: 13.072303	Commits: 3058685	Aborts: 30251631	Throughput: 233982.106040
-Threads: 11	Elapsed time: 13.162877	Commits: 3320896	Aborts: 30518383	Throughput: 252292.567898
-Threads: 12	Elapsed time: 13.362798	Commits: 3058755	Aborts: 26748732	Throughput: 228900.789011
-Threads: 13	Elapsed time: 12.963719	Commits: 3058790	Aborts: 24155761	Throughput: 235950.040701
-Threads: 14	Elapsed time: 15.451747	Commits: 3146220	Aborts: 27803707	Throughput: 203615.811991
-Threads: 15	Elapsed time: 19.962358	Commits: 3233652	Aborts: 30817730	Throughput: 161987.476647
-Threads: 16	Elapsed time: 20.800775	Commits: 3233689	Aborts: 31317867	Throughput: 155460.024545
-kmeans
-Threads: 2	Elapsed time: 0.164446	Commits: 174766	Aborts: 193420	Throughput: 1062756.957537
-Threads: 3	Elapsed time: 0.157963	Commits: 174768	Aborts: 230136	Throughput: 1106385.410005
-Threads: 4	Elapsed time: 0.193544	Commits: 174770	Aborts: 358428	Throughput: 902999.216637
-Threads: 5	Elapsed time: 0.291936	Commits: 174772	Aborts: 747370	Throughput: 598665.623510
-Threads: 6	Elapsed time: 0.519305	Commits: 174774	Aborts: 1250194	Throughput: 336553.669052
-Threads: 7	Elapsed time: 0.460879	Commits: 174776	Aborts: 1373185	Throughput: 379223.304276
-Threads: 8	Elapsed time: 0.514205	Commits: 174778	Aborts: 1303821	Throughput: 339899.470362
-Threads: 9	Elapsed time: 0.592769	Commits: 174780	Aborts: 1386288	Throughput: 294853.403200
-Threads: 10	Elapsed time: 0.739188	Commits: 174782	Aborts: 1380130	Throughput: 236451.363439
-Threads: 11	Elapsed time: 0.884625	Commits: 174784	Aborts: 1397799	Throughput: 197579.774809
-Threads: 12	Elapsed time: 0.938784	Commits: 174786	Aborts: 1778450	Throughput: 186183.426207
-Threads: 13	Elapsed time: 1.142512	Commits: 174788	Aborts: 2840589	Throughput: 152985.722486
-Threads: 14	Elapsed time: 0.968174	Commits: 174790	Aborts: 1555302	Throughput: 180535.733744
-Threads: 15	Elapsed time: 1.125856	Commits: 174792	Aborts: 1543186	Throughput: 155252.547396
-Threads: 16	Elapsed time: 1.133990	Commits: 174794	Aborts: 2632089	Throughput: 154140.714769
-kmeans
-Threads: 2	Elapsed time: 15.093811	Commits: 9699513	Aborts: 987205	Throughput: 642615.239942
-Threads: 3	Elapsed time: 13.758087	Commits: 9175320	Aborts: 10077471	Throughput: 666903.755914
-Threads: 4	Elapsed time: 15.038267	Commits: 8214190	Aborts: 31334755	Throughput: 546219.192421
-kmeans
-Threads: 2	Elapsed time: 0.236604Threads: 3	Elapsed time: 0.246351Threads: 4	Elapsed time: 0.253997Threads: 5	Elapsed time: 0.414696Threads: 6	Elapsed time: 0.594183Threads: 7	Elapsed time: 0.685099
+Frequency (kHz)     PowerInState (J/s)  TimeInState (s)     
+2000000             15.996252           0.840000            
+1500000             13.497814           0.000000            
+1200000             11.998751           0.000000            
+1000000             10.999375           0.010000            
+800000              10.000000           12.970000           
+0                   0.000000            0.000000            
+0                   0.000000            0.000000            
+0                   0.000000            0.000000            
+0                   0.000000            0.000000            
+Threads: 2	Elapsed time: 0.430982 Energy: 143.246841	Commits: 262149	Aborts: 110351	Throughput: 608259.582388
+Frequency (kHz)     PowerInState (J/s)  TimeInState (s)     
+2000000             15.996252           0.830000            
+1500000             13.497814           0.000000            
+1200000             11.998751           0.000000            
+1000000             10.999375           0.010000            
+800000              10.000000           12.820000           
+0                   0.000000            0.000000            
+0                   0.000000            0.000000            
+0                   0.000000            0.000000            
+0                   0.000000            0.000000            
+Threads: 2	Elapsed time: 0.426061 Energy: 141.586884	Commits: 262149	Aborts: 112428	Throughput: 615284.913681
