@@ -1579,14 +1579,14 @@ float endEnergyAMD()
     closedir(dir);
     //count unit 10ms, usertime
 
-    printf("%-20s%-20s%-20s\n","Frequency (kHz)","PowerInState (J/s)", "TimeInState (s)");
+    //printf("%-20s%-20s%-20s\n","Frequency (kHz)","PowerInState (J/s)", "TimeInState (s)");
     for (ret = 0; ret<NUM_FREQ; ret++) {
         delta[ret].count = freqs[ret].count - oldfreqs[ret].count;
 
         total_time += delta[ret].count;
         delta[ret].frequency = freqs[ret].frequency;
 
-	printf("%-20llu%-20f%-20f\n", delta[ret].frequency, freqs[ret].power, ((float)delta[ret].count/100));
+	//printf("%-20llu%-20f%-20f\n", delta[ret].frequency, freqs[ret].power, ((float)delta[ret].count/100));
 
     }
 
