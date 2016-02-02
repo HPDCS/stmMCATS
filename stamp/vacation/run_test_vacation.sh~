@@ -14,8 +14,8 @@ while [ $nthread -le $maxThread ]
 	k=0
 	while [ $k -lt $runPerThread ]
 		do
-		echo nice -20 ./vacation -n2 -q60 -u90 -r32768 -t1048576 -t$nthread 			
-		nice -20 ./vacation -n2 -q60 -u90 -r32768 -t1048576 -t$nthread >> results_analysis.txt
+		echo nice -20 ./vacation -n2 -q60 -u90 -r32768 -t1048576 -c$nthread 			
+		nice -20 ./vacation -n2 -q60 -u90 -r32768 -t1048576 -c$nthread >> results_analysis.txt
 		k=$[$k+1]
 	done
 	nthread=$[$nthread+1]
@@ -29,8 +29,8 @@ while [ $nthread -le $maxThread ]
         k=0
         while [ $k -lt $runPerThread ]
                 do
-                echo nice -20 ./vacation -n2 -q90 -u98 -r1048576 -t2097152 -t$nthread                       
-                nice -20 ./vacation -n2 -q90 -u98 -r1048576 -t2097152 -t$nthread >> results_analysis.txt
+                echo nice -20 ./vacation -n2 -q90 -u98 -r1048576 -t2097152 -c$nthread                       
+                nice -20 ./vacation -n2 -q90 -u98 -r1048576 -t2097152 -c$nthread >> results_analysis.txt
                 k=$[$k+1]
         done
         nthread=$[$nthread+1]
@@ -44,8 +44,8 @@ while [ $nthread -le $maxThread ]
         k=0
         while [ $k -lt $runPerThread ]
                 do
-                echo nice -20 ./vacation -n4 -q60 -u90 -r32768 -t524288 -t$nthread                       
-                nice -20 ./vacation -n4 -q60 -u90 -r32768 -t524288 -t$nthread >> results_analysis.txt
+                echo nice -20 ./vacation -n4 -q60 -u90 -r32768 -t524288 -c$nthread                       
+                nice -20 ./vacation -n4 -q60 -u90 -r32768 -t524288 -c$nthread >> results_analysis.txt
                 k=$[$k+1]
         done
         nthread=$[$nthread+1]

@@ -589,7 +589,7 @@ inline void stm_tune_scheduler(){
 			mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads));
 			//printf("\nk:%i\tmu_k: %f - average", i, mu_k[i]);
 		}
-	}//disanzo@dis.uniroma1.it
+	}
 
 
 

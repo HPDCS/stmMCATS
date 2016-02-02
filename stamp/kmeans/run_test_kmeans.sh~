@@ -3,12 +3,12 @@
 #!/bin/bash
 
 maxThread=16
-runPerThread=1
+runPerThread=4
 
 #------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------
 echo kmeans >> results_analysis.txt
-inthread=2
+nthread=2
 while [ $nthread -le $maxThread ] 
 	do
 	k=0

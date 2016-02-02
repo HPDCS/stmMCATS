@@ -5,60 +5,60 @@ runPerThread=1
 
 #------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------
-echo yada >> results_analysis.txt
-nthread=17
+echo genome >> results_analysis.txt
+nthread=2
 while [ $nthread -le $maxThread ] 
 	do
 	k=0
 	while [ $k -lt $runPerThread ]
 		do
-		echo nice -20 ./yada -a15 -i inputs/ttimeu100000.2 -t$nthread 			
-		nice -20 ./yada -a15 -i inputs/ttimeu100000.2 -t$nthread >> results_analysis.txt
+		echo nice -20 ./genome -s64 -g24576 -n16777216 -t$nthread 			
+		nice -20 ./genome -s64 -g24576 -n16777216 -t$nthread >> results_analysis.txt
 		k=$[$k+1]
 	done
 	nthread=$[$nthread+1]
 done
 #------------------------------------------------------------------------------------------------
 #------------------------------------------------------------------------------------------------
-echo yada >> results_analysis.txt
-nthread=17
-while [ $nthread -le $maxThread ] 
-        do
-        k=0
-        while [ $k -lt $runPerThread ]
-                do
-                echo nice -20 ./yada -a10 -i inputs/ttimeu1000000.2 -t$nthread                       
-                nice -20 ./yada -a10 -i inputs/ttimeu1000000.2 -t$nthread >> results_analysis.txt
-                k=$[$k+1]
-        done
-        nthread=$[$nthread+1]
-done
-#------------------------------------------------------------------------------------------------
-#------------------------------------------------------------------------------------------------
-echo yada >> results_analysis.txt
-nthread=17
-while [ $nthread -le $maxThread ] 
-        do
-        k=0
-        while [ $k -lt $runPerThread ]
-                do
-                echo nice -20 ./yada -a20 -i inputs/ttimeu100000.2 -t$nthread                       
-                nice -20 ./yada -a20 -i inputs/ttimeu100000.2 -t$nthread >> results_analysis.txt
-                k=$[$k+1]
-        done
-        nthread=$[$nthread+1]
-done
-#------------------------------------------------------------------------------------------------
-#------------------------------------------------------------------------------------------------
-echo yada >> results_analysis.txt
+echo genome >> results_analysis.txt
 nthread=2
 while [ $nthread -le $maxThread ] 
         do
         k=0
         while [ $k -lt $runPerThread ]
                 do
-                echo nice -20 ./yada -a15 -i inputs/ttimeu1000000.2 -t$nthread                       
-                nice -20 ./yada -a15 -i inputs/ttimeu1000000.2 -t$nthread >> results_analysis.txt
+                echo nice -20 ./genome -s96 -g16384 -n16777216 -t$nthread                       
+                nice -20 ./genome -s96 -g16384 -n16777216 -t$nthread >> results_analysis.txt
+                k=$[$k+1]
+        done
+        nthread=$[$nthread+1]
+done
+#------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------
+echo genome >> results_analysis.txt
+nthread=2
+while [ $nthread -le $maxThread ] 
+        do
+        k=0
+        while [ $k -lt $runPerThread ]
+                do
+                echo nice -20 ./genome -s32 -g8192 -n8388608 -t$nthread                       
+                nice -20 ./genome -s32 -g8192 -n8388608 -t$nthread >> results_analysis.txt
+                k=$[$k+1]
+        done
+        nthread=$[$nthread+1]
+done
+#------------------------------------------------------------------------------------------------
+#------------------------------------------------------------------------------------------------
+echo genome >> results_analysis.txt
+nthread=2
+while [ $nthread -le $maxThread ] 
+        do
+        k=0
+        while [ $k -lt $runPerThread ]
+                do
+                echo nice -20 ./genome -s32 -g32768 -n8388608 -t$nthread                       
+                nice -20 ./genome -s32 -g32768 -n8388608 -t$nthread >> results_analysis.txt
                 k=$[$k+1]
         done
         nthread=$[$nthread+1]
