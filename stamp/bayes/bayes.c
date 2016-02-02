@@ -78,6 +78,9 @@
 #include "timer.h"
 #include "tm.h"
 #include "types.h"
+#include "../../rapl-power/rapl.h"
+
+#define STM_ENERGY_MONITOR
 
 #define TX_CLASS_NUMBER 15
 
@@ -325,6 +328,10 @@ MAIN(argc, argv)
     //printf("Learning structure...");
     //fflush(stdout);
 
+    #ifdef STM_ENERGY_MONITOR
+	startEnergy();
+    #endif /* STM_ENERGY_MONITOR */
+
     TIMER_T learnStartTime;
     TIMER_READ(learnStartTime);
     GOTO_SIM();
@@ -335,9 +342,13 @@ MAIN(argc, argv)
     TIMER_T learnStopTime;
     TIMER_READ(learnStopTime);
 
-    //puts("done.");
-    //fflush(stdout);
-    printf("Threads: %i\tElapsed time: %f", numThread, TIMER_DIFF_SECONDS(learnStartTime, learnStopTime));
+    #ifdef STM_ENERGY_MONITOR
+	float delta_energy = endEnergy();
+    printf("Threads: %i\tElapsed time: %f Energy: %f",numThread, TIMER_DIFF_SECONDS(learnStartTime, learnStopTime), delta_energy);
+#else
+    printf("Threads: %i\tElapsed time: %f",numThread, TIMER_DIFF_SECONDS(learnStartTime, learnStopTime));
+#endif /* STM_ENERGY_MONITOR */
+
     fflush(stdout);
 
     /*

@@ -19,13 +19,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
  * Intel(r) Power Governor library implementation
  */
 
-
-float maxcpupower = 30.0f;       // 30.0f in Watts
-float mincpupower = 18.0f;        // 18.0f in Watts
-
-
-
-
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -334,12 +327,12 @@ init_rapl()
     MAX_THROTTLED_TIME_SECONDS = (double)(RAPL_TIME_UNIT * (pow(2, 32) - 1));
 
     //TSC frequency
-    read_tsc(&pre_tsc);
+    /*read_tsc(&pre_tsc);
     sleep(1);
     read_tsc(&post_tsc);
     freq_tsc = post_tsc-pre_tsc;
-    //printf("Invariant TSC frequency: %" PRIu64 "Hz\n", freq_tsc);
-
+    printf("Invariant TSC frequency: %" PRIu64 "Hz\n", freq_tsc);
+    */
     if (err != 0)
     {
         fprintf(stderr, "my error: %d\n", err);
@@ -1401,17 +1394,29 @@ get_pp0_freq_mhz(uint64_t node, uint64_t *freq)
 #define CPU_DIR "/sys/devices/system/cpu"
 #define CPU_FREQUENCY_STAT "/sys/devices/system/cpu/%s/cpufreq/stats/time_in_state"
 
+/*#define NUM_FREQ 5
+float maxcpupower = 14.375f; //Watt
+float mincpupower = 5.625f; //Watt
+float maxfreq = 2.0f; //GHz
+float minfreq = 0.8f; //GHz*/
+
+#define NUM_FREQ 9
+float maxcpupower = 18.0f; //Watt
+float mincpupower = 10.0f; //Watt
+float maxfreq = 2.401f; //GHz
+float minfreq = 0.8f; //GHz
+
 typedef unsigned long long u64;
 
 struct cpufreqdata {
     u64 frequency;
     u64 count;
-    float       power; // what power consumption
+    float power; // what power consumption
 };
 
-struct cpufreqdata freqs[9];
-struct cpufreqdata oldfreqs[9];
-struct cpufreqdata delta[9];
+struct cpufreqdata freqs[NUM_FREQ];
+struct cpufreqdata oldfreqs[NUM_FREQ];
+struct cpufreqdata delta[NUM_FREQ];
 
 int cpufreq_stats = 0;
 unsigned int hz;
@@ -1476,20 +1481,7 @@ void startEnergyAMD()
     int maxfreq = 0;
     u64 total_time = 0;
 
-    /*init_rapl();
-
-    pkg_rapl_parameters_t prova;
-
-    get_pkg_rapl_parameters(0,&prova);
-
-    maxcpupower = prova.maximum_power_watts;
-    mincpupower = prova.minimum_power_watts;
-
-    printf("Max: %.4f W, Min: %.4f W, Th: %.4f W\n", prova.maximum_power_watts, prova.minimum_power_watts, prova.thermal_spec_power_watts);
-
-    terminate_rapl();*/
-
-    for (ret = 0; ret<16; ret++)
+    for (ret = 0; ret<NUM_FREQ; ret++)
         oldfreqs[ret].count = 0;
 
     dir = opendir(CPU_DIR);
@@ -1535,12 +1527,15 @@ float endEnergyAMD()
     FILE *file;
     char filename[PATH_MAX];
     char line[32];
-    float delta_power;
+    float delta_energy = 0.0, range_freq, range_power;
     int ret = 0;
-    int maxfreq = 0;
+    //int maxfreq = 0;
     u64 total_time = 0;
 
-    for (ret = 0; ret<16; ret++)
+    range_freq = maxfreq - minfreq;
+    range_power = maxcpupower - mincpupower;
+
+    for (ret = 0; ret<NUM_FREQ; ret++)
         freqs[ret].count = 0;
 
     dir = opendir(CPU_DIR);
@@ -1568,6 +1563,8 @@ float endEnergyAMD()
             sscanf(line, "%llu %llu", &freqs[i].frequency, &count);
 
             freqs[i].count += count;
+            freqs[i].power =  ((((float)freqs[i].frequency / 1000000) - minfreq) * (range_power/range_freq)) + mincpupower;
+
             i++;
             if (i>15)
                 break;
@@ -1579,26 +1576,29 @@ float endEnergyAMD()
 
     closedir(dir);
     //count unit 10ms, usertime
-    for (ret = 0; ret < 16; ret++) {
+
+    printf("%-20s%-20s%-20s\n","Frequency (kHz)","PowerInState (J/s)", "TimeInState (s)");
+    for (ret = 0; ret<NUM_FREQ; ret++) {
         delta[ret].count = freqs[ret].count - oldfreqs[ret].count;
 
         total_time += delta[ret].count;
         delta[ret].frequency = freqs[ret].frequency;
-        /*
-        if (ret <= 4)
-            printf("\nfreq %llu -> %llu\n", delta[ret].frequency, delta[ret].count);
-            */
+
+	printf("%-20llu%-20f%-20f\n", delta[ret].frequency, freqs[ret].power, ((float)delta[ret].count/100));
+
     }
 
-    delta_power = 0.0;
-    float rangecpupower = maxcpupower - mincpupower;
+    /*float rangecpupower = maxcpupower - mincpupower;
     for (ret = 0; ret <= maxfreq; ret++) {
         if(total_time > 0 && maxfreq > 0)
             delta_power += (maxcpupower - rangecpupower * ret / maxfreq) * delta[ret].count / 100;//Watt * 10ms
     }
-    //printf("\nPower: %f\n", delta_power);
+    printf("\nPower: %f\n", delta_energy);*/
 
-    return delta_power;
+    for (i=0; i<NUM_FREQ;i++)
+        delta_energy = delta_energy + ((freqs[i].power * delta[i].count) / 100); // in Joule
+
+    return delta_energy;
 }
 
 /* RAPL stuff */
@@ -1607,33 +1607,24 @@ __thread double pre_pp0en = 0;
 __thread double post_pp0en = 0;
 
 void startEnergyIntel() {
-    read_tsc(&pre_tsc);
     get_pp0_total_energy_consumed(0, &pre_pp0en); //verifica node = 0?
 }
 
-double endEnergyIntel() {
+float endEnergyIntel() {
 
-    double elapsedTime = 0.0, delta_pp0en = 0.0;
+    float delta_pp0en = 0.0;
 
-    read_tsc(&post_tsc);
-    elapsedTime = ((double) (post_tsc - pre_tsc))/freq_tsc;
-	get_pp0_total_energy_consumed(0, &post_pp0en);
-	delta_pp0en = (post_pp0en - pre_pp0en);
+    get_pp0_total_energy_consumed(0, &post_pp0en);
+    delta_pp0en = (post_pp0en - pre_pp0en);
 
-	//Handle wraparound
-	if (delta_pp0en < 0) {
-		delta_pp0en += MAX_ENERGY_STATUS_JOULES;
-	}
-	/*
-	printf("\nElapsed time: %.6f s"
-           "\nTot PP0 energy: %0.6lf J"
-           "\nAvg PP0 power: %0.6lf W\n",
-           elapsedTime,
-           delta_pp0en,
-           delta_pp0en/elapsedTime);
-*/
-	return delta_pp0en;
+    //Handle wraparound
+    if (delta_pp0en < 0) {
+	 delta_pp0en += MAX_ENERGY_STATUS_JOULES;
+    }
 
+    //printf("\Energy: %0.6lf J", delta_pp0en);
+
+    return delta_pp0en;
 }
 
 
@@ -1641,22 +1632,29 @@ double endEnergyIntel() {
 /* Common Energy */
 
 unsigned int isIntel = -1;
-char vendor[15];
+
 
 void startEnergy()
 {
-    if (isIntel == -1){
-        get_vendor(vendor);
-        if (strstr(vendor, "Intel")){
-            //printf("\n%s\n", vendor);
+    if (isIntel == -1) {
+        if (system("grep 'Intel' /proc/cpuinfo >> /dev/null"	) == 0) {
             isIntel = 1;
-        }
-        else{
+        } else {
             isIntel = 0;
         }
     }
 
     if (isIntel){
+        if (init_rapl() != 0){
+            printf("\nRAPL could not be initialized\n");
+            exit(1);
+        }
+        /*pkg_rapl_parameters_t prova;
+        get_pkg_rapl_parameters(0,&prova);
+        maxcpupower = prova.maximum_power_watts;
+        mincpupower = prova.minimum_power_watts;
+        printf("Max: %.4f W, Min: %.4f W, Th: %.4f W\n", prova.maximum_power_watts, prova.minimum_power_watts, prova.thermal_spec_power_watts);
+        fflush(stdout);*/
         startEnergyIntel();
     }
     else{
@@ -1664,11 +1662,15 @@ void startEnergy()
     }
 }
 
-float endEnergy() {
-    if (isIntel) {
-        return (float)endEnergyIntel();
-    } else {
-    	return (float) endEnergyAMD();
+float endEnergy()
+{
+    if (isIntel){
+        float delta_pp0en = endEnergyIntel();
+        terminate_rapl();
+        return delta_pp0en;
+    }
+    else{
+        return endEnergyAMD();
     }
 }
 

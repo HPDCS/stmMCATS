@@ -67,6 +67,9 @@
 #ifndef COMMON_H
 #define COMMON_H 1
 
+#include "../../rapl-power/rapl.h"
+
+#define STM_ENERGY_MONITOR
 
 #ifndef FLT_MAX
 #  define FLT_MAX 3.40282347e+38

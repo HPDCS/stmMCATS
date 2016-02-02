@@ -78,6 +78,9 @@
 #include "timer.h"
 #include "thread.h"
 #include "tm.h"
+#include "../../rapl-power/rapl.h"
+
+#define STM_ENERGY_MONITOR
 
 
 MAIN(argc, argv)
@@ -166,8 +169,14 @@ MAIN(argc, argv)
     SDGdata = (graphSDG*)malloc(sizeof(graphSDG));
     assert(SDGdata);
 
+
+#ifdef STM_ENERGY_MONITOR
+    startEnergy();
+#endif /* STM_ENERGY_MONITOR */
+
     TIMER_T start;
     TIMER_READ(start);
+
 
 #ifdef USE_PARALLEL_DATA_GENERATION
     GOTO_SIM();
@@ -463,6 +472,8 @@ MAIN(argc, argv)
 
     printf("\nKernel 4 - cutClusters() beginning execution...\n");
 
+
+
     TIMER_READ(start);
 
     GOTO_SIM();
@@ -485,8 +496,16 @@ MAIN(argc, argv)
     //printf("\nTime taken for Kernel 4 is %9.6f sec.\n\n", time);
 
 #endif /* ENABLE_KERNEL4 */
+#ifdef STM_ENERGY_MONITOR
+	float delta_energy = endEnergy();
+	printf("Threads: %i\tElapsed time: %f Energy: %f", THREADS, totalTime,
+			delta_energy);
+#else
+	printf("Threads: %i\tElapsed time: %f",THREADS, totalTime);
+#endif /* STM_ENERGY_MONITOR */
 
-    printf("Threads: %i\tElapsed time: %f",THREADS, totalTime);
+
+    //printf("Threads: %i\tElapsed time: %f",THREADS, totalTime);
 
     /* -------------------------------------------------------------------------
      * Cleanup

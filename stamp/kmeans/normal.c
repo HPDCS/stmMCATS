@@ -96,6 +96,9 @@
 #include "util.h"
 
 double global_time = 0.0;
+#ifdef STM_ENERGY_MONITOR
+	float delta_energy=0.0;
+#endif /* STM_ENERGY_MONITOR */
 
 typedef struct args {
     float** feature;
@@ -261,6 +264,10 @@ normal_exec (int       nthreads,
         }
     }
 
+#ifdef STM_ENERGY_MONITOR
+    startEnergy();
+#endif /* STM_ENERGY_MONITOR */
+
     TIMER_READ(start);
 
     GOTO_SIM();
@@ -309,6 +316,9 @@ normal_exec (int       nthreads,
     GOTO_REAL();
 
     TIMER_READ(stop);
+#ifdef STM_ENERGY_MONITOR
+    delta_energy = endEnergy();
+#endif /* STM_ENERGY_MONITOR */
     global_time += TIMER_DIFF_SECONDS(start, stop);
 
     free(alloc_memory);

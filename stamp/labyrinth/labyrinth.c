@@ -79,6 +79,9 @@
 #include "thread.h"
 #include "timer.h"
 #include "types.h"
+#include "../../rapl-power/rapl.h"
+
+#define STM_ENERGY_MONITOR
 
 enum param_types {
     PARAM_BENDCOST = (unsigned char)'b',
@@ -215,6 +218,10 @@ MAIN(argc, argv)
      * Run transactions
      */
     router_solve_arg_t routerArg = {routerPtr, mazePtr, pathVectorListPtr};
+    #ifdef STM_ENERGY_MONITOR
+	startEnergy();
+    #endif /* STM_ENERGY_MONITOR */
+
     TIMER_T startTime;
     TIMER_READ(startTime);
     GOTO_SIM();
@@ -230,6 +237,13 @@ MAIN(argc, argv)
     TIMER_T stopTime;
     TIMER_READ(stopTime);
 
+    #ifdef STM_ENERGY_MONITOR
+	float delta_energy = endEnergy();
+    printf("Threads: %i\tElapsed time: %f Energy: %f",numThread, TIMER_DIFF_SECONDS(startTime, stopTime), delta_energy);
+#else
+    printf("Threads: %i\tElapsed time: %f",numThread, TIMER_DIFF_SECONDS(startTime, stopTime));
+#endif /* STM_ENERGY_MONITOR */
+
     long numPathRouted = 0;
     list_iter_t it;
     list_iter_reset(&it, pathVectorListPtr);
@@ -238,7 +252,7 @@ MAIN(argc, argv)
         numPathRouted += vector_getSize(pathVectorPtr);
     }
     //printf("Paths routed    = %li\n", numPathRouted);
-    printf("Threads: %i\tElapsed time: %f",numThread, TIMER_DIFF_SECONDS(startTime, stopTime));
+    //printf("Threads: %i\tElapsed time: %f",numThread, TIMER_DIFF_SECONDS(startTime, stopTime));
 
     /*
      * Check solution and clean up
@@ -252,12 +266,12 @@ MAIN(argc, argv)
 
     TM_SHUTDOWN();
     //Added for MCATS stats
-	if (getenv("STM_STATS") != NULL) {
-		unsigned long u;
-		if (stm_get_global_stats("global_nb_commits", &u) != 0){
-			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(startTime, stopTime));
-		}
-	}
+    if (getenv("STM_STATS") != NULL) {
+    	unsigned long u;
+    	if (stm_get_global_stats("global_nb_commits", &u) != 0){
+    		printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(startTime, stopTime));
+    	}
+    }
     P_MEMORY_SHUTDOWN();
 
     GOTO_SIM();

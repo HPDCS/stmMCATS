@@ -310,11 +310,6 @@ MAIN(argc, argv)
      */
 
 #ifdef STM_ENERGY_MONITOR
-
-	if (init_rapl() != 0) {
-		printf("\nRAPL could not be initialized\n");
-		exit(1);
-	}
 	startEnergy();
 #endif /* STM_ENERGY_MONITOR */
 
@@ -336,7 +331,7 @@ MAIN(argc, argv)
 
 #ifdef STM_ENERGY_MONITOR
 	float joule=endEnergy();
-	terminate_rapl();
+	//terminate_rapl();
     printf("Threads: %i\tElapsed time: %f Joule: %f",nthreads, TIMER_DIFF_SECONDS(startTime, stopTime), joule);
 #else
     printf("Threads: %i\tElapsed time: %f",nthreads, TIMER_DIFF_SECONDS(startTime, stopTime));
