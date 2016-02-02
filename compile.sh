@@ -1,22 +1,40 @@
 #!/bin/bash
-cd rapl-power
-make clean
-make
-cd ..
+
 cd tinySTM
 make clean
 make
 cd ..
-cd stamp/intruder
+cd stamp/bayes
 make -f Makefile.stm clean
 make -f Makefile.stm
 cd ..
-cd yada
+cd genome
+make -f Makefile.stm clean
+make -f Makefile.stm
+cd ..
+cd intruder
+make -f Makefile.stm clean
+make -f Makefile.stm
+cd ..
+cd kmeans
+make -f Makefile.stm clean
+make -f Makefile.stm
+cd ..
+cd labyrinth
 make -f Makefile.stm clean
 make -f Makefile.stm
 cd ..
 cd vacation
 make -f Makefile.stm clean
 make -f Makefile.stm
+cd ..
+cd ssca2
+make -f Makefile.stm clean
+make -f Makefile.stm
+cd ..
+cd yada
+make -f Makefile.stm clean
+make -f Makefile.stm
+
 
 
