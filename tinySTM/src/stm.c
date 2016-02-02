@@ -38,11 +38,9 @@
 #include "atomic.h"
 #include "gc.h"
 
-
 /* ################################################################### *
  * DEFINES
  * ################################################################### */
-
 
 
 #ifdef PRINT_STATS_INFO
@@ -364,8 +362,6 @@ void stm_init()
   }
 #endif /* SIGNAL_HANDLER */
   _tinystm.initialized = 1;
-
-
 }
 
 /*
@@ -381,14 +377,10 @@ stm_exit(void)
   tls_exit();
   stm_quiesce_exit();
 
-
-
 #ifdef EPOCH_GC
   gc_exit();
 #endif /* EPOCH_GC */
   _tinystm.initialized = 0;
-
-
 }
 
 /*
@@ -543,7 +535,6 @@ float get_throughput(float lambda, float *mu, int m) {
 inline void stm_tune_scheduler(){
 	TX_GET;
 	int m=max_allowed_running_transactions;
-    //endEnergy();
 	stm_time_t now=STM_TIMER_READ();
 	stm_time_t total_tx_wasted_time=0;
 	stm_time_t total_tx_time=0;
@@ -600,6 +591,8 @@ inline void stm_tune_scheduler(){
 		}
 	}//disanzo@dis.uniroma1.it
 
+
+
 	float th = get_throughput(lambda,mu_k,m);
 	float th_minus_1=0.0,th_plus_1=0.0,th_minus_2=0.0;
 	if(m>3){
@@ -640,7 +633,6 @@ inline void stm_tune_scheduler(){
 	//printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads)));
 	//printf("\nAvg_running_tx: %f", avg_running_tx, 1.0);
 	//fflush(stdout);
-    //startEnergy();
 	last_tuning_time=STM_TIMER_READ();
 
 }
@@ -670,7 +662,9 @@ stm_commit(void)
 {
 	TX_GET;
 	int ret;
+#ifdef STM_MCATS
 	tx->last_k=running_transactions;
+#endif
 	ret=int_stm_commit(tx);
 #ifdef STM_MCATS
 	tx->committed_transactions++;

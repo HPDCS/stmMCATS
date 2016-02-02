@@ -77,7 +77,6 @@
 
 #define STM_MCATS
 
-
 #ifdef STM_MCATS
 
 #define INVISIBLE_TRACKING
