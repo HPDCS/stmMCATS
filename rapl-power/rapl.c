@@ -1394,17 +1394,19 @@ get_pp0_freq_mhz(uint64_t node, uint64_t *freq)
 #define CPU_DIR "/sys/devices/system/cpu"
 #define CPU_FREQUENCY_STAT "/sys/devices/system/cpu/%s/cpufreq/stats/time_in_state"
 
-/*#define NUM_FREQ 5
+#define NUM_FREQ 5
 float maxcpupower = 14.375f; //Watt
 float mincpupower = 5.625f; //Watt
 float maxfreq = 2.0f; //GHz
-float minfreq = 0.8f; //GHz*/
+float minfreq = 0.8f; //GHz
 
+/*
 #define NUM_FREQ 9
 float maxcpupower = 18.0f; //Watt
 float mincpupower = 10.0f; //Watt
 float maxfreq = 2.401f; //GHz
 float minfreq = 0.8f; //GHz
+*/
 
 typedef unsigned long long u64;
 
