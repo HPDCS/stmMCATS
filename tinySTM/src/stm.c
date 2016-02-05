@@ -75,7 +75,7 @@ global_t _tinystm =
 
 #  ifdef STM_MCATS
 	volatile stm_word_t running_transactions;
-	volatile stm_word_t queued_transactions;
+	volatile int queued_transactions;
 	volatile stm_word_t max_allowed_running_transactions;
 	unsigned long max_concurrent_threads;
 	int transactions_per_tuning_cycle;
