@@ -77,11 +77,14 @@ global_t _tinystm =
 	volatile stm_word_t running_transactions;
 	volatile stm_word_t max_allowed_running_transactions;
 	unsigned long max_concurrent_threads;
-	int tx_per_tuning_cycle;
+	int transactions_per_tuning_cycle;
 	int main_thread;
 	int current_collector_thread;
 	stm_time_t last_tuning_time;
-	long total_commited_txs=0;
+	stm_time_t *wasted_time_k;
+	stm_time_t *useful_time_k;
+	long * conflicts_per_active_transactions;
+	long * committed_per_active_transactions;
 
 #endif /* ! STM_MCATS */
 
@@ -278,7 +281,7 @@ void reset_local_stats(stm_tx_t *tx){
 
 void stm_init(int threads) {
 
-	int max_tx_per_tuning_cycle;
+	int max_transactions_per_tuning_cycle;
 
 	max_concurrent_threads = threads;
 
@@ -288,14 +291,18 @@ void stm_init(int threads) {
 		exit(1);
 	}
 
-	if (fscanf(fid, "TX_PER_CYCLE=%d INITIAL_MAX_ADMITTED_TX=%d", &max_tx_per_tuning_cycle, &max_allowed_running_transactions)!=2) {
+	if (fscanf(fid, "TX_PER_CYCLE=%d INITIAL_MAX_ADMITTED_TX=%d", &max_transactions_per_tuning_cycle, &max_allowed_running_transactions)!=2) {
 		printf("\nThe number of input parameters of the MCATS configuration file does not match the number of required parameters.\n");
 		exit(1);
 	}
 
-	tx_per_tuning_cycle = max_tx_per_tuning_cycle / max_concurrent_threads;
+	transactions_per_tuning_cycle = max_transactions_per_tuning_cycle / max_concurrent_threads;
 	main_thread = current_collector_thread = 0;
 	running_transactions = 0;
+	wasted_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
+	useful_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
+	conflicts_per_active_transactions=(long *)malloc((max_concurrent_threads + 1) * sizeof(long));
+	committed_per_active_transactions=(long *)malloc((max_concurrent_threads + 1) * sizeof(long));
 
   	/* Set on conflict callback */
 
@@ -426,8 +433,7 @@ stm_start(stm_tx_attr_t attr)
 }
 
 #  ifdef STM_MCATS
-_CALLCONV stm_tx_t *
-stm_pre_init_thread(int id){
+_CALLCONV stm_tx_t *stm_pre_init_thread(int id){
 	stm_tx_t *tx;
 	tx=stm_init_thread();
 	tx->total_tx_wasted_per_active_transactions=(stm_time_t*)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
@@ -540,18 +546,14 @@ inline void stm_tune_scheduler(){
 	stm_time_t total_tx_time=0;
 	stm_time_t total_no_tx_time=0;
 	stm_time_t total_tx_spin_time=0;
-	stm_time_t *wasted_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
-	stm_time_t *useful_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
-	long * conflict_active_threads=(long *)malloc((max_concurrent_threads + 1) * sizeof(long));
-	long * commit_active_threads=(long *)malloc((max_concurrent_threads + 1) * sizeof(long));
-	memset(conflict_active_threads, 0, (max_concurrent_threads+1) * sizeof(long));
-	memset(commit_active_threads, 0, (max_concurrent_threads+1) * sizeof(long));
+	memset(conflicts_per_active_transactions, 0, (max_concurrent_threads+1) * sizeof(long));
+	memset(committed_per_active_transactions, 0, (max_concurrent_threads+1) * sizeof(long));
 	memset(wasted_time_k, 0, (max_concurrent_threads+1) * sizeof(stm_time_t));
 	memset(useful_time_k, 0, (max_concurrent_threads+1) * sizeof(stm_time_t));
 	long total_committed_transactions_by_collector_threads=0;
 	long total_committed_transactions=0;
-	long tx_conflict_table_times=0;
-	float avg_running_tx=0;
+	long total_aborted_transactions=0;
+	float average_running_transactions=0;
 
 	tx->total_no_tx_time+=now - tx->start_no_tx_time ;
 	stm_tx_t *thread=_tinystm.threads;
@@ -563,33 +565,33 @@ inline void stm_tune_scheduler(){
 		total_tx_spin_time+=thread->total_spin_time;
 		total_committed_transactions_by_collector_threads+=thread->committed_transactions_as_a_collector_thread;
 		total_committed_transactions+=thread->committed_transactions;
-		tx_conflict_table_times+=thread->aborted_transactions;
+		total_aborted_transactions+=thread->aborted_transactions;
 
 		for(i=0;i<max_concurrent_threads+1;i++){
 			wasted_time_k[i]+=thread->total_tx_wasted_per_active_transactions[i];
 			//printf("\nwasted_time_k[%i] %llu", i, thread->total_tx_wasted_per_active_transactions[i]);
 			useful_time_k[i]+=thread->total_tx_useful_per_active_transactions[i];
-			commit_active_threads[i]+=thread->total_tx_committed_per_active_transactions[i];
-			avg_running_tx+=(float)i * (float) thread->total_tx_committed_per_active_transactions[i];
-			conflict_active_threads[i]+=thread->total_conflict_per_active_transactions[i];
+			committed_per_active_transactions[i]+=thread->total_tx_committed_per_active_transactions[i];
+			average_running_transactions+=(float)i * (float) thread->total_tx_committed_per_active_transactions[i];
+			conflicts_per_active_transactions[i]+=thread->total_conflict_per_active_transactions[i];
 		}
 		reset_local_stats(thread);
 		thread=thread->next;
 	}
 	//for(i=0;i<max_concurrent_threads+1;i++) printf("\nwasted_time_k[%i] %llu", i, wasted_time_k[i]);
 	//printf("\ntotal_tx_time %llu, total_tx_wasted_time %llu, total_no_tx_time %llu, total_committed_transactions_by_collector_threads %i", total_tx_time, total_tx_wasted_time, total_no_tx_time, total_committed_transactions_by_collector_threads);
-	avg_running_tx=avg_running_tx/(float)total_committed_transactions_by_collector_threads;
+	average_running_transactions=average_running_transactions/(float)total_committed_transactions_by_collector_threads;
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
 	float lambda = 1.0 / (((float) total_no_tx_time/(float)1000000000)/(float) total_committed_transactions_by_collector_threads);
 	for (i=0;i<max_concurrent_threads+1;i++){
-		if((wasted_time_k[i]>0 || useful_time_k[i]>0) && commit_active_threads[i] > 0){
-			mu_k[i]= 1.0 / ((((float) wasted_time_k[i] / (float)1000000000) / (float)commit_active_threads[i]) + (((float) useful_time_k[i]/(float)1000000000) / (float) commit_active_threads[i]));
-			//printf("\nk:%i\tmu_k: %f, %llu, %llu, %llu", i, mu_k[i], wasted_time_k[i], useful_time_k[i], commit_active_threads[i]);
+		if((wasted_time_k[i]>0 || useful_time_k[i]>0) && committed_per_active_transactions[i] > 0){
+			mu_k[i]= 1.0 / ((((float) wasted_time_k[i] / (float)1000000000) / (float)committed_per_active_transactions[i]) + (((float) useful_time_k[i]/(float)1000000000) / (float) committed_per_active_transactions[i]));
+			//printf("\nk:%i\tmu_k: %f, %llu, %llu, %llu", i, mu_k[i], wasted_time_k[i], useful_time_k[i], committed_per_active_transactions[i]);
 		}else{
 			mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads));
 			//printf("\nk:%i\tmu_k: %f - average", i, mu_k[i]);
 		}
-	}
+	}//disanzo@dis.uniroma1.it
 
 
 
@@ -606,18 +608,18 @@ inline void stm_tune_scheduler(){
 		max_allowed_running_transactions--;
 		//printf("\nSelected th_minus_1");
 	}else if(m<max_concurrent_threads){
-		float avg_restart_k= (float)conflict_active_threads[m]/(float)commit_active_threads[m];
-		float p_a_k = avg_restart_k /(1.0 + avg_restart_k);
+		float average_restarted_transactions= (float)conflicts_per_active_transactions[m]/(float)committed_per_active_transactions[m];
+		float p_a_k = average_restarted_transactions /(1.0 + average_restarted_transactions);
 		float p_a_1 = 1- pow(1-p_a_k,1.0/(double)(m-1));
-		float avg_restart_k_plus_1 = ((1.0 - pow((1.0 - p_a_1),m))/ pow((1-p_a_1),m));
+		float average_restarted_transactions_plus_1 = ((1.0 - pow((1.0 - p_a_1),m))/ pow((1-p_a_1),m));
 		float w_m=0.0,u_m=0.0;
-		if(conflict_active_threads[m]>0)
-			w_m=((float)wasted_time_k[m]/(float)1000000000)/(float)conflict_active_threads[m];
-		else if(tx_conflict_table_times>0)w_m=((float)total_tx_wasted_time/(float)1000000000)/(float)tx_conflict_table_times;
-		if(commit_active_threads[m]>0)
-			u_m = ((float)useful_time_k[m]/(float)1000000000)/(float)commit_active_threads[m];
+		if(conflicts_per_active_transactions[m]>0)
+			w_m=((float)wasted_time_k[m]/(float)1000000000)/(float)conflicts_per_active_transactions[m];
+		else if(total_aborted_transactions>0)w_m=((float)total_tx_wasted_time/(float)1000000000)/(float)total_aborted_transactions;
+		if(committed_per_active_transactions[m]>0)
+			u_m = ((float)useful_time_k[m]/(float)1000000000)/(float)committed_per_active_transactions[m];
 		else u_m = ((float)total_tx_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads;
-		mu_k[m + 1]= 1.0/((w_m * avg_restart_k_plus_1) + u_m );
+		mu_k[m + 1]= 1.0/((w_m * average_restarted_transactions_plus_1) + u_m );
 		th_plus_1 = get_throughput(lambda,mu_k,m + 1);
 		if(th_plus_1 > th) {
 			max_allowed_running_transactions++;
@@ -631,7 +633,7 @@ inline void stm_tune_scheduler(){
 	//printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000000), max_allowed_running_transactions);
 	//printf("\tTotal commits: %i (as a collector: %i)",total_committed_transactions, total_committed_transactions_by_collector_threads);
 	//printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads)));
-	//printf("\nAvg_running_tx: %f", avg_running_tx, 1.0);
+	//printf("\naverage_running_transactions: %f", average_running_transactions, 1.0);
 	//fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
 
@@ -679,7 +681,7 @@ stm_commit(void)
 		tx->total_tx_useful_per_active_transactions[active]+=useful;
 		tx->total_tx_committed_per_active_transactions[active]++;
 		tx->total_useful_time+=useful;
-		if(tx->committed_transactions_as_a_collector_thread==tx_per_tuning_cycle){
+		if(tx->committed_transactions_as_a_collector_thread==transactions_per_tuning_cycle){
 			if(tx->thread_identifier==max_concurrent_threads - 1) stm_tune_scheduler();
 			current_collector_thread =(current_collector_thread + 1)% max_concurrent_threads;
 			tx->i_am_the_collector_thread=0;
