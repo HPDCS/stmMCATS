@@ -494,9 +494,9 @@ inline void stm_wait(int id) {
 			//sleeping
 		    stm_time_t start, end;
 	        start = STM_TIMER_READ();
-	        usleep(1);
+	        //usleep(1);
 	        end = STM_TIMER_READ();
-	        printf("\n Thread %i sleeping ticks=%llu", end-start);
+	        //printf("\n Thread sleeping ticks=%llu", end-start);
 	        fflush(stdout);
 
 		} else {
