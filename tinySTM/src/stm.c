@@ -489,8 +489,6 @@ inline void stm_wait(int id) {
 
 	if(entered==0){
 		ATOMIC_FETCH_INC_FULL(&queued_transactions);
-		printf("\nQueued_transactions %i:", queued_transactions);
-		fflush(stdout);
 		if(tx->i_am_the_collector_thread==1){
 			//collect statistics
 			start_spin_time=STM_TIMER_READ();
