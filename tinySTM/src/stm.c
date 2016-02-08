@@ -500,10 +500,10 @@ inline void stm_wait(int id) {
 		if ((tx->i_am_the_collector_thread!=1) &&
 				((double)(queued_transactions-1)*(double)average_spin_time_per_waiting_transacton>(double)busy_waiting_time_threashold)) {
 			//sleeping
-			stm_time_t start, end;
-			start = STM_TIMER_READ();
-			usleep(1000);
-			end = STM_TIMER_READ();
+			//stm_time_t start, end;
+			//start = STM_TIMER_READ();
+			usleep(1);
+			//end = STM_TIMER_READ();
 			/*
 			printf("\nQueued_transactions-1: %i, Average spin time per waiting transaction %f, product %f, thread slept for ticks=%llu",
 					queued_transactions-1,
