@@ -251,6 +251,7 @@ signal_catcher(int sig)
 #endif /* SIGNAL_HANDLER */
 
 #ifdef STM_MCATS
+
 inline void update_conflict_table(int id1, int id2) {
 		TX_GET;
 		tx->aborted_transactions++;
@@ -464,24 +465,32 @@ inline void stm_wait(int id) {
 
 	TX_GET;
 
-	int active_txs,max_txs,entered=0;
+	int active_txs, max_txs;
+	int entered=0;
 	stm_time_t start_spin_time=0;
-	active_txs=running_transactions;
-	max_txs=max_allowed_running_transactions;
 
-	if(active_txs<max_txs){
-		if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1) != 0){
-			if(tx->i_am_the_collector_thread==1){
-				tx->first_start_tx_time=tx->last_start_tx_time=STM_TIMER_READ();
-				tx->total_no_tx_time+=tx->last_start_tx_time - tx->start_no_tx_time;
+	while(1){
+		active_txs=running_transactions;
+		max_txs=max_allowed_running_transactions;
+		if(active_txs<max_txs){
+			if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1) != 0){
+				if(tx->i_am_the_collector_thread==1){
+					tx->first_start_tx_time=tx->last_start_tx_time=STM_TIMER_READ();
+					tx->total_no_tx_time+=tx->last_start_tx_time - tx->start_no_tx_time;
+				}
+				entered=1;
+				break;
 			}
-			entered=1;
+		} else {
+			break;
 		}
 	}
+
 
 	if(entered==0){
 		ATOMIC_FETCH_INC_FULL(&queued_transactions);
 		printf("\nQueued_transactions %i:", queued_transactions);
+		fflush(stdout);
 		if(tx->i_am_the_collector_thread==1){
 			//collect statistics
 			start_spin_time=STM_TIMER_READ();
@@ -490,19 +499,19 @@ inline void stm_wait(int id) {
 		}
 		//busy waiting or sleeping?
 
-		if ((tx->i_am_the_collector_thread!=1)
-				&& ((double)(queued_transactions-1)*(double)average_spin_time_per_waiting_transacton>(double)busy_waiting_time_threashold)) {
+		if (//(tx->i_am_the_collector_thread!=1) &&
+				((double)(queued_transactions-1)*(double)average_spin_time_per_waiting_transacton>(double)busy_waiting_time_threashold)) {
 			//sleeping
-		    stm_time_t start, end;
-	        start = STM_TIMER_READ();
-	        usleep(1);
-	        end = STM_TIMER_READ();
-	        printf("\nQueued_transactions-1: %i, Average spin time per waiting transaction %f, product %f, thread slept for ticks=%llu",
-	        		queued_transactions-1,
+			stm_time_t start, end;
+			start = STM_TIMER_READ();
+			usleep(1);
+			end = STM_TIMER_READ();
+			printf("\nQueued_transactions-1: %i, Average spin time per waiting transaction %f, product %f, thread slept for ticks=%llu",
+					queued_transactions-1,
 					(double)average_spin_time_per_waiting_transacton,
 					(double)(queued_transactions-1) * (double)average_spin_time_per_waiting_transacton,
 					end-start);
-	        fflush(stdout);
+			fflush(stdout);
 
 		} else {
 			//printf("\nThread %i no slept", id);
@@ -516,20 +525,22 @@ inline void stm_wait(int id) {
 			if(active_txs<max_txs)
 				if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1) != 0) break;
 			tx->i_am_waiting=1;
-			//usleep(1);
 			for(i=0;i<cycle;i++){
 				if(tx->i_am_waiting==0)break;
 			}
 			tx->i_am_waiting=0;
 		}
+
 		ATOMIC_FETCH_DEC_FULL(&queued_transactions);
-	}
-	//Initialization of parameters
-	if (tx->i_am_the_collector_thread==1){
-		if(entered==0) {
+		printf("\nQueued_transactions %i:", queued_transactions);
+		fflush(stdout);
+
+		if (tx->i_am_the_collector_thread==1){
 			tx->first_start_tx_time=tx->last_start_tx_time=STM_TIMER_READ();
 			tx->total_spin_time+=tx->first_start_tx_time-start_spin_time;
 		}
+	}
+	if (tx->i_am_the_collector_thread==1){
 		tx->start_no_tx_time=0;
 	}
 }
@@ -620,8 +631,7 @@ inline void stm_tune_scheduler(){
 	average_spin_time_per_waiting_transacton=0;
 	if (total_queued_transactions>0)
 		average_spin_time_per_waiting_transacton=(double)total_tx_spin_time/(double)total_queued_transactions;
-	printf("\nTotal_tx_spin_time: %llu",  total_tx_spin_time);
-	printf("\nAverage_spin_time_per_waiting_transacton: %f, total_queued_transactions: %i", average_spin_time_per_waiting_transacton, total_queued_transactions);
+	printf("\nTotal_queued_transactions: %i, Total_tx_spin_time: %llu, Average_spin_time_per_waiting_transacton: %f", total_queued_transactions, total_tx_spin_time, average_spin_time_per_waiting_transacton);
 
 	/*
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
