@@ -529,7 +529,7 @@ inline void stm_wait(int id) {
 			for(i=0;i<cycle;i++){
 				if(tx->i_am_waiting==0)break;
 			}
-			tx->i_am_waiting=0;vim m
+			tx->i_am_waiting=0;
 		}
 
 		ATOMIC_FETCH_DEC_FULL(&queued_transactions);
