@@ -532,8 +532,6 @@ inline void stm_wait(int id) {
 		}
 
 		ATOMIC_FETCH_DEC_FULL(&queued_transactions);
-		printf("\nQueued_transactions %i:", queued_transactions);
-		fflush(stdout);
 
 		if (tx->i_am_the_collector_thread==1){
 			tx->first_start_tx_time=tx->last_start_tx_time=STM_TIMER_READ();
