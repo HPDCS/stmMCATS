@@ -497,6 +497,8 @@ inline void stm_wait(int id) {
 		}
 		//busy waiting or sleeping?
 
+		/*
+
 		if (//(tx->i_am_the_collector_thread!=1) &&
 				((double)(queued_transactions-1)*(double)average_spin_time_per_waiting_transacton>(double)busy_waiting_time_threashold)) {
 			//sleeping
@@ -516,17 +518,18 @@ inline void stm_wait(int id) {
 			fflush(stdout);
 		}
 		// starting busy waiting
+		*/
 		int cycle=1,i=1;
 		while(1){
 			active_txs=running_transactions;
 			max_txs=max_allowed_running_transactions;
 			if(active_txs<max_txs)
 				if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1) != 0) break;
-			tx->i_am_waiting=1;
-			for(i=0;i<cycle;i++){
-				if(tx->i_am_waiting==0)break;
-			}
-			tx->i_am_waiting=0;
+			//tx->i_am_waiting=1;
+			//for(i=0;i<cycle;i++){
+			//	if(tx->i_am_waiting==0)break;
+			//}
+			//tx->i_am_waiting=0;
 		}
 
 		ATOMIC_FETCH_DEC_FULL(&queued_transactions);
