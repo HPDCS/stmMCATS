@@ -379,8 +379,6 @@ MAIN(argc, argv)
 		#else
 			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(startTime, stopTime));
 		#endif /* STM_ENERGY_MONITOR */
-
-		}
 	}
     P_MEMORY_SHUTDOWN();
 
