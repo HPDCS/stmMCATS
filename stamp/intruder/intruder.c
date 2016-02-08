@@ -374,7 +374,7 @@ MAIN(argc, argv)
 	if (getenv("STM_STATS") != NULL) {
 		unsigned long u;
 		#ifdef STM_ENERGY_MONITOR
-		if (stm_get_global_stats("global_nb_commits", &u) != 0){#ifdef STM_ENERGY_MONITOR
+		if (stm_get_global_stats("global_nb_commits", &u) != 0)
 			printf("\tThroughput: %f\n, Joules/tx %f",u/TIMER_DIFF_SECONDS(startTime, stopTime), u/joule );
 		#else
 			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(startTime, stopTime));
