@@ -518,7 +518,7 @@ inline void stm_wait(int id) {
 			fflush(stdout);
 		}
 		// starting busy waiting
-		int cycle=300000,i=1;
+		int cycle=1,i=1;
 		while(1){
 			active_txs=running_transactions;
 			max_txs=max_allowed_running_transactions;
