@@ -502,7 +502,7 @@ inline void stm_wait(int id) {
 			//sleeping
 			stm_time_t start, end;
 			start = STM_TIMER_READ();
-			usleep(1000000);
+			usleep(1000);
 			end = STM_TIMER_READ();
 			/*
 			printf("\nQueued_transactions-1: %i, Average spin time per waiting transaction %f, product %f, thread slept for ticks=%llu",
