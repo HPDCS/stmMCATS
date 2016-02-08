@@ -497,8 +497,6 @@ inline void stm_wait(int id) {
 		}
 		//busy waiting or sleeping?
 
-		/*
-
 		if (//(tx->i_am_the_collector_thread!=1) &&
 				((double)(queued_transactions-1)*(double)average_spin_time_per_waiting_transacton>(double)busy_waiting_time_threashold)) {
 			//sleeping
@@ -518,7 +516,7 @@ inline void stm_wait(int id) {
 			fflush(stdout);
 		}
 		// starting busy waiting
-		*/
+
 		int cycle=1,i=1;
 		while(1){
 			active_txs=running_transactions;
