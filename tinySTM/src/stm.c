@@ -497,7 +497,6 @@ inline void stm_wait(int id) {
 		}
 		//busy waiting or sleeping?
 
-		/*
 		if (//(tx->i_am_the_collector_thread!=1) &&
 				((double)(queued_transactions-1)*(double)average_spin_time_per_waiting_transacton>(double)busy_waiting_time_threashold)) {
 			//sleeping
@@ -505,20 +504,18 @@ inline void stm_wait(int id) {
 			start = STM_TIMER_READ();
 			//usleep(100);
 			end = STM_TIMER_READ();
-			printf("\nQueued_transactions-1: %i, Average spin time per waiting transaction %f, product %f, thread slept for ticks=%llu",
+			//printf("\nQueued_transactions-1: %i, Average spin time per waiting transaction %f, product %f, thread slept for ticks=%llu",
 					queued_transactions-1,
 					(double)average_spin_time_per_waiting_transacton,
 					(double)(queued_transactions-1) * (double)average_spin_time_per_waiting_transacton,
 					end-start);
-			fflush(stdout);
+			//fflush(stdout);
 
 		} else {
 			//printf("\nThread %i no slept", id);
 			fflush(stdout);
 		}
 		// starting busy waiting
-		 *
-		 */
 
 		int cycle=1,i=1;
 		while(1){
