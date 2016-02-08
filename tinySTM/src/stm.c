@@ -515,7 +515,7 @@ inline void stm_wait(int id) {
 
 		} else {
 			//printf("\nThread %i no slept", id);
-			fflush(stdout);
+			//fflush(stdout);
 		}
 		// starting busy waiting
 
