@@ -371,6 +371,7 @@ typedef struct stm_tx {                 /* Transaction descriptor */
   stm_time_t total_wasted_time;
   stm_time_t total_spin_time;
   int last_k;
+  long sleepy_transactions;
   long committed_transactions_as_a_collector_thread;
   long committed_transactions;
   long aborted_transactions;
