@@ -591,9 +591,7 @@ inline void stm_tune_scheduler(){
 			mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads));
 			//printf("\nk:%i\tmu_k: %f - average", i, mu_k[i]);
 		}
-	}//disanzo@dis.uniroma1.it
-
-
+	}
 
 	float th = get_throughput(lambda,mu_k,m);
 	float th_minus_1=0.0,th_plus_1=0.0,th_minus_2=0.0;
@@ -621,7 +619,7 @@ inline void stm_tune_scheduler(){
 		else u_m = ((float)total_tx_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads;
 		mu_k[m + 1]= 1.0/((w_m * average_restarted_transactions_plus_1) + u_m );
 		th_plus_1 = get_throughput(lambda,mu_k,m + 1);
-		if(th_plus_1 > th) {
+		if(th_plus_1 > 1.1* th) {
 			max_allowed_running_transactions++;
 			//printf("\nSelected th_plus_1");
 		} else {
@@ -682,7 +680,7 @@ stm_commit(void)
 		tx->total_tx_committed_per_active_transactions[active]++;
 		tx->total_useful_time+=useful;
 		if(tx->committed_transactions_as_a_collector_thread==transactions_per_tuning_cycle){
-			if(tx->thread_identifier==max_concurrent_threads - 1) stm_tune_scheduler();
+			//if(tx->thread_identifier==max_concurrent_threads - 1) stm_tune_scheduler();
 			current_collector_thread =(current_collector_thread + 1)% max_concurrent_threads;
 			tx->i_am_the_collector_thread=0;
 		}
