@@ -632,14 +632,12 @@ inline void stm_tune_scheduler(){
 	}
 	printf("\n%llu %llu %llu %llu %i", total_tx_time, total_no_tx_time, total_tx_wasted_time, total_tx_spin_time, total_committed_transactions_by_collector_threads);
 	//for(i=0;i<max_concurrent_threads+1;i++) printf("\nwasted_time_k[%i] %llu", i, wasted_time_k[i]);
-	//printf("\ntotal_tx_time %llu, total_tx_wasted_time %llu, total_no_tx_time %llu, total_committed_transactions_by_collector_threads %i", total_tx_time, total_tx_wasted_time, total_no_tx_time, total_committed_transactions_by_collector_threads);
 	average_running_transactions=average_running_transactions/(float)total_committed_transactions_by_collector_threads;
 	tx_time_ratio=((float)total_tx_time+(float)total_tx_wasted_time)/
 		((float)total_tx_time+(float)total_tx_wasted_time+(float)total_no_tx_time);
 
-
-	//printf("\nTotal_queued_transactions: %i, Sleepy transactions: %i", total_queued_transactions, total_sleepy_transactions);
-	//printf(" Tx time: %f, Spin time: %f, No tx time %f, tx time ratio %f", (((float)total_tx_time+(float)total_tx_wasted_time))/(float)total_committed_transactions, (float)total_tx_spin_time/(float)total_committed_transactions, (float)total_no_tx_time/(float)total_committed_transactions,tx_time_ratio);
+	printf("\nTotal_queued_transactions: %i, Sleepy transactions: %i", total_queued_transactions, total_sleepy_transactions);
+	printf(" Tx time: %f, Spin time: %f, No tx time %f, tx time ratio %f", (((float)total_tx_time+(float)total_tx_wasted_time))/(float)committed_transactions_as_a_collector_thread, (float)total_tx_spin_time/(float)total_committed_transactions, (float)total_no_tx_time/(float)committed_transactions_as_a_collector_thread,tx_time_ratio);
 	/*
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
 	float lambda = 1.0 / (((float) total_no_tx_time/(float)1000000000)/(float) total_committed_transactions_by_collector_threads);
