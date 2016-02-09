@@ -75,7 +75,7 @@
 #ifndef _STM_H_
 # define _STM_H_
 
-//#define STM_MCATS
+#define STM_MCATS
 
 #ifdef STM_MCATS
 
