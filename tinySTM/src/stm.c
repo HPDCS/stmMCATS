@@ -427,7 +427,7 @@ stm_start(stm_tx_attr_t attr)
 {
   TX_GET;
   sigjmp_buf * ret;
- // stm_wait(attr.id);
+  stm_wait(attr.id);
   ret=int_stm_start(tx, attr);
   return ret;
 }
