@@ -667,6 +667,7 @@ stm_commit(void)
 #endif
 	ret=int_stm_commit(tx);
 #ifdef STM_MCATS
+	/*
 	tx->committed_transactions++;
 	if (tx->i_am_the_collector_thread==1 && ret==1) {
 		stm_word_t active=running_transactions;
@@ -702,6 +703,7 @@ stm_commit(void)
 	transaction=transaction->next;
 	}
 #endif
+*/
 
 
   return ret;
