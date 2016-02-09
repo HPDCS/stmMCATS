@@ -637,7 +637,8 @@ inline void stm_tune_scheduler(){
 	if (total_queued_transactions>0)
 		average_spin_time_per_waiting_transacton=(double)total_tx_spin_time/(double)total_queued_transactions;
 	printf("\nTotal_queued_transactions: %i, Sleepy transactions: %i, Average_spin_time_per_waiting_transacton: %f", total_queued_transactions, total_sleepy_transactions, average_spin_time_per_waiting_transacton);
-	printf("\nTx time: %f, Spin time: %f, No tx time %f, tx time ratio %f", ((float)total_tx_time+(float)total_tx_wasted_time)/(float)total_committed_transactions, (float)total_tx_spin_time/(float)total_committed_transactions, (float)total_no_tx_time/(float)total_committed_transactions,
+
+	printf("\nTx time: %f, Spin time: %f, No tx time %f, tx time ratio %f", (float)total_tx_time, (float)total_committed_transactions, (float)total_tx_spin_time, (float)total_no_tx_time,
 			((float)total_tx_time+(float)total_tx_wasted_time)/((float)total_tx_time+(float)total_tx_wasted_time+(float)total_no_tx_time));
 	/*
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
