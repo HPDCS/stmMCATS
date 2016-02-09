@@ -767,7 +767,7 @@ stm_wbetl_write(stm_tx_t *tx, volatile stm_word_t *addr, stm_word_t value, stm_w
       /* Abort caused by invisible reads */
       tx->visible_reads++;
 #endif /* CM == CM_MODULAR */
-#ifdef INVISIBLE_TRACKING
+#ifdef STM_MCATS_CONFLICT_TRACKING
     if (tx->i_am_the_collector_thread==1) {
         /* Call conflict callback */
     	int other_id=*(_tinystm.last_id_tx_class + LOCK_IDX(addr));
