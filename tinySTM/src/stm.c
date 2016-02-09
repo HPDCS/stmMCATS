@@ -427,7 +427,7 @@ stm_start(stm_tx_attr_t attr)
 {
   TX_GET;
   sigjmp_buf * ret;
-  stm_wait(attr.id);
+  //stm_wait(attr.id);
   ret=int_stm_start(tx, attr);
   return ret;
 }
@@ -666,6 +666,7 @@ stm_commit(void)
 	tx->last_k=running_transactions;
 #endif
 	ret=int_stm_commit(tx);
+	/*
 #ifdef STM_MCATS
 	tx->committed_transactions++;
 	if (tx->i_am_the_collector_thread==1 && ret==1) {
@@ -702,6 +703,7 @@ stm_commit(void)
 	transaction=transaction->next;
 	}
 #endif
+*/
 
 
   return ret;
