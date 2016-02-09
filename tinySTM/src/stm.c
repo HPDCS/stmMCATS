@@ -497,7 +497,6 @@ inline void stm_wait(int id) {
 			tx->queued_transactions++;
 		}
 		//busy waiting or sleeping?
-		//printf("\nQueued_transactions: %i", queued_transactions);
 
 		if (//(tx->i_am_the_collector_thread!=1) &&
 				//((double)(queued_transactions-1)*(double)average_spin_time_per_waiting_transacton>(double)busy_waiting_time_threashold)) {
@@ -637,7 +636,7 @@ inline void stm_tune_scheduler(){
 	average_spin_time_per_waiting_transacton=0;
 	if (total_queued_transactions>0)
 		average_spin_time_per_waiting_transacton=(double)total_tx_spin_time/(double)total_queued_transactions;
-	//printf("\nTotal_queued_transactions: %i, Sleepy transactions: %i, Average_spin_time_per_waiting_transacton: %f", total_queued_transactions, total_sleepy_transactions, average_spin_time_per_waiting_transacton);
+	printf("\nTotal_queued_transactions: %i, Sleepy transactions: %i, Average_spin_time_per_waiting_transacton: %f", total_queued_transactions, total_sleepy_transactions, average_spin_time_per_waiting_transacton);
 
 	/*
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
