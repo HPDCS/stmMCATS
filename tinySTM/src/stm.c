@@ -702,8 +702,9 @@ stm_commit(void)
 		}
 	transaction=transaction->next;
 	}
+	*/
 #endif
-*/
+
 
 
   return ret;
