@@ -253,7 +253,14 @@ inline void update_conflict_table(int id1, int id2) {
 		tx->last_k=running_transactions;
 		tx->total_conflict_per_active_transactions[tx->last_k]++;
 }
+#else
+inline void update_conflict_table(int id1, int id2) {
+		TX_GET;
 
+}
+#endif /* STM_MCATS */
+
+#ifdef STM_MCATS
 void reset_local_stats(stm_tx_t *tx){
 	  tx->total_useful_time=0;
 	  tx->total_no_tx_time=0;

@@ -71,7 +71,7 @@ stm_wbetl_validate(stm_tx_t *tx,int committing)
 # endif /* UNIT_TX */
         }
 #endif /* CONFLICT_TRACKING */
-#ifdef STM_MCATS
+#ifdef STM_MCATS_CONFLICT_TRACKING
       if(tx->i_am_the_collector_thread==1){
     	  stm_tx_t *other = ((w_entry_t *)LOCK_GET_ADDR(l))->tx;
     	  update_conflict_table(tx->attr.id, other->attr.id);
@@ -83,7 +83,7 @@ stm_wbetl_validate(stm_tx_t *tx,int committing)
     } else {
       if (LOCK_GET_TIMESTAMP(l) != r->version) {
         /* Other version: cannot validate */
-# ifdef INVISIBLE_TRACKING
+# ifdef STM_MCATS_CONFLICT_TRACKING
     if (tx->i_am_the_collector_thread==1 && committing==1) {
         /* Call conflict callback */
     	stm_word_t *p=r->lock;
@@ -378,7 +378,7 @@ stm_wbetl_read_invisible(stm_tx_t *tx, volatile stm_word_t *addr)
         /* Abort caused by invisible reads */
         tx->visible_reads++;
 #endif /* CM == CM_MODULAR */
-# ifdef INVISIBLE_TRACKING
+# ifdef STM_MCATS_CONFLICT_TRACKING
     if (tx->i_am_the_collector_thread==1) {
         /* Call conflict callback */
     	int other_id=*(_tinystm.last_id_tx_class + LOCK_IDX(addr));
