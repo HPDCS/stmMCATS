@@ -499,8 +499,9 @@ inline void stm_wait(int id) {
 		//busy waiting or sleeping?
 
 		if (//(tx->i_am_the_collector_thread!=1) &&
-				((double)(queued_transactions-1)*(double)average_spin_time_per_waiting_transacton>(double)busy_waiting_time_threashold)) {
-			//sleeping
+				//((double)(queued_transactions-1)*(double)average_spin_time_per_waiting_transacton>(double)busy_waiting_time_threashold)) {
+				queued_transactions>8) {
+				//sleeping
 			//stm_time_t start, end;
 			//start = STM_TIMER_READ();
 			if(tx->i_am_the_collector_thread==1) tx->sleepy_transactions++;
