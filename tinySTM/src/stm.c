@@ -508,14 +508,14 @@ inline void stm_wait(int id) {
 			usleep(1);
 
 			//end = STM_TIMER_READ();
-			/*
-			printf("\nQueued_transactions-1: %i, Average spin time per waiting transaction %f, product %f, thread slept for ticks=%llu",
+
+			printf("\nQueued_transactions: %i, Average spin time per waiting transaction %f, product %f, thread slept for ticks=%llu",
 					queued_transactions-1,
 					(double)average_spin_time_per_waiting_transacton,
 					(double)(queued_transactions-1) * (double)average_spin_time_per_waiting_transacton,
 					end-start);
 			fflush(stdout);
-			*/
+
 
 		} else {
 			//printf("\nThread %i no slept", id);
