@@ -427,7 +427,7 @@ stm_start(stm_tx_attr_t attr)
 {
   TX_GET;
   sigjmp_buf * ret;
-  //stm_wait(attr.id);
+  stm_wait(attr.id);
   ret=int_stm_start(tx, attr);
   return ret;
 }
@@ -666,7 +666,6 @@ stm_commit(void)
 	tx->last_k=running_transactions;
 #endif
 	ret=int_stm_commit(tx);
-	/*
 #ifdef STM_MCATS
 	tx->committed_transactions++;
 	if (tx->i_am_the_collector_thread==1 && ret==1) {
@@ -681,7 +680,7 @@ stm_commit(void)
 		tx->total_tx_committed_per_active_transactions[active]++;
 		tx->total_useful_time+=useful;
 		if(tx->committed_transactions_as_a_collector_thread==transactions_per_tuning_cycle){
-			//if(tx->thread_identifier==max_concurrent_threads - 1) stm_tune_scheduler();
+			if(tx->thread_identifier==max_concurrent_threads - 1) stm_tune_scheduler();
 			current_collector_thread =(current_collector_thread + 1)% max_concurrent_threads;
 			tx->i_am_the_collector_thread=0;
 		}
@@ -703,7 +702,6 @@ stm_commit(void)
 	transaction=transaction->next;
 	}
 #endif
-*/
 
 
   return ret;
