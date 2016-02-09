@@ -1095,13 +1095,15 @@ stm_rollback(stm_tx_t *tx, unsigned int reason)
 #else /* ! IRREVOCABLE_ENABLED */
   reason |= STM_PATH_INSTRUMENTED;
 #endif /* ! IRREVOCABLE_ENABLED */
-#ifdef STM_MCATS
+/*
+  #ifdef STM_MCATS
   if(tx->i_am_the_collector_thread){
 	  stm_time_t conflict_time=STM_TIMER_READ();
 	  tx->total_tx_wasted_per_active_transactions[tx->last_k]+=conflict_time - tx->last_start_tx_time;
 	  tx->last_start_tx_time=conflict_time;
   }
 #endif
+*/
   LONGJMP(tx->env, reason);
 }
 
