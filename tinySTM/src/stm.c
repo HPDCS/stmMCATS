@@ -690,7 +690,7 @@ stm_commit(void)
 		tx->total_tx_committed_per_active_transactions[active]++;
 		tx->total_useful_time+=useful;
 		if(tx->committed_transactions_as_a_collector_thread==transactions_per_tuning_cycle){
-			//if(tx->thread_identifier==max_concurrent_threads - 1) stm_tune_scheduler();
+			if(tx->thread_identifier==max_concurrent_threads - 1) stm_tune_scheduler();
 			current_collector_thread =(current_collector_thread + 1)% max_concurrent_threads;
 			tx->i_am_the_collector_thread=0;
 		}
