@@ -505,7 +505,7 @@ inline void stm_wait(int id) {
 			//stm_time_t start, end;
 			//start = STM_TIMER_READ();
 			if(tx->i_am_the_collector_thread==1) tx->sleepy_transactions++;
-			usleep(1);
+			usleep(50);
 
 			//end = STM_TIMER_READ();
 			/*
