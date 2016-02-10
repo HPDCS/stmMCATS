@@ -463,7 +463,7 @@ inline void stm_wait(int id) {
 	tx->CAS_executed = 0;
 
 	//check whether executing CAS
-	if (0) {
+	if (max_concurrent_threads<=max_allowed_running_transactions) {
 		entered = 1;
 	} else {
 		while (1) {
