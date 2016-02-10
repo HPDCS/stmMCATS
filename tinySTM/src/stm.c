@@ -460,7 +460,7 @@ inline void stm_wait(int id) {
 	int active_txs, max_txs;
 	int entered = 0;
 	stm_time_t start_spin_time = 0;
-	tx->CAS_executed = 1;
+	tx->CAS_executed = 0;
 
 	//check whether executing CAS
 	if (max_concurrent_threads<=max_allowed_running_transactions) {
