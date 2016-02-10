@@ -460,7 +460,7 @@ inline void stm_wait(int id) {
 	int active_txs, max_txs;
 	int entered = 0;
 	stm_time_t start_spin_time = 0;
-	//tx->CAS_executed = 0;
+	tx->CAS_executed = 0;
 
 	//check whether executing CAS
 	if (0) {
@@ -478,7 +478,7 @@ inline void stm_wait(int id) {
 						tx->total_no_tx_time += tx->last_start_tx_time - tx->start_no_tx_time;
 					}
 					entered = 1;
-					//tx->CAS_executed = 1;
+					tx->CAS_executed = 1;
 					break;
 				}
 			} else
@@ -507,7 +507,7 @@ inline void stm_wait(int id) {
 			max_txs=max_allowed_running_transactions;
 			if(active_txs<max_txs)
 				if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1)!= 0) {
-					//tx->CAS_executed=1;
+					tx->CAS_executed=1;
 					break;
 				}
 			tx->i_am_waiting=1;
@@ -701,7 +701,7 @@ stm_commit(void)
 	if (tx->i_am_the_collector_thread==1 && ret==1) {
 		stm_word_t active=running_transactions;
 		tx->start_no_tx_time=STM_TIMER_READ();
-		ATOMIC_FETCH_DEC_FULL(&running_transactions);
+		if (tx->CAS_executed=1) ATOMIC_FETCH_DEC_FULL(&running_transactions);
 
 		stm_time_t useful = tx->start_no_tx_time - tx->last_start_tx_time;
 		tx->total_wasted_time+=tx->last_start_tx_time-tx->first_start_tx_time;
@@ -717,9 +717,9 @@ stm_commit(void)
 
 	}else if(current_collector_thread==tx->thread_identifier){
 		tx->start_no_tx_time=STM_TIMER_READ();
-		ATOMIC_FETCH_DEC_FULL(&running_transactions);
+		if (tx->CAS_executed=1) ATOMIC_FETCH_DEC_FULL(&running_transactions);
 		tx->i_am_the_collector_thread=1;
-	}else ATOMIC_FETCH_DEC_FULL(&running_transactions);
+	}else if (tx->CAS_executed=1) ATOMIC_FETCH_DEC_FULL(&running_transactions);
 	stm_tx_t *transaction=_tinystm.threads;
 	int i;
 	for (i=1;i< max_concurrent_threads-1;i++){
