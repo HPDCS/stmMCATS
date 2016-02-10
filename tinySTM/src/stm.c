@@ -663,7 +663,6 @@ inline void stm_tune_scheduler(){
 	//printf("\naverage_running_transactions: %f", average_running_transactions, 1.0);
 	//fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
-	max_allowed_running_transactions=4;
 }
 
 #else
