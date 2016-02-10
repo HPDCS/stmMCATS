@@ -498,7 +498,7 @@ inline void stm_wait(int id) {
 		}
 		//stm_time_t start;
 		//start = STM_TIMER_READ();
-		//usleep(10000);
+		usleep(10000);
 		//printf("\nSleep time: %llu",  STM_TIMER_READ()-start);
 		int i, max_cycles=500000;
 		while(1){
