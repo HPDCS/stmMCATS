@@ -634,7 +634,6 @@ inline void stm_tune_scheduler(){
 	//printf("\naverage_running_transactions: %f", average_running_transactions, 1.0);
 	//fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
-	max_allowed_running_transactions=4;
 }
 
 #else
@@ -678,6 +677,7 @@ stm_commit(void)
 		tx->total_tx_useful_per_active_transactions[active]+=useful;
 		tx->total_tx_committed_per_active_transactions[active]++;
 		tx->total_useful_time+=useful;
+		//printf("\ntx->committed_transactions_as_a_collector_thread %i", tx->committed_transactions_as_a_collector_thread);
 		if(tx->committed_transactions_as_a_collector_thread==transactions_per_tuning_cycle){
 			if(tx->thread_identifier==max_concurrent_threads - 1) stm_tune_scheduler();
 			current_collector_thread =(current_collector_thread + 1)% max_concurrent_threads;
@@ -688,7 +688,8 @@ stm_commit(void)
 		tx->start_no_tx_time=STM_TIMER_READ();
 		tx->entered=0;
 		tx->i_am_the_collector_thread=1;
-	}else tx->entered=0;;
+	}else tx->entered=0;
+
 
 #endif
 
