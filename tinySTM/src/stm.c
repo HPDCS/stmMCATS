@@ -460,7 +460,7 @@ inline void stm_wait(int id) {
 	int active_txs, max_txs;
 	int entered = 0;
 	stm_time_t start_spin_time = 0;
-	tx->CAS_executed = 0;
+	tx->CAS_executed = 1;
 
 	//check whether executing CAS
 	if (max_concurrent_threads<=max_allowed_running_transactions) {
@@ -470,8 +470,7 @@ inline void stm_wait(int id) {
 			active_txs = running_transactions;
 			max_txs = max_allowed_running_transactions;
 			if (active_txs < max_txs) {
-				if (ATOMIC_CAS_FULL(&running_transactions, active_txs,
-						active_txs + 1)
+				if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1)
 						!= 0) {
 					if (tx->i_am_the_collector_thread == 1) {
 						tx->first_start_tx_time = tx->last_start_tx_time =STM_TIMER_READ();
