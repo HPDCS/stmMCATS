@@ -480,10 +480,11 @@ inline void stm_wait(int id) {
 			}
 			current_thread = current_thread->next;
 		}
-		//if (entered_threads >= max_allowed_running_transactions) printf("\nentered_threads %i,  max_allowed_running_transactions %i", entered_threads, max_allowed_running_transactions);
 		//fflush(stdout);
 	} while (entered_threads >= max_allowed_running_transactions);
 
+	printf("\nentered_threads %i,  max_allowed_running_transactions %i", entered_threads, max_allowed_running_transactions);
+	fflush(stdout);
 
 	tx->entered = 1;
 
