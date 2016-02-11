@@ -74,19 +74,21 @@ global_t _tinystm =
     };
 
 #  ifdef STM_MCATS
-	volatile stm_word_t running_transactions;
-	volatile stm_word_t max_allowed_running_transactions;
-	unsigned long max_concurrent_threads;
-	int transactions_per_tuning_cycle;
-	float average_spin_time_per_waiting_transacton;
-	float busy_waiting_time_threashold;
-	int main_thread;
-	int current_collector_thread;
-	stm_time_t last_tuning_time;
-	stm_time_t *wasted_time_k;
-	stm_time_t *useful_time_k;
-	long * conflicts_per_active_transactions;
-	long * committed_per_active_transactions;
+volatile stm_word_t running_transactions;
+volatile int queued_transactions;
+volatile stm_word_t max_allowed_running_transactions;
+unsigned long max_concurrent_threads;
+int transactions_per_tuning_cycle;
+float tx_time_ratio;
+int main_thread;
+int current_collector_thread;
+stm_time_t last_tuning_time;
+stm_time_t *wasted_time_k;
+stm_time_t *useful_time_k;
+long * conflicts_per_active_transactions;
+long * committed_per_active_transactions;
+float average_spin_time_per_waiting_transacton;
+float busy_waiting_time_threashold;
 
 #endif /* ! STM_MCATS */
 
