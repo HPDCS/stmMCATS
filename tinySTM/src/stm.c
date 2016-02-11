@@ -481,6 +481,7 @@ inline void stm_wait(int id) {
 					tx->first_start_tx_time=tx->last_start_tx_time=STM_TIMER_READ();
 					tx->total_no_tx_time+=tx->last_start_tx_time - tx->start_no_tx_time;
 				}
+				ATOMIC_FETCH_DEC_FULL(&out_of_transaction_threads);
 				entered=1;
 				break;
 			}
@@ -543,7 +544,7 @@ inline void stm_wait(int id) {
 			}
 			tx->i_am_waiting=0;
 		}
-		ATOMIC_FETCH_INC_FULL(&out_of_transaction_threads);
+
 		ATOMIC_FETCH_DEC_FULL(&busy_waiting_transactions);
 
 		if (tx->i_am_the_collector_thread==1){
@@ -551,6 +552,7 @@ inline void stm_wait(int id) {
 			tx->total_spin_time+=tx->first_start_tx_time-start_spin_time;
 		}
 	}
+
 	if (tx->i_am_the_collector_thread==1){
 		tx->start_no_tx_time=0;
 	}
@@ -741,6 +743,7 @@ stm_commit(void)
 		stm_word_t active=running_transactions;
 		tx->start_no_tx_time=STM_TIMER_READ();
 		ATOMIC_FETCH_DEC_FULL(&running_transactions);
+		ATOMIC_FETCH_INC_FULL(&out_of_transaction_threads);
 
 		stm_time_t useful = tx->start_no_tx_time - tx->last_start_tx_time;
 		tx->total_wasted_time+=tx->last_start_tx_time-tx->first_start_tx_time;
