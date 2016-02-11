@@ -280,6 +280,7 @@ void reset_local_stats(stm_tx_t *tx){
  */
 #  ifdef STM_MCATS
 
+
 void stm_init(int threads) {
 
 	int max_transactions_per_tuning_cycle;
@@ -292,7 +293,7 @@ void stm_init(int threads) {
 		exit(1);
 	}
 
-	if (fscanf(fid, "TX_PER_CYCLE=%d INITIAL_MAX_ADMITTED_TX=%d", &max_transactions_per_tuning_cycle, &max_allowed_running_transactions)!=2) {
+	if (fscanf(fid, "TX_PER_CYCLE=%d INITIAL_MAX_ADMITTED_TX=%d BUSY_WAITING_TIME_THRESHOLD=%f", &max_transactions_per_tuning_cycle, &max_allowed_running_transactions, &busy_waiting_time_threashold)!=3) {
 		printf("\nThe number of input parameters of the MCATS configuration file does not match the number of required parameters.\n");
 		exit(1);
 	}
@@ -300,7 +301,8 @@ void stm_init(int threads) {
 	transactions_per_tuning_cycle = max_transactions_per_tuning_cycle / max_concurrent_threads;
 	main_thread = current_collector_thread = 0;
 	running_transactions = 0;
-	average_spin_time_per_waiting_transacton=0;
+	queued_transactions=0;
+	tx_time_ratio=0;
 	wasted_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	useful_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	conflicts_per_active_transactions=(long *)malloc((max_concurrent_threads + 1) * sizeof(long));
