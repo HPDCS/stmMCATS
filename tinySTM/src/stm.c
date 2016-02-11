@@ -501,11 +501,41 @@ inline void stm_wait(int id) {
 			tx->total_no_tx_time += tx->last_start_tx_time - tx->start_no_tx_time;
 		}
 	} else {
+		ATOMIC_FETCH_INC_FULL(&queued_transactions);
 		if(tx->i_am_the_collector_thread==1){
 			//collect statistics
 			start_spin_time=STM_TIMER_READ();
 			tx->total_no_tx_time+=start_spin_time - tx->start_no_tx_time;
+			tx->queued_transactions++;
 		}
+		//busy waiting or sleeping?
+		//printf("\nqueued_transactions %i average_spin_time_per_waiting_transacton %f, busy_waiting_time_threashold %f, max_allowed_running_transactions %i", queued_transactions, average_spin_time_per_waiting_transacton,busy_waiting_time_threashold, max_allowed_running_transactions) ;
+		if (//(tx->i_am_the_collector_thread!=1) &&
+				((double)(queued_transactions-1)*(double)average_spin_time_per_waiting_transacton>(double)busy_waiting_time_threashold)) {
+
+				//sleeping
+			stm_time_t start;
+			if(tx->i_am_the_collector_thread==1) {
+				tx->sleepy_transactions++;
+				start = STM_TIMER_READ();
+			}
+			usleep(10000);
+			if(tx->i_am_the_collector_thread==1)
+				tx->total_sleep_time+=STM_TIMER_READ()-start;
+
+
+			//printf("\nQueued_transactions-1: %i, Average spin time per waiting transaction %f, product %f",
+			//		queued_transactions-1,
+			//		(double)average_spin_time_per_waiting_transacton,
+			//		(double)(queued_transactions-1) * (double)average_spin_time_per_waiting_transacton);
+			//fflush(stdout);
+
+
+		} else {
+			//printf("\nThread %i no slept", id);
+			//fflush(stdout);
+		}
+		// starting busy waiting
 		//stm_time_t start;
 		//start = STM_TIMER_READ();
 		//usleep(10000);
