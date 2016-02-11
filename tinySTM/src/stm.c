@@ -521,7 +521,7 @@ inline void stm_wait(int id) {
 			*/
 
 		} else {
-			ATOMIC_FETCH_INC_FULL(&busy_waiting_transactions);
+
 
 			//printf("\nThread %i no slept", id);
 			//fflush(stdout);
