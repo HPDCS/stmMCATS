@@ -495,7 +495,7 @@ inline void stm_wait(int id) {
 			tx->total_no_tx_time+=start_spin_time - tx->start_no_tx_time;
 			tx->busy_waiting_transactions++;
 		}
-		ATOMIC_FETCH_INC_FULL(&busy_waiting_transactions);
+
 		//busy waiting or sleeping?
 		printf("\nbusy_waiting_transactions %i", busy_waiting_transactions);
 		fflush(stdout);
@@ -524,7 +524,7 @@ inline void stm_wait(int id) {
 			//fflush(stdout);
 		}
 		// starting busy waiting
-
+		ATOMIC_FETCH_INC_FULL(&busy_waiting_transactions);
 		int cycle=500000,i=1;
 		while(1){
 			active_txs=running_transactions;
