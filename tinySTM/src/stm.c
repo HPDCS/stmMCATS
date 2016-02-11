@@ -509,7 +509,7 @@ inline void stm_wait(int id) {
 			tx->queued_transactions++;
 		}
 		//busy waiting or sleeping?
-		printf("\nqueued_transactions %i average_spin_time_per_waiting_transacton %f, busy_waiting_time_threashold %f, max_allowed_running_transactions %i", queued_transactions, average_spin_time_per_waiting_transacton,busy_waiting_time_threashold, max_allowed_running_transactions) ;
+		//printf("\nqueued_transactions %i average_spin_time_per_waiting_transacton %f, busy_waiting_time_threashold %f, max_allowed_running_transactions %i", queued_transactions, average_spin_time_per_waiting_transacton,busy_waiting_time_threashold, max_allowed_running_transactions) ;
 		if (//(tx->i_am_the_collector_thread!=1) &&
 				((double)(queued_transactions-1)*(double)average_spin_time_per_waiting_transacton>(double)busy_waiting_time_threashold)) {
 
@@ -519,16 +519,16 @@ inline void stm_wait(int id) {
 				tx->sleepy_transactions++;
 				start = STM_TIMER_READ();
 			}
-			usleep(10000);
+			usleep(1);
 			if(tx->i_am_the_collector_thread==1)
 				tx->total_sleep_time+=STM_TIMER_READ()-start;
 
 
-			printf("\nQueued_transactions-1: %i, Average spin time per waiting transaction %f, product %f",
-					queued_transactions-1,
-					(double)average_spin_time_per_waiting_transacton,
-					(double)(queued_transactions-1) * (double)average_spin_time_per_waiting_transacton);
-			fflush(stdout);
+			//printf("\nQueued_transactions-1: %i, Average spin time per waiting transaction %f, product %f",
+					//queued_transactions-1,
+					//(double)average_spin_time_per_waiting_transacton,
+					//(double)(queued_transactions-1) * (double)average_spin_time_per_waiting_transacton);
+			//fflush(stdout);
 
 
 		} else {
@@ -659,9 +659,9 @@ inline void stm_tune_scheduler(){
 	average_running_transactions=average_running_transactions/(float)total_committed_transactions_by_collector_threads;
 	if (total_queued_transactions!=0) average_spin_time_per_waiting_transacton=(float)total_tx_spin_time/(float)total_queued_transactions;
 	printf("\nAverage_spin_time_per_waiting_transacton %f",average_spin_time_per_waiting_transacton);
-	printf("\nTotal_queued_transactions: %i, Sleepy transactions: %i", total_queued_transactions, total_sleepy_transactions);
-	printf("\nAverage Sleep time: %f",(float)total_tx_sleep_time/(float)total_sleepy_transactions);
-	printf("\nTx time: %f, Spin time: %f, No tx time %f",((float)total_tx_time+(float)total_tx_wasted_time)/(float)total_committed_transactions_by_collector_threads,
+	printf("\tTotal_queued_transactions: %i, Sleepy transactions: %i", total_queued_transactions, total_sleepy_transactions);
+	printf("\tAverage Sleep time: %f",(float)total_tx_sleep_time/(float)total_sleepy_transactions);
+	//printf("\nTx time: %f, Spin time: %f, No tx time %f",((float)total_tx_time+(float)total_tx_wasted_time)/(float)total_committed_transactions_by_collector_threads,
 		(float)total_tx_spin_time/(float)total_committed_transactions_by_collector_threads, (float)total_no_tx_time/(float)total_committed_transactions_by_collector_threads);
 
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
