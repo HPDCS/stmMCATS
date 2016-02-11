@@ -263,16 +263,18 @@ void reset_local_stats(stm_tx_t *tx){
 	  tx->total_no_tx_time=0;
 	  tx->total_wasted_time=0;
 	  tx->total_spin_time=0;
+	  tx->total_sleep_time=0;
 	  tx->start_no_tx_time=0;
 	  tx->committed_transactions_as_a_collector_thread=0;
+	  tx->sleepy_transactions=0;
 	  tx->committed_transactions=0;
 	  tx->aborted_transactions=0;
+	  tx->queued_transactions=0;
 	  memset(tx->total_tx_wasted_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(stm_time_t));
 	  memset(tx->total_tx_committed_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(long));
 	  memset(tx->total_conflict_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(long));
 	  memset(tx->total_tx_useful_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(stm_time_t));
 }
-#endif /* ! STM_MCATS */
 
 /* ################################################################### *
  * STM FUNCTIONS
