@@ -1,5 +1,8 @@
 #!/bin/bash
-
+cd rapl-power
+make clean
+make
+cd ..
 cd tinySTM
 make clean
 make

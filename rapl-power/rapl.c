@@ -19,11 +19,6 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
  * Intel(r) Power Governor library implementation
  */
 
-
-float maxcpupower = 30.0f;       // in Watts
-float mincpupower = 18.0f;        // in Watts
-
-
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
@@ -40,6 +35,9 @@ float mincpupower = 18.0f;        // in Watts
 #include "cpuid.h"
 #include "msr.h"
 #include "rapl.h"
+
+#include <inttypes.h>
+uint64_t pre_tsc = 0, post_tsc = 0, freq_tsc = 0;
 
 /* rapl msr availablility */
 #define MSR_SUPPORT_MASK 0xff
@@ -235,11 +233,30 @@ init_rapl()
     int      err = 0;
     uint32_t processor_signature;
 
-    processor_signature = 0x306c3; // get_processor_signature(); // 0x306c3
+    processor_signature = 0x306c3; // get_processor_signature(); 0x306c3
     msr_support_table = (unsigned char*) calloc(MSR_SUPPORT_MASK, sizeof(unsigned char));
 
-    switch (processor_signature & 0xfffffff0) {
-    case 0x306e0: 
+    switch (processor_signature & 0xfffffff0)
+    {
+    case 0x30670: /*MINIX Intel Atom BayTrail Z3735F*/
+        msr_support_table[MSR_RAPL_POWER_UNIT & MSR_SUPPORT_MASK]          = 1;
+        msr_support_table[MSR_RAPL_PKG_POWER_LIMIT & MSR_SUPPORT_MASK]     = 1;
+        msr_support_table[MSR_RAPL_PKG_ENERGY_STATUS & MSR_SUPPORT_MASK]   = 1;
+        msr_support_table[MSR_RAPL_PKG_PERF_STATUS & MSR_SUPPORT_MASK]     = 0;
+        msr_support_table[MSR_RAPL_PKG_POWER_INFO & MSR_SUPPORT_MASK]      = 0;
+        msr_support_table[MSR_RAPL_DRAM_POWER_LIMIT & MSR_SUPPORT_MASK]    = 0;
+        msr_support_table[MSR_RAPL_DRAM_ENERGY_STATUS & MSR_SUPPORT_MASK]  = 0;
+        msr_support_table[MSR_RAPL_DRAM_PERF_STATUS & MSR_SUPPORT_MASK]    = 0;
+        msr_support_table[MSR_RAPL_DRAM_POWER_INFO & MSR_SUPPORT_MASK]     = 0;
+        msr_support_table[MSR_RAPL_PP0_POWER_LIMIT & MSR_SUPPORT_MASK]     = 1;
+        msr_support_table[MSR_RAPL_PP0_ENERGY_STATUS & MSR_SUPPORT_MASK]   = 1;
+        msr_support_table[MSR_RAPL_PP0_POLICY & MSR_SUPPORT_MASK]          = 0;
+        msr_support_table[MSR_RAPL_PP0_PERF_STATUS & MSR_SUPPORT_MASK]     = 0;
+        msr_support_table[MSR_RAPL_PP1_POWER_LIMIT & MSR_SUPPORT_MASK]     = 0;
+        msr_support_table[MSR_RAPL_PP1_ENERGY_STATUS & MSR_SUPPORT_MASK]   = 0;
+        msr_support_table[MSR_RAPL_PP1_POLICY & MSR_SUPPORT_MASK]          = 0;
+        break;
+    case 0x306e0:
         msr_support_table[MSR_RAPL_POWER_UNIT & MSR_SUPPORT_MASK]          = 1;
         msr_support_table[MSR_RAPL_PKG_POWER_LIMIT & MSR_SUPPORT_MASK]     = 1;
         msr_support_table[MSR_RAPL_PKG_ENERGY_STATUS & MSR_SUPPORT_MASK]   = 1;
@@ -257,19 +274,19 @@ init_rapl()
         msr_support_table[MSR_RAPL_PP1_ENERGY_STATUS & MSR_SUPPORT_MASK]   = 1;
         msr_support_table[MSR_RAPL_PP1_POLICY & MSR_SUPPORT_MASK]          = 1;
         break;
-    case 0x40660: 
-    case 0x40650: 
-    case 0x306c0: 
-    case 0x20650: 
-    case 0x306a0: 
-    case 0x206a0: 
+    case 0x40660:
+    case 0x40650:
+    case 0x306c0:
+    case 0x20650:
+    case 0x306a0:
+    case 0x206a0:
         msr_support_table[MSR_RAPL_POWER_UNIT & MSR_SUPPORT_MASK]          = 1;
         msr_support_table[MSR_RAPL_PKG_POWER_LIMIT & MSR_SUPPORT_MASK]     = 1;
         msr_support_table[MSR_RAPL_PKG_ENERGY_STATUS & MSR_SUPPORT_MASK]   = 1;
         msr_support_table[MSR_RAPL_PKG_PERF_STATUS & MSR_SUPPORT_MASK]     = 0;
         msr_support_table[MSR_RAPL_PKG_POWER_INFO & MSR_SUPPORT_MASK]      = 1;
         msr_support_table[MSR_RAPL_DRAM_POWER_LIMIT & MSR_SUPPORT_MASK]    = 0;
-        msr_support_table[MSR_RAPL_DRAM_ENERGY_STATUS & MSR_SUPPORT_MASK]  = 0; 
+        msr_support_table[MSR_RAPL_DRAM_ENERGY_STATUS & MSR_SUPPORT_MASK]  = 0;
         msr_support_table[MSR_RAPL_DRAM_PERF_STATUS & MSR_SUPPORT_MASK]    = 0;
         msr_support_table[MSR_RAPL_DRAM_POWER_INFO & MSR_SUPPORT_MASK]     = 0;
         msr_support_table[MSR_RAPL_PP0_POWER_LIMIT & MSR_SUPPORT_MASK]     = 1;
@@ -280,7 +297,7 @@ init_rapl()
         msr_support_table[MSR_RAPL_PP1_ENERGY_STATUS & MSR_SUPPORT_MASK]   = 1;
         msr_support_table[MSR_RAPL_PP1_POLICY & MSR_SUPPORT_MASK]          = 1;
         break;
-    case 0x206d0: 
+    case 0x206d0:
         msr_support_table[MSR_RAPL_POWER_UNIT & MSR_SUPPORT_MASK]          = 1;
         msr_support_table[MSR_RAPL_PKG_POWER_LIMIT & MSR_SUPPORT_MASK]     = 1;
         msr_support_table[MSR_RAPL_PKG_ENERGY_STATUS & MSR_SUPPORT_MASK]   = 1;
@@ -309,9 +326,17 @@ init_rapl()
     MAX_ENERGY_STATUS_JOULES = (double)(RAPL_ENERGY_UNIT * (pow(2, 32) - 1));
     MAX_THROTTLED_TIME_SECONDS = (double)(RAPL_TIME_UNIT * (pow(2, 32) - 1));
 
-if (err != 0) {
-fprintf(stderr, "my error: %d\n", err);
-}
+    //TSC frequency
+    /*read_tsc(&pre_tsc);
+    sleep(1);
+    read_tsc(&post_tsc);
+    freq_tsc = post_tsc-pre_tsc;
+    printf("Invariant TSC frequency: %" PRIu64 "Hz\n", freq_tsc);
+    */
+    if (err != 0)
+    {
+        fprintf(stderr, "my error: %d\n", err);
+    }
 
     return err;
 }
@@ -1363,26 +1388,37 @@ get_pp0_freq_mhz(uint64_t node, uint64_t *freq)
 #include <errno.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
-#include <sys/types.h>
 #include <dirent.h>
-#include <dirent.h>
-#include <ctype.h>
 #include <sys/stat.h>
 
 #define CPU_DIR "/sys/devices/system/cpu"
 #define CPU_FREQUENCY_STAT "/sys/devices/system/cpu/%s/cpufreq/stats/time_in_state"
+
+#define NUM_FREQ 5
+float maxcpupower = 14.375f; //Watt
+float mincpupower = 5.625f; //Watt
+float maxfreq = 2.0f; //GHz
+float minfreq = 0.8f; //GHz
+
+/*
+#define NUM_FREQ 9
+float maxcpupower = 18.0f; //Watt
+float mincpupower = 10.0f; //Watt
+float maxfreq = 2.401f; //GHz
+float minfreq = 0.8f; //GHz
+*/
 
 typedef unsigned long long u64;
 
 struct cpufreqdata {
     u64 frequency;
     u64 count;
-    float       power; // what power consumption
+    float power; // what power consumption
 };
 
-struct cpufreqdata freqs[16];
-struct cpufreqdata oldfreqs[16];
-struct cpufreqdata delta[16];
+struct cpufreqdata freqs[NUM_FREQ];
+struct cpufreqdata oldfreqs[NUM_FREQ];
+struct cpufreqdata delta[NUM_FREQ];
 
 int cpufreq_stats = 0;
 unsigned int hz;
@@ -1447,7 +1483,7 @@ void startEnergyAMD()
     int maxfreq = 0;
     u64 total_time = 0;
 
-    for (ret = 0; ret<16; ret++)
+    for (ret = 0; ret<NUM_FREQ; ret++)
         oldfreqs[ret].count = 0;
 
     dir = opendir(CPU_DIR);
@@ -1473,7 +1509,6 @@ void startEnergyAMD()
 
             unsigned long long count = 0;
             sscanf(line, "%llu %llu", &oldfreqs[i].frequency, &count);
-
             oldfreqs[i].count += count;
             i++;
             if (i>15)
@@ -1487,19 +1522,22 @@ void startEnergyAMD()
     closedir(dir);
 }
 
-void endEnergyAMD()
+float endEnergyAMD()
 {
     DIR *dir;
     struct dirent *dirent;
     FILE *file;
     char filename[PATH_MAX];
     char line[32];
-    float delta_power;
+    float delta_energy = 0.0, range_freq, range_power;
     int ret = 0;
-    int maxfreq = 0;
+    //int maxfreq = 0;
     u64 total_time = 0;
 
-    for (ret = 0; ret<16; ret++)
+    range_freq = maxfreq - minfreq;
+    range_power = maxcpupower - mincpupower;
+
+    for (ret = 0; ret<NUM_FREQ; ret++)
         freqs[ret].count = 0;
 
     dir = opendir(CPU_DIR);
@@ -1527,6 +1565,8 @@ void endEnergyAMD()
             sscanf(line, "%llu %llu", &freqs[i].frequency, &count);
 
             freqs[i].count += count;
+            freqs[i].power =  ((((float)freqs[i].frequency / 1000000) - minfreq) * (range_power/range_freq)) + mincpupower;
+
             i++;
             if (i>15)
                 break;
@@ -1538,46 +1578,55 @@ void endEnergyAMD()
 
     closedir(dir);
     //count unit 10ms, usertime
-    for (ret = 0; ret < 16; ret++) {
+
+    //printf("%-20s%-20s%-20s\n","Frequency (kHz)","PowerInState (J/s)", "TimeInState (s)");
+    for (ret = 0; ret<NUM_FREQ; ret++) {
         delta[ret].count = freqs[ret].count - oldfreqs[ret].count;
+
         total_time += delta[ret].count;
         delta[ret].frequency = freqs[ret].frequency;
-        /*
-        if (ret <= 4)
-            printf("\nfreq %llu -> %llu\n", delta[ret].frequency, delta[ret].count);
-            */
+
+	//printf("%-20llu%-20f%-20f\n", delta[ret].frequency, freqs[ret].power, ((float)delta[ret].count/100));
+
     }
 
-    delta_power = 0.0;
-    float rangecpupower = maxcpupower - mincpupower;
+    /*float rangecpupower = maxcpupower - mincpupower;
     for (ret = 0; ret <= maxfreq; ret++) {
         if(total_time > 0 && maxfreq > 0)
             delta_power += (maxcpupower - rangecpupower * ret / maxfreq) * delta[ret].count / 100;//Watt * 10ms
     }
-    printf("\nPower: %f", delta_power);
+    printf("\nPower: %f\n", delta_energy);*/
+
+    for (i=0; i<NUM_FREQ;i++)
+        delta_energy = delta_energy + ((freqs[i].power * delta[i].count) / 100); // in Joule
+
+    return delta_energy;
 }
 
 /* RAPL stuff */
 
-__thread double pSample = 0;
-__thread double nSample = 0;
+__thread double pre_pp0en = 0;
+__thread double post_pp0en = 0;
 
 void startEnergyIntel() {
-	int res = init_rapl();
-	if (res != 0) {
-		printf("RAPL could not be initialized\n");
-		return;
-    }
-    get_pkg_total_energy_consumed(0, &pSample);
+    get_pp0_total_energy_consumed(0, &pre_pp0en); //verifica node = 0?
 }
 
-void endEnergyIntel() {
-	get_pkg_total_energy_consumed(0, &nSample);
-	double delta = (nSample - pSample);
-	if (delta < 0) {
-		delta += MAX_ENERGY_STATUS_JOULES;
-	}
-	printf("\nEnergy = %0.6lf", delta);
+float endEnergyIntel() {
+
+    float delta_pp0en = 0.0;
+
+    get_pp0_total_energy_consumed(0, &post_pp0en);
+    delta_pp0en = (post_pp0en - pre_pp0en);
+
+    //Handle wraparound
+    if (delta_pp0en < 0) {
+	 delta_pp0en += MAX_ENERGY_STATUS_JOULES;
+    }
+
+    //printf("\Energy: %0.6lf J", delta_pp0en);
+
+    return delta_pp0en;
 }
 
 
@@ -1586,27 +1635,44 @@ void endEnergyIntel() {
 
 unsigned int isIntel = -1;
 
-void startEnergy() {
+
+void startEnergy()
+{
     if (isIntel == -1) {
-        if (system("cat /proc/cpuinfo | grep 'Intel'") == 0) {
+        if (system("grep 'Intel' /proc/cpuinfo >> /dev/null"	) == 0) {
             isIntel = 1;
         } else {
             isIntel = 0;
         }
     }
 
-    if (isIntel) {
+    if (isIntel){
+        if (init_rapl() != 0){
+            printf("\nRAPL could not be initialized\n");
+            exit(1);
+        }
+        /*pkg_rapl_parameters_t prova;
+        get_pkg_rapl_parameters(0,&prova);
+        maxcpupower = prova.maximum_power_watts;
+        mincpupower = prova.minimum_power_watts;
+        printf("Max: %.4f W, Min: %.4f W, Th: %.4f W\n", prova.maximum_power_watts, prova.minimum_power_watts, prova.thermal_spec_power_watts);
+        fflush(stdout);*/
         startEnergyIntel();
-    } else {
+    }
+    else{
         startEnergyAMD();
     }
 }
 
-void endEnergy() {
-    if (isIntel) {
-        endEnergyIntel();
-    } else {
-        endEnergyAMD();
+float endEnergy()
+{
+    if (isIntel){
+        float delta_pp0en = endEnergyIntel();
+        terminate_rapl();
+        return delta_pp0en;
+    }
+    else{
+        return endEnergyAMD();
     }
 }
 
