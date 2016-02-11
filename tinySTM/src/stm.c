@@ -663,7 +663,8 @@ inline void stm_tune_scheduler(){
 	printf("\tAverage Sleep time: %f",(float)total_tx_sleep_time/(float)total_sleepy_transactions);
 	//printf("\nTx time: %f, Spin time: %f, No tx time %f",((float)total_tx_time+(float)total_tx_wasted_time)/(float)total_committed_transactions_by_collector_threads,
 		//(float)total_tx_spin_time/(float)total_committed_transactions_by_collector_threads, (float)total_no_tx_time/(float)total_committed_transactions_by_collector_threads);
-
+	/*:wq
+	 *
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
 	float lambda = 1.0 / (((float) total_no_tx_time/(float)1000000000)/(float) total_committed_transactions_by_collector_threads);
 	for (i=0;i<max_concurrent_threads+1;i++){
@@ -716,9 +717,9 @@ inline void stm_tune_scheduler(){
 	//printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads)));
 	//printf("\naverage_running_transactions: %f", average_running_transactions, 1.0);
 	//fflush(stdout);
-
+	*/
 	last_tuning_time=STM_TIMER_READ();
-	max_allowed_running_transactions=4;
+
 
 }
 
