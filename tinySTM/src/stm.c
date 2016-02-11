@@ -76,6 +76,7 @@ global_t _tinystm =
 #  ifdef STM_MCATS
 	volatile stm_word_t running_transactions;
 	volatile int busy_waiting_transactions;
+	volatile int out_of_transaction_threads;
 	volatile stm_word_t max_allowed_running_transactions;
 	unsigned long max_concurrent_threads;
 	int transactions_per_tuning_cycle;
@@ -268,7 +269,7 @@ void reset_local_stats(stm_tx_t *tx){
 	  tx->committed_transactions_as_a_collector_thread=0;
 	  tx->committed_transactions=0;
 	  tx->aborted_transactions=0;
-	  tx->busy_waiting_transactions=0;
+	  tx->busy_waited_transactions=0;
 	  tx->sleepy_transactions=0;
 	  memset(tx->total_tx_wasted_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(stm_time_t));
 	  memset(tx->total_tx_committed_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(long));
@@ -307,6 +308,7 @@ void stm_init(int threads) {
 	main_thread = current_collector_thread = 0;
 	running_transactions = 0;
 	busy_waiting_transactions=0;
+	out_of_transaction_threads=max_concurrent_threads;
 	average_spin_time_per_waiting_transacton=0;
 	wasted_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	useful_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
@@ -493,11 +495,11 @@ inline void stm_wait(int id) {
 			//collect statistics
 			start_spin_time=STM_TIMER_READ();
 			tx->total_no_tx_time+=start_spin_time - tx->start_no_tx_time;
-			tx->busy_waiting_transactions++;
+			tx->busy_waited_transactions++;
 		}
 
 		//busy waiting or sleeping?
-		printf("\nbusy_waiting_transactions %i, max_allowed_running_transactions %i, running_transactions %i", busy_waiting_transactions, max_allowed_running_transactions, running_transactions);
+		printf("\nbusy_waiting_transactions %i, max_allowed_running_transactions %i, running_transactions %i, out_of_transaction_threads %i", busy_waiting_transactions, max_allowed_running_transactions, running_transactions, out_of_transaction_threads);
 		fflush(stdout);
 
 		if (//(tx->i_am_the_collector_thread!=1) &&
@@ -527,6 +529,7 @@ inline void stm_wait(int id) {
 			//fflush(stdout);
 		}
 		// starting busy waiting
+		ATOMIC_FETCH_DEC_FULL(&out_of_transaction_threads);
 		ATOMIC_FETCH_INC_FULL(&busy_waiting_transactions);
 		int cycle=500000,i=1;
 		while(1){
@@ -540,7 +543,7 @@ inline void stm_wait(int id) {
 			}
 			tx->i_am_waiting=0;
 		}
-
+		ATOMIC_FETCH_INC_FULL(&out_of_transaction_threads);
 		ATOMIC_FETCH_DEC_FULL(&busy_waiting_transactions);
 
 		if (tx->i_am_the_collector_thread==1){
@@ -606,7 +609,7 @@ inline void stm_tune_scheduler(){
 	long total_committed_transactions_by_collector_threads=0;
 	long total_committed_transactions=0;
 	long total_aborted_transactions=0;
-	long total_busy_waiting_transactions=0;
+	long total_busy_waited_transactions=0;
 	long total_sleepy_transactions=0;
 	float average_running_transactions=0;
 
@@ -621,7 +624,7 @@ inline void stm_tune_scheduler(){
 		total_committed_transactions_by_collector_threads+=thread->committed_transactions_as_a_collector_thread;
 		total_committed_transactions+=thread->committed_transactions;
 		total_aborted_transactions+=thread->aborted_transactions;
-		total_busy_waiting_transactions+=thread->busy_waiting_transactions;
+		total_busy_waited_transactions+=thread->busy_waited_transactions;
 		total_sleepy_transactions+=thread->sleepy_transactions;
 
 		for(i=0;i<max_concurrent_threads+1;i++){
@@ -639,9 +642,9 @@ inline void stm_tune_scheduler(){
 	//printf("\ntotal_tx_time %llu, total_tx_wasted_time %llu, total_no_tx_time %llu, total_committed_transactions_by_collector_threads %i", total_tx_time, total_tx_wasted_time, total_no_tx_time, total_committed_transactions_by_collector_threads);
 	average_running_transactions=average_running_transactions/(float)total_committed_transactions_by_collector_threads;
 	average_spin_time_per_waiting_transacton=0;
-	if (total_busy_waiting_transactions>0)
-		//average_spin_time_per_waiting_transacton=(double)total_tx_spin_time/(double)total_busy_waiting_transactions;
-	printf("\nTotal_busy_waiting_transactions: %i, sleepy_transactions: %i, total_tx_spin_time: %llu, Average_spin_time_per_waiting_transacton: %f", total_busy_waiting_transactions, total_sleepy_transactions, total_tx_spin_time, average_spin_time_per_waiting_transacton);
+	if (total_busy_waited_transactions>0)
+		//average_spin_time_per_waiting_transacton=(double)total_tx_spin_time/(double)total_busy_waited_transactions;
+	printf("\nTotal_busy_waited_transactions: %i, sleepy_transactions: %i, total_tx_spin_time: %llu, Average_spin_time_per_waiting_transacton: %f", total_busy_waited_transactions, total_sleepy_transactions, total_tx_spin_time, average_spin_time_per_waiting_transacton);
 
 	/*
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
