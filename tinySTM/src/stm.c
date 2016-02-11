@@ -491,10 +491,12 @@ inline void stm_wait(int id) {
 			break;
 		}
 	}
-	printf("\nbusy_waiting_transactions %i, max_allowed_running_transactions %i, running_transactions %i, out_of_transaction_threads %i", busy_waiting_transactions, max_allowed_running_transactions, running_transactions, out_of_transaction_threads);
-	fflush(stdout);
+
 
 	if(entered==0){
+		printf("\nbusy_waiting_transactions %i, max_allowed_running_transactions %i, running_transactions %i, out_of_transaction_threads %i", busy_waiting_transactions, max_allowed_running_transactions, running_transactions, out_of_transaction_threads);
+		fflush(stdout);
+
 		if(tx->i_am_the_collector_thread==1){
 			//collect statistics
 			start_spin_time=STM_TIMER_READ();
