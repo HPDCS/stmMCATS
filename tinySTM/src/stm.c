@@ -658,13 +658,12 @@ inline void stm_tune_scheduler(){
 	//for(i=0;i<max_concurrent_threads+1;i++) printf("\nwasted_time_k[%i] %llu", i, wasted_time_k[i]);
 	average_running_transactions=average_running_transactions/(float)total_committed_transactions_by_collector_threads;
 	if (total_queued_transactions!=0) average_spin_time_per_waiting_transacton=(float)total_tx_spin_time/(float)total_queued_transactions;
-	printf("\nAverage_spin_time_per_waiting_transacton %f",average_spin_time_per_waiting_transacton);
+	//printf("\nAverage_spin_time_per_waiting_transacton %f",average_spin_time_per_waiting_transacton);
 	//printf("\tTotal_queued_transactions: %i, Sleepy transactions: %i", total_queued_transactions, total_sleepy_transactions);
-	printf("\tAverage Sleep time: %f",(float)total_tx_sleep_time/(float)total_sleepy_transactions);
+	//printf("\tAverage Sleep time: %f",(float)total_tx_sleep_time/(float)total_sleepy_transactions);
 	//printf("\nTx time: %f, Spin time: %f, No tx time %f",((float)total_tx_time+(float)total_tx_wasted_time)/(float)total_committed_transactions_by_collector_threads,
 		//(float)total_tx_spin_time/(float)total_committed_transactions_by_collector_threads, (float)total_no_tx_time/(float)total_committed_transactions_by_collector_threads);
-	/*:wq
-	 *
+	/*
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
 	float lambda = 1.0 / (((float) total_no_tx_time/(float)1000000000)/(float) total_committed_transactions_by_collector_threads);
 	for (i=0;i<max_concurrent_threads+1;i++){
