@@ -556,6 +556,8 @@ inline void stm_wait(int id) {
 			tx->i_am_waiting=0;
 		}
 
+		ATOMIC_FETCH_DEC_FULL(&queued_transactions);
+
 		if (tx->i_am_the_collector_thread==1) {
 			tx->first_start_tx_time=tx->last_start_tx_time=STM_TIMER_READ();
 			tx->total_spin_time+=tx->first_start_tx_time-start_spin_time;
