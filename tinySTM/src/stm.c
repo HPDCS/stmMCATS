@@ -76,7 +76,6 @@ global_t _tinystm =
 #  ifdef STM_MCATS
 	volatile stm_word_t running_transactions;
 	volatile int busy_waiting_transactions;
-	volatile int out_of_transaction_threads;
 	volatile stm_word_t max_allowed_running_transactions;
 	unsigned long max_concurrent_threads;
 	int transactions_per_tuning_cycle;
@@ -308,7 +307,6 @@ void stm_init(int threads) {
 	main_thread = current_collector_thread = 0;
 	running_transactions = 0;
 	busy_waiting_transactions=0;
-	out_of_transaction_threads=max_concurrent_threads;
 	average_spin_time_per_waiting_transacton=0;
 	wasted_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	useful_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
@@ -483,7 +481,6 @@ inline void stm_wait(int id) {
 					tx->first_start_tx_time=tx->last_start_tx_time=STM_TIMER_READ();
 					tx->total_no_tx_time+=tx->last_start_tx_time - tx->start_no_tx_time;
 				}
-				ATOMIC_FETCH_DEC_FULL(&out_of_transaction_threads);
 				entered=1;
 				break;
 			}
@@ -535,7 +532,6 @@ inline void stm_wait(int id) {
 			//fflush(stdout);
 		}
 		// starting busy waiting
-		ATOMIC_FETCH_DEC_FULL(&out_of_transaction_threads);
 		ATOMIC_FETCH_INC_FULL(&busy_waiting_transactions);
 		int cycle=500000,i=1;
 		while(1){
@@ -748,7 +744,6 @@ stm_commit(void)
 		stm_word_t active=running_transactions;
 		tx->start_no_tx_time=STM_TIMER_READ();
 		ATOMIC_FETCH_DEC_FULL(&running_transactions);
-		ATOMIC_FETCH_INC_FULL(&out_of_transaction_threads);
 
 		stm_time_t useful = tx->start_no_tx_time - tx->last_start_tx_time;
 		tx->total_wasted_time+=tx->last_start_tx_time-tx->first_start_tx_time;
@@ -765,11 +760,9 @@ stm_commit(void)
 	}else if(current_collector_thread==tx->thread_identifier){
 		tx->start_no_tx_time=STM_TIMER_READ();
 		ATOMIC_FETCH_DEC_FULL(&running_transactions);
-		ATOMIC_FETCH_INC_FULL(&out_of_transaction_threads);
 		tx->i_am_the_collector_thread=1;
 	}else {
 		ATOMIC_FETCH_DEC_FULL(&running_transactions);
-		ATOMIC_FETCH_INC_FULL(&out_of_transaction_threads);
 	}
 	stm_tx_t *transaction=_tinystm.threads;
 	int i;
