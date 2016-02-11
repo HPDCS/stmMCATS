@@ -499,7 +499,7 @@ inline void stm_wait(int id) {
 		//busy waiting or sleeping?
 		printf("\nbusy_waiting_transactions %i", busy_waiting_transactions);
 		fflush(stdout);
-		ATOMIC_FETCH_INC_FULL(&busy_waiting_transactions);
+
 		if (//(tx->i_am_the_collector_thread!=1) &&
 				((float)(busy_waiting_transactions)>(float)busy_waiting_time_threashold)) {
 
@@ -527,7 +527,7 @@ inline void stm_wait(int id) {
 			//fflush(stdout);
 		}
 		// starting busy waiting
-
+		ATOMIC_FETCH_INC_FULL(&busy_waiting_transactions);
 		int cycle=500000,i=1;
 		while(1){
 			active_txs=running_transactions;
