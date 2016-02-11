@@ -495,8 +495,8 @@ inline void stm_wait(int id) {
 			fflush(stdout);
 
 	if(entered==0){
-		//printf("\n----------busy_waiting_transactions %i, max_allowed_running_transactions %i, running_transactions %i, out_of_transaction_threads %i", busy_waiting_transactions, max_allowed_running_transactions, running_transactions, out_of_transaction_threads);
-		//fflush(stdout);
+		printf("\n----------busy_waiting_transactions %i, max_allowed_running_transactions %i, running_transactions %i, out_of_transaction_threads %i", busy_waiting_transactions, max_allowed_running_transactions, running_transactions, out_of_transaction_threads);
+		fflush(stdout);
 
 		if(tx->i_am_the_collector_thread==1){
 			//collect statistics
@@ -511,8 +511,8 @@ inline void stm_wait(int id) {
 		if (//(tx->i_am_the_collector_thread!=1) &&
 				((float)(busy_waiting_transactions)>(float)busy_waiting_time_threashold)) {
 
-			//printf("\tslept");
-			//fflush(stdout);
+			printf("\tslept");
+			fflush(stdout);
 			//sleeping
 			//stm_time_t start, end;
 			//start = STM_TIMER_READ();
