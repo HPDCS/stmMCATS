@@ -497,11 +497,11 @@ inline void stm_wait(int id) {
 		}
 
 		//busy waiting or sleeping?
-		printf("\nbusy_waiting_transactions %i, max_allowed_running_transactions %i", busy_waiting_transactions, max_allowed_running_transactions);
+		printf("\nbusy_waiting_transactions %i, max_allowed_running_transactions %i, running_transactions %i", busy_waiting_transactions, max_allowed_running_transactions, running_transactions);
 		fflush(stdout);
 
 		if (//(tx->i_am_the_collector_thread!=1) &&
-				(0 && (float)(busy_waiting_transactions)>(float)busy_waiting_time_threashold)) {
+				((float)(busy_waiting_transactions)>(float)busy_waiting_time_threashold)) {
 
 			printf("\tslept");
 			fflush(stdout);
