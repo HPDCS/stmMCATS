@@ -760,8 +760,12 @@ stm_commit(void)
 	}else if(current_collector_thread==tx->thread_identifier){
 		tx->start_no_tx_time=STM_TIMER_READ();
 		ATOMIC_FETCH_DEC_FULL(&running_transactions);
+		ATOMIC_FETCH_INC_FULL(&out_of_transaction_threads);
 		tx->i_am_the_collector_thread=1;
-	}else ATOMIC_FETCH_DEC_FULL(&running_transactions);
+	}else {
+		ATOMIC_FETCH_DEC_FULL(&running_transactions);
+		ATOMIC_FETCH_INC_FULL(&out_of_transaction_threads);
+	}
 	stm_tx_t *transaction=_tinystm.threads;
 	int i;
 	for (i=1;i< max_concurrent_threads-1;i++){
