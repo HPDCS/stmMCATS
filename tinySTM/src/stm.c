@@ -519,7 +519,7 @@ inline void stm_wait(int id) {
 		}
 		// starting busy waiting
 
-		int cycle=500000,i=1;
+		int cycle=1,i=1;
 		while(1){
 			active_txs=running_transactions;
 			max_txs=max_allowed_running_transactions;
