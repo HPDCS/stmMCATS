@@ -587,11 +587,11 @@ inline void stm_tune_scheduler(){
 	memset(wasted_time_k, 0, (max_concurrent_threads+1) * sizeof(stm_time_t));
 	memset(useful_time_k, 0, (max_concurrent_threads+1) * sizeof(stm_time_t));
 	long total_committed_transactions_by_collector_threads=0;
-	//long total_sleepy_transactions=0;
+	long total_sleepy_transactions=0;
 	long total_committed_transactions=0;
 	long total_aborted_transactions=0;
 	long total_queued_transactions=0;
-	//long total_tx_sleep_time=0;
+	long total_tx_sleep_time=0;
 	float average_running_transactions=0;
 
 	tx->total_no_tx_time+=now - tx->start_no_tx_time ;
@@ -602,9 +602,9 @@ inline void stm_tune_scheduler(){
 		total_no_tx_time+=thread->total_no_tx_time;
 		total_tx_wasted_time+=thread->total_wasted_time;
 		total_tx_spin_time+=thread->total_spin_time;
-		//total_tx_sleep_time+=thread->total_sleep_time;
+		total_tx_sleep_time+=thread->total_sleep_time;
 		total_committed_transactions_by_collector_threads+=thread->committed_transactions_as_a_collector_thread;
-		//total_sleepy_transactions +=thread->sleepy_transactions;
+		total_sleepy_transactions +=thread->sleepy_transactions;
 		total_committed_transactions+=thread->committed_transactions;
 		total_aborted_transactions+=thread->aborted_transactions;
 		total_queued_transactions+=thread->queued_transactions;
