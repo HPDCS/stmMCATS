@@ -495,11 +495,11 @@ inline void stm_wait(int id) {
 			tx->total_no_tx_time+=start_spin_time - tx->start_no_tx_time;
 			tx->busy_waiting_transactions++;
 		}
-		ATOMIC_FETCH_INC_FULL(&busy_waiting_transactions);
+
 		//busy waiting or sleeping?
 		printf("\nbusy_waiting_transactions %i", busy_waiting_transactions);
 		fflush(stdout);
-
+		ATOMIC_FETCH_INC_FULL(&busy_waiting_transactions);
 		if (//(tx->i_am_the_collector_thread!=1) &&
 				((float)(busy_waiting_transactions)>(float)busy_waiting_time_threashold)) {
 
