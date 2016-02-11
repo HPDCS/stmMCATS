@@ -649,9 +649,9 @@ inline void stm_tune_scheduler(){
 	//printf("\ntotal_tx_time %llu, total_tx_wasted_time %llu, total_no_tx_time %llu, total_committed_transactions_by_collector_threads %i", total_tx_time, total_tx_wasted_time, total_no_tx_time, total_committed_transactions_by_collector_threads);
 	average_running_transactions=average_running_transactions/(float)total_committed_transactions_by_collector_threads;
 	average_spin_time_per_waiting_transacton=0;
-	if (total_busy_waited_transactions>0)
+	//if (total_busy_waited_transactions>0)
 		//average_spin_time_per_waiting_transacton=(double)total_tx_spin_time/(double)total_busy_waited_transactions;
-	printf("\nTotal_busy_waited_transactions: %i, sleepy_transactions: %i, total_tx_spin_time: %llu, Average_spin_time_per_waiting_transacton: %f", total_busy_waited_transactions, total_sleepy_transactions, total_tx_spin_time, average_spin_time_per_waiting_transacton);
+	//printf("\nTotal_busy_waited_transactions: %i, sleepy_transactions: %i, total_tx_spin_time: %llu, Average_spin_time_per_waiting_transacton: %f", total_busy_waited_transactions, total_sleepy_transactions, total_tx_spin_time, average_spin_time_per_waiting_transacton);
 
 	/*
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
