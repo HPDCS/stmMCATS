@@ -630,7 +630,7 @@ inline void stm_tune_scheduler(){
 	printf("\nTotal_queued_transactions: %i, Sleepy transactions: %i", total_queued_transactions, total_sleepy_transactions);
 	printf("\nAverage Sleep time: %f",(float)total_tx_sleep_time/(float)total_sleepy_transactions);
 	printf("\nTx time: %f, Spin time: %f, No tx time %f",((float)total_tx_time+(float)total_tx_wasted_time),
-		(float)total_tx_spin_time, (float)total_no_tx_time);
+		(float)total_tx_spin_time/(float)total_committed_transactions_by_collector_threads, (float)total_no_tx_time/(float)total_committed_transactions_by_collector_threads);
 
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
 	float lambda = 1.0 / (((float) total_no_tx_time/(float)1000000000)/(float) total_committed_transactions_by_collector_threads);
