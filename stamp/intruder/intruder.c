@@ -81,8 +81,10 @@
 #include "thread.h"
 #include "timer.h"
 #include "tm.h"
+#include "../../rapl-power/rapl.h"
 
 #define MAX_NUMBER_OF_TX_CLASS 1
+#define STM_ENERGY_MONITOR
 
 
 
@@ -307,6 +309,10 @@ MAIN(argc, argv)
      * Run transactions
      */
 
+#ifdef STM_ENERGY_MONITOR
+	startEnergy();
+#endif /* STM_ENERGY_MONITOR */
+
     TIMER_T startTime;
     TIMER_READ(startTime);
     GOTO_SIM();
@@ -322,7 +328,16 @@ MAIN(argc, argv)
     GOTO_REAL();
     TIMER_T stopTime;
     TIMER_READ(stopTime);
+
+#ifdef STM_ENERGY_MONITOR
+	float joule=endEnergy();
+	//terminate_rapl();
+    printf("Threads: %i\tElapsed time: %f Joule: %f",nthreads, TIMER_DIFF_SECONDS(startTime, stopTime), joule);
+#else
     printf("Threads: %i\tElapsed time: %f",nthreads, TIMER_DIFF_SECONDS(startTime, stopTime));
+#endif /* STM_ENERGY_MONITOR */
+
+
 
     /*
      * Check solution

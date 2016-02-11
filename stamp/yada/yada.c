@@ -80,6 +80,9 @@
 #include "thread.h"
 #include "timer.h"
 #include "tm.h"
+#include "../../rapl-power/rapl.h"
+
+#define STM_ENERGY_MONITOR
 
 
 #define PARAM_DEFAULT_INPUTPREFIX ("")
@@ -307,6 +310,10 @@ MAIN(argc, argv)
      * Run benchmark
      */
 
+    #ifdef STM_ENERGY_MONITOR
+	startEnergy();
+    #endif /* STM_ENERGY_MONITOR */
+
     TIMER_T start;
     TIMER_READ(start);
     GOTO_SIM();
@@ -322,9 +329,16 @@ MAIN(argc, argv)
     TIMER_T stop;
     TIMER_READ(stop);
 
-    //puts(" done.");
+ #ifdef STM_ENERGY_MONITOR
+	float delta_energy = endEnergy();
+    printf("Threads: %i\tElapsed time: %0.3lf Energy: %f",global_numThread, TIMER_DIFF_SECONDS(start, stop), delta_energy);
+#else
     printf("Threads: %i\tElapsed time: %0.3lf", global_numThread, TIMER_DIFF_SECONDS(start, stop));
-    fflush(stdout);
+#endif /* STM_ENERGY_MONITOR */
+
+    //puts(" done.");
+    //printf("Threads: %i\tElapsed time: %0.3lf", global_numThread, TIMER_DIFF_SECONDS(start, stop));
+    //fflush(stdout);
 
     /*
      * Check solution
@@ -350,11 +364,11 @@ MAIN(argc, argv)
 
     TM_SHUTDOWN();
     if (getenv("STM_STATS") != NULL) {
-    		unsigned long u;
-    		if (stm_get_global_stats("global_nb_commits", &u) != 0){
-    			printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(start, stop));
-    		}
+    	unsigned long u;
+    	if (stm_get_global_stats("global_nb_commits", &u) != 0){
+    		printf("\tThroughput: %f\n",u/TIMER_DIFF_SECONDS(start, stop));
     	}
+    }
     P_MEMORY_SHUTDOWN();
 
     GOTO_SIM();

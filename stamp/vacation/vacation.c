@@ -87,8 +87,10 @@
 #include "tm.h"
 #include "types.h"
 #include "utility.h"
+#include "../../rapl-power/rapl.h"
 
 #define TX_CLASS_NUMBER 1
+#define STM_ENERGY_MONITOR
 
 enum param_types {
     PARAM_CLIENTS      = (unsigned char)'c',
@@ -437,26 +439,38 @@ MAIN(argc, argv)
     /* Run transactions */
     //printf("Running clients... ");
     //fflush(stdout);
+
     TIMER_READ(start);
     GOTO_SIM();
+	#ifdef STM_ENERGY_MONITOR
+    startEnergy();
+	#endif /* STM_ENERGY_MONITOR */
+
 #ifdef OTM
 #pragma omp parallel
     {
         client_run(clients);
     }
 #else
+
     thread_start(client_run, (void*)clients);
 #endif
+
     GOTO_REAL();
     TIMER_READ(stop);
-    //puts("done.");
+#ifdef STM_ENERGY_MONITOR
+    float delta_energy = endEnergy();
+    printf("Threads: %i\tElapsed time: %f Energy: %f",numThread, TIMER_DIFF_SECONDS(start, stop), delta_energy);
+#else
     printf("Threads: %i\tElapsed time: %f",numThread, TIMER_DIFF_SECONDS(start, stop));
+#endif /* STM_ENERGY_MONITOR */
+    //puts("done.");
     fflush(stdout);
     checkTables(managerPtr);
 
     /* Clean up */
-   // printf("Deallocating memory... ");
-   // fflush(stdout);
+    // printf("Deallocating memory... ");
+    // fflush(stdout);
     freeClients(clients);
     /*
      * TODO: The contents of the manager's table need to be deallocated.
