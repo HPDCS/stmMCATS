@@ -75,11 +75,9 @@ global_t _tinystm =
 
 #  ifdef STM_MCATS
 	volatile stm_word_t running_transactions;
-	volatile int queued_transactions;
 	volatile stm_word_t max_allowed_running_transactions;
 	unsigned long max_concurrent_threads;
 	int transactions_per_tuning_cycle;
-	float tx_time_ratio;
 	int main_thread;
 	int current_collector_thread;
 	stm_time_t last_tuning_time;
@@ -87,8 +85,6 @@ global_t _tinystm =
 	stm_time_t *useful_time_k;
 	long * conflicts_per_active_transactions;
 	long * committed_per_active_transactions;
-	float average_spin_time_per_waiting_transacton;
-	float busy_waiting_time_threashold;
 
 #endif /* ! STM_MCATS */
 
@@ -251,7 +247,6 @@ signal_catcher(int sig)
 #endif /* SIGNAL_HANDLER */
 
 #ifdef STM_MCATS
-
 inline void update_conflict_table(int id1, int id2) {
 		TX_GET;
 		tx->aborted_transactions++;
@@ -264,13 +259,10 @@ void reset_local_stats(stm_tx_t *tx){
 	  tx->total_no_tx_time=0;
 	  tx->total_wasted_time=0;
 	  tx->total_spin_time=0;
-	  tx->total_sleep_time=0;
 	  tx->start_no_tx_time=0;
 	  tx->committed_transactions_as_a_collector_thread=0;
-	  tx->sleepy_transactions=0;
 	  tx->committed_transactions=0;
 	  tx->aborted_transactions=0;
-	  tx->queued_transactions=0;
 	  memset(tx->total_tx_wasted_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(stm_time_t));
 	  memset(tx->total_tx_committed_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(long));
 	  memset(tx->total_conflict_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(long));
@@ -299,7 +291,7 @@ void stm_init(int threads) {
 		exit(1);
 	}
 
-	if (fscanf(fid, "TX_PER_CYCLE=%d INITIAL_MAX_ADMITTED_TX=%d BUSY_WAITING_TIME_THRESHOLD=%f", &max_transactions_per_tuning_cycle, &max_allowed_running_transactions, &busy_waiting_time_threashold)!=3) {
+	if (fscanf(fid, "TX_PER_CYCLE=%d INITIAL_MAX_ADMITTED_TX=%d", &max_transactions_per_tuning_cycle, &max_allowed_running_transactions)!=2) {
 		printf("\nThe number of input parameters of the MCATS configuration file does not match the number of required parameters.\n");
 		exit(1);
 	}
@@ -307,8 +299,6 @@ void stm_init(int threads) {
 	transactions_per_tuning_cycle = max_transactions_per_tuning_cycle / max_concurrent_threads;
 	main_thread = current_collector_thread = 0;
 	running_transactions = 0;
-	queued_transactions=0;
-	tx_time_ratio=0;
 	wasted_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	useful_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	conflicts_per_active_transactions=(long *)malloc((max_concurrent_threads + 1) * sizeof(long));
@@ -468,87 +458,76 @@ inline void stm_wait(int id) {
 	TX_GET;
 
 	int active_txs, max_txs;
-	int entered=0;
-	stm_time_t start_spin_time=0;
+	int entered = 0;
+	stm_time_t start_spin_time = 0;
+	tx->CAS_executed = 0;
 
-	while(1){
-		active_txs=running_transactions;
-		max_txs=max_allowed_running_transactions;
-		if(active_txs<max_txs){
-			if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1) != 0){
-				if(tx->i_am_the_collector_thread==1){
-					tx->first_start_tx_time=tx->last_start_tx_time=STM_TIMER_READ();
-					tx->total_no_tx_time+=tx->last_start_tx_time - tx->start_no_tx_time;
+	//check whether executing CAS
+	if (max_concurrent_threads<=max_allowed_running_transactions) {
+		entered = 1;
+	} else {
+		while (1) {
+			active_txs = running_transactions;
+			max_txs = max_allowed_running_transactions;
+			if (active_txs < max_txs) {
+				if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1)
+						!= 0) {
+					if (tx->i_am_the_collector_thread == 1) {
+						tx->first_start_tx_time = tx->last_start_tx_time =STM_TIMER_READ();
+						tx->total_no_tx_time += tx->last_start_tx_time - tx->start_no_tx_time;
+					}
+					entered = 1;
+					tx->CAS_executed = 1;
+					break;
 				}
-				entered=1;
+			} else
 				break;
-			}
-		} else {
-			break;
 		}
 	}
 
-	if(entered==0){
-		ATOMIC_FETCH_INC_FULL(&queued_transactions);
+	if (entered == 1) {
+		if (tx->i_am_the_collector_thread == 1) {
+			tx->first_start_tx_time = tx->last_start_tx_time = STM_TIMER_READ();
+			tx->total_no_tx_time += tx->last_start_tx_time - tx->start_no_tx_time;
+		}
+	} else {
 		if(tx->i_am_the_collector_thread==1){
 			//collect statistics
 			start_spin_time=STM_TIMER_READ();
 			tx->total_no_tx_time+=start_spin_time - tx->start_no_tx_time;
-			tx->queued_transactions++;
 		}
-		//busy waiting or sleeping?
-		//printf("\nqueued_transactions %i average_spin_time_per_waiting_transacton %f, busy_waiting_time_threashold %f, max_allowed_running_transactions %i", queued_transactions, average_spin_time_per_waiting_transacton,busy_waiting_time_threashold, max_allowed_running_transactions) ;
-		if (//(tx->i_am_the_collector_thread!=1) &&
-				((double)(queued_transactions-1)*(double)average_spin_time_per_waiting_transacton>(double)busy_waiting_time_threashold)) {
-
-				//sleeping
-			stm_time_t start;
-			if(tx->i_am_the_collector_thread==1) {
-				tx->sleepy_transactions++;
-				start = STM_TIMER_READ();
-			}
-			usleep(10000);
-			if(tx->i_am_the_collector_thread==1)
-				tx->total_sleep_time+=STM_TIMER_READ()-start;
-
-
-			//printf("\nQueued_transactions-1: %i, Average spin time per waiting transaction %f, product %f",
-			//		queued_transactions-1,
-			//		(double)average_spin_time_per_waiting_transacton,
-			//		(double)(queued_transactions-1) * (double)average_spin_time_per_waiting_transacton);
-			//fflush(stdout);
-
-
-		} else {
-			//printf("\nThread %i no slept", id);
-			//fflush(stdout);
-		}
-		// starting busy waiting
-
-		int cycle=1,i=1;
+		//stm_time_t start;
+		//start = STM_TIMER_READ();
+		//usleep(10000);
+		//printf("\nSleep time: %llu",  STM_TIMER_READ()-start);
+		int i, max_cycles=500000;
 		while(1){
 			active_txs=running_transactions;
 			max_txs=max_allowed_running_transactions;
 			if(active_txs<max_txs)
-				if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1) != 0) break;
+				if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1)!= 0) {
+					tx->CAS_executed=1;
+					break;
+				}
 			tx->i_am_waiting=1;
-			for(i=0;i<cycle;i++){
+			for(i=0;i<max_cycles;i++) {
 				if(tx->i_am_waiting==0)break;
 			}
 			tx->i_am_waiting=0;
 		}
 
-		ATOMIC_FETCH_DEC_FULL(&queued_transactions);
-
-		if (tx->i_am_the_collector_thread==1){
+		if (tx->i_am_the_collector_thread==1) {
 			tx->first_start_tx_time=tx->last_start_tx_time=STM_TIMER_READ();
 			tx->total_spin_time+=tx->first_start_tx_time-start_spin_time;
 		}
 	}
-	if (tx->i_am_the_collector_thread==1){
+
+	if (tx->i_am_the_collector_thread==1) {
 		tx->start_no_tx_time=0;
 	}
 }
+
+
 
 float get_throughput(float lambda, float *mu, int m) {
 	int N=max_concurrent_threads;
@@ -601,11 +580,8 @@ inline void stm_tune_scheduler(){
 	memset(wasted_time_k, 0, (max_concurrent_threads+1) * sizeof(stm_time_t));
 	memset(useful_time_k, 0, (max_concurrent_threads+1) * sizeof(stm_time_t));
 	long total_committed_transactions_by_collector_threads=0;
-	long total_sleepy_transactions=0;
 	long total_committed_transactions=0;
 	long total_aborted_transactions=0;
-	long total_queued_transactions=0;
-	long total_tx_sleep_time=0;
 	float average_running_transactions=0;
 
 	tx->total_no_tx_time+=now - tx->start_no_tx_time ;
@@ -616,12 +592,9 @@ inline void stm_tune_scheduler(){
 		total_no_tx_time+=thread->total_no_tx_time;
 		total_tx_wasted_time+=thread->total_wasted_time;
 		total_tx_spin_time+=thread->total_spin_time;
-		total_tx_sleep_time+=thread->total_sleep_time;
 		total_committed_transactions_by_collector_threads+=thread->committed_transactions_as_a_collector_thread;
-		total_sleepy_transactions +=thread->sleepy_transactions;
 		total_committed_transactions+=thread->committed_transactions;
 		total_aborted_transactions+=thread->aborted_transactions;
-		total_queued_transactions+=thread->queued_transactions;
 
 		for(i=0;i<max_concurrent_threads+1;i++){
 			wasted_time_k[i]+=thread->total_tx_wasted_per_active_transactions[i];
@@ -635,14 +608,8 @@ inline void stm_tune_scheduler(){
 		thread=thread->next;
 	}
 	//for(i=0;i<max_concurrent_threads+1;i++) printf("\nwasted_time_k[%i] %llu", i, wasted_time_k[i]);
+	//printf("\ntotal_tx_time %llu, total_tx_wasted_time %llu, total_no_tx_time %llu, total_committed_transactions_by_collector_threads %i", total_tx_time, total_tx_wasted_time, total_no_tx_time, total_committed_transactions_by_collector_threads);
 	average_running_transactions=average_running_transactions/(float)total_committed_transactions_by_collector_threads;
-	if (total_queued_transactions!=0) average_spin_time_per_waiting_transacton=(float)total_tx_spin_time/(float)total_queued_transactions;
-	//printf("\nAverage_spin_time_per_waiting_transacton %f",average_spin_time_per_waiting_transacton);
-	//printf("\nTotal_queued_transactions: %i, Sleepy transactions: %i", total_queued_transactions, total_sleepy_transactions);
-	//printf("\nAverage Sleep time: %f",(float)total_tx_sleep_time/(float)total_sleepy_transactions);
-	//printf("\nTx time: %f, Spin time: %f, No tx time %f, tx time ratio %f",((float)total_tx_time+(float)total_tx_wasted_time)/(float)total_committed_transactions_by_collector_threads,
-		//(float)total_tx_spin_time/(float)total_committed_transactions_by_collector_threads, (float)total_no_tx_time/(float)total_committed_transactions_by_collector_threads,tx_time_ratio);
-	/*
 	float *mu_k=(float*)malloc((max_concurrent_threads+1) * sizeof(float));
 	float lambda = 1.0 / (((float) total_no_tx_time/(float)1000000000)/(float) total_committed_transactions_by_collector_threads);
 	for (i=0;i<max_concurrent_threads+1;i++){
@@ -654,8 +621,6 @@ inline void stm_tune_scheduler(){
 			//printf("\nk:%i\tmu_k: %f - average", i, mu_k[i]);
 		}
 	}
-
-
 
 	float th = get_throughput(lambda,mu_k,m);
 	float th_minus_1=0.0,th_plus_1=0.0,th_minus_2=0.0;
@@ -683,7 +648,7 @@ inline void stm_tune_scheduler(){
 		else u_m = ((float)total_tx_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads;
 		mu_k[m + 1]= 1.0/((w_m * average_restarted_transactions_plus_1) + u_m );
 		th_plus_1 = get_throughput(lambda,mu_k,m + 1);
-		if(th_plus_1 > th) {
+		if(th_plus_1 > 1.1* th) {
 			max_allowed_running_transactions++;
 			//printf("\nSelected th_plus_1");
 		} else {
@@ -697,9 +662,7 @@ inline void stm_tune_scheduler(){
 	//printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads)));
 	//printf("\naverage_running_transactions: %f", average_running_transactions, 1.0);
 	//fflush(stdout);
-	 */
 	last_tuning_time=STM_TIMER_READ();
-
 }
 
 #else
@@ -736,7 +699,7 @@ stm_commit(void)
 	if (tx->i_am_the_collector_thread==1 && ret==1) {
 		stm_word_t active=running_transactions;
 		tx->start_no_tx_time=STM_TIMER_READ();
-		ATOMIC_FETCH_DEC_FULL(&running_transactions);
+		if (tx->CAS_executed) ATOMIC_FETCH_DEC_FULL(&running_transactions);
 
 		stm_time_t useful = tx->start_no_tx_time - tx->last_start_tx_time;
 		tx->total_wasted_time+=tx->last_start_tx_time-tx->first_start_tx_time;
@@ -752,9 +715,9 @@ stm_commit(void)
 
 	}else if(current_collector_thread==tx->thread_identifier){
 		tx->start_no_tx_time=STM_TIMER_READ();
-		ATOMIC_FETCH_DEC_FULL(&running_transactions);
+		if (tx->CAS_executed) ATOMIC_FETCH_DEC_FULL(&running_transactions);
 		tx->i_am_the_collector_thread=1;
-	}else ATOMIC_FETCH_DEC_FULL(&running_transactions);
+	}else if (tx->CAS_executed) ATOMIC_FETCH_DEC_FULL(&running_transactions);
 	stm_tx_t *transaction=_tinystm.threads;
 	int i;
 	for (i=1;i< max_concurrent_threads-1;i++){
