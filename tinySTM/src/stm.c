@@ -496,9 +496,11 @@ inline void stm_wait(int id) {
 			tx->busy_waiting_transactions++;
 		}
 		//busy waiting or sleeping?
-
+		printf("\nbusy_waiting_transactions %i", busy_waiting_transactions);
 		if (//(tx->i_am_the_collector_thread!=1) &&
 				((float)(busy_waiting_transactions)>(float)busy_waiting_time_threashold)) {
+
+			printf("\t slept");
 			//sleeping
 			//stm_time_t start, end;
 			//start = STM_TIMER_READ();
