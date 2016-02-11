@@ -363,6 +363,7 @@ typedef struct stm_tx {                 /* Transaction descriptor */
   stm_time_t last_start_tx_time;
   stm_time_t start_no_tx_time;
   stm_time_t *total_tx_wasted_per_active_transactions;
+  stm_time_t total_sleep_time;
   long *total_tx_committed_per_active_transactions;
   long *total_conflict_per_active_transactions;
   stm_time_t *total_tx_useful_per_active_transactions;
@@ -371,6 +372,8 @@ typedef struct stm_tx {                 /* Transaction descriptor */
   stm_time_t total_wasted_time;
   stm_time_t total_spin_time;
   int last_k;
+  int sleepy_transactions;
+  int queued_transactions;
   long committed_transactions_as_a_collector_thread;
   long committed_transactions;
   long aborted_transactions;
