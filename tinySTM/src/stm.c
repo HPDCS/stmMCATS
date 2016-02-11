@@ -600,7 +600,7 @@ inline void stm_tune_scheduler(){
 	long total_committed_transactions=0;
 	long total_aborted_transactions=0;
 	long total_queued_transactions=0;
-	long_total_sleepy_transactions=0;
+	long total_sleepy_transactions=0;
 	float average_running_transactions=0;
 
 	tx->total_no_tx_time+=now - tx->start_no_tx_time ;
