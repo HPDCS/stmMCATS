@@ -509,7 +509,7 @@ inline void stm_wait(int id) {
 			tx->queued_transactions++;
 		}
 		//busy waiting or sleeping?
-		//printf("\nqueued_transactions %i average_spin_time_per_waiting_transacton %f, busy_waiting_time_threashold %f, max_allowed_running_transactions %i", queued_transactions, average_spin_time_per_waiting_transacton,busy_waiting_time_threashold, max_allowed_running_transactions) ;
+		printf("\nqueued_transactions %i average_spin_time_per_waiting_transacton %f, busy_waiting_time_threashold %f, max_allowed_running_transactions %i", queued_transactions, average_spin_time_per_waiting_transacton,busy_waiting_time_threashold, max_allowed_running_transactions) ;
 		if (//(tx->i_am_the_collector_thread!=1) &&
 				((double)(queued_transactions-1)*(double)average_spin_time_per_waiting_transacton>(double)busy_waiting_time_threashold)) {
 
@@ -524,11 +524,11 @@ inline void stm_wait(int id) {
 				tx->total_sleep_time+=STM_TIMER_READ()-start;
 
 
-			//printf("\nQueued_transactions-1: %i, Average spin time per waiting transaction %f, product %f",
-			//		queued_transactions-1,
-			//		(double)average_spin_time_per_waiting_transacton,
-			//		(double)(queued_transactions-1) * (double)average_spin_time_per_waiting_transacton);
-			//fflush(stdout);
+			printf("\nQueued_transactions-1: %i, Average spin time per waiting transaction %f, product %f",
+					queued_transactions-1,
+					(double)average_spin_time_per_waiting_transacton,
+					(double)(queued_transactions-1) * (double)average_spin_time_per_waiting_transacton);
+			fflush(stdout);
 
 
 		} else {
@@ -716,6 +716,7 @@ inline void stm_tune_scheduler(){
 	//fflush(stdout);
 
 	last_tuning_time=STM_TIMER_READ();
+	max_allowed_running_transactions=4;
 
 }
 
