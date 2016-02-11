@@ -308,7 +308,7 @@ void stm_init(int threads) {
 	main_thread = current_collector_thread = 0;
 	running_transactions = 0;
 	queued_transactions=0;
-	printf("\nbusy_waiting_time_threashold %f", busy_waiting_time_threashold);
+	//printf("\nbusy_waiting_time_threashold %f", busy_waiting_time_threashold);
 	wasted_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	useful_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	conflicts_per_active_transactions=(long *)malloc((max_concurrent_threads + 1) * sizeof(long));
