@@ -74,17 +74,21 @@ global_t _tinystm =
     };
 
 #  ifdef STM_MCATS
-	volatile stm_word_t running_transactions;
-	volatile stm_word_t max_allowed_running_transactions;
-	unsigned long max_concurrent_threads;
-	int transactions_per_tuning_cycle;
-	int main_thread;
-	int current_collector_thread;
-	stm_time_t last_tuning_time;
-	stm_time_t *wasted_time_k;
-	stm_time_t *useful_time_k;
-	long * conflicts_per_active_transactions;
-	long * committed_per_active_transactions;
+volatile stm_word_t running_transactions;
+volatile int queued_transactions;
+volatile stm_word_t max_allowed_running_transactions;
+unsigned long max_concurrent_threads;
+int transactions_per_tuning_cycle;
+float tx_time_ratio;
+int main_thread;
+int current_collector_thread;
+stm_time_t last_tuning_time;
+stm_time_t *wasted_time_k;
+stm_time_t *useful_time_k;
+long * conflicts_per_active_transactions;
+long * committed_per_active_transactions;
+float average_spin_time_per_waiting_transacton;
+float busy_waiting_time_threashold;
 
 #endif /* ! STM_MCATS */
 
@@ -279,6 +283,7 @@ void reset_local_stats(stm_tx_t *tx){
  */
 #  ifdef STM_MCATS
 
+
 void stm_init(int threads) {
 
 	int max_transactions_per_tuning_cycle;
@@ -291,7 +296,7 @@ void stm_init(int threads) {
 		exit(1);
 	}
 
-	if (fscanf(fid, "TX_PER_CYCLE=%d INITIAL_MAX_ADMITTED_TX=%d", &max_transactions_per_tuning_cycle, &max_allowed_running_transactions)!=2) {
+	if (fscanf(fid, "TX_PER_CYCLE=%d INITIAL_MAX_ADMITTED_TX=%d BUSY_WAITING_TIME_THRESHOLD=%f", &max_transactions_per_tuning_cycle, &max_allowed_running_transactions, &busy_waiting_time_threashold)!=3) {
 		printf("\nThe number of input parameters of the MCATS configuration file does not match the number of required parameters.\n");
 		exit(1);
 	}
@@ -299,6 +304,8 @@ void stm_init(int threads) {
 	transactions_per_tuning_cycle = max_transactions_per_tuning_cycle / max_concurrent_threads;
 	main_thread = current_collector_thread = 0;
 	running_transactions = 0;
+	queued_transactions=0;
+	printf("\nbusy_waiting_time_threashold %f", busy_waiting_time_threashold);
 	wasted_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	useful_time_k=(stm_time_t *)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	conflicts_per_active_transactions=(long *)malloc((max_concurrent_threads + 1) * sizeof(long));
@@ -664,6 +671,7 @@ inline void stm_tune_scheduler(){
 	//fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
 }
+
 
 #else
 _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
