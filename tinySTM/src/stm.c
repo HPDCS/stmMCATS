@@ -472,8 +472,7 @@ inline void stm_wait(int id) {
 	int entered=0;
 	stm_time_t start_spin_time=0;
 
-	printf("\nbusy_waiting_transactions %i, max_allowed_running_transactions %i, running_transactions %i, out_of_transaction_threads %i", busy_waiting_transactions, max_allowed_running_transactions, running_transactions, out_of_transaction_threads);
-	fflush(stdout);
+
 
 	while(1){
 		active_txs=running_transactions;
@@ -492,7 +491,8 @@ inline void stm_wait(int id) {
 			break;
 		}
 	}
-
+	printf("\nbusy_waiting_transactions %i, max_allowed_running_transactions %i, running_transactions %i, out_of_transaction_threads %i", busy_waiting_transactions, max_allowed_running_transactions, running_transactions, out_of_transaction_threads);
+	fflush(stdout);
 
 	if(entered==0){
 		if(tx->i_am_the_collector_thread==1){
