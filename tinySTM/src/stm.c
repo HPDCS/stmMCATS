@@ -756,7 +756,7 @@ stm_commit(void)
 			current_collector_thread =(current_collector_thread + 1)% max_concurrent_threads;
 			tx->i_am_the_collector_thread=0;
 		}
-
+//
 	}else if(current_collector_thread==tx->thread_identifier){
 		tx->start_no_tx_time=STM_TIMER_READ();
 		ATOMIC_FETCH_DEC_FULL(&running_transactions);
