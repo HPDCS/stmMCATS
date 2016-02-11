@@ -377,6 +377,7 @@ typedef struct stm_tx {                 /* Transaction descriptor */
   long queued_transactions;
   int thread_identifier;
   int i_am_the_collector_thread;
+  volatile int i_am_sleeping;
   volatile int i_am_waiting;
 #endif /* ! STM_MCATS */
 } stm_tx_t;

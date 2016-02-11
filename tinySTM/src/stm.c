@@ -451,6 +451,7 @@ _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
 	tx->thread_identifier=id;
 	tx->i_am_the_collector_thread=0;
 	tx->i_am_waiting=0;
+	tx->i_am_sleeping=0;
 	reset_local_stats(tx);
 	if(id==main_thread){
 		current_collector_thread=main_thread;
@@ -502,6 +503,7 @@ inline void stm_wait(int id) {
 			//sleeping
 			//stm_time_t start, end;
 			//start = STM_TIMER_READ();
+			tx->i_am_sleeping=1;
 			usleep(1);
 			//end = STM_TIMER_READ();
 			/*
@@ -519,7 +521,7 @@ inline void stm_wait(int id) {
 		}
 		// starting busy waiting
 
-		int cycle=500000,i=1;
+		int cycle=1,i=1;
 		while(1){
 			active_txs=running_transactions;
 			max_txs=max_allowed_running_transactions;
