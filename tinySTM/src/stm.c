@@ -275,6 +275,7 @@ void reset_local_stats(stm_tx_t *tx){
 	  memset(tx->total_conflict_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(long));
 	  memset(tx->total_tx_useful_per_active_transactions,0,(max_concurrent_threads+1)*sizeof(stm_time_t));
 }
+#endif /* ! STM_MCATS */
 
 /* ################################################################### *
  * STM FUNCTIONS
