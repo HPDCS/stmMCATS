@@ -627,11 +627,12 @@ inline void stm_tune_scheduler(){
 	if(m>3){
 		th_minus_1=get_throughput(lambda,mu_k,m-1);
 		th_minus_2=get_throughput(lambda,mu_k,m-2);
-	}else if(m>2)th_minus_1=get_throughput(lambda,mu_k,m-1);
-	if(th_minus_2 >= th && th_minus_2 >= th_minus_1 && m>3) {
+	}else if(m>2)
+		th_minus_1=get_throughput(lambda,mu_k,m-1);
+	if(th_minus_2 > th && th_minus_2 > th_minus_1 && m>3) {
 		max_allowed_running_transactions-=2;
 		//printf("\nSelected th_minus_2");
-	}else if(th_minus_1>=th){
+	}else if(th_minus_1>th){
 		max_allowed_running_transactions--;
 		//printf("\nSelected th_minus_1");
 	}else if(m<max_concurrent_threads){
