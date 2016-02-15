@@ -514,7 +514,7 @@ inline void stm_wait(int id) {
 			//stm_time_t start, end;
 			//start = STM_TIMER_READ();
 			if(tx->i_am_the_collector_thread==1) tx->sleepy_transactions++;
-			usleep(1000);
+			usleep(1);
 			//end = STM_TIMER_READ();
 			/*
 			printf("\nbusy_waiting_transactions-1: %i, Average spin time per waiting transaction %f, product %f, thread slept for ticks=%llu",
