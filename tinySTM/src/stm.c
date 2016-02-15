@@ -506,8 +506,7 @@ inline void stm_wait(int id) {
 
 
 		if (//(tx->i_am_the_collector_thread!=1) &&
-				((float)(busy_waiting_transactions)>(float)busy_waiting_time_threashold) &&
-				tx->thread_identifier>busy_waiting_time_threashold) {
+				(tx->thread_identifier>busy_waiting_time_threashold) {
 
 			//printf("\tslept");
 			//fflush(stdout);
