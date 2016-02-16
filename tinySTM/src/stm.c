@@ -627,12 +627,11 @@ inline void stm_tune_scheduler(){
 	if(m>3){
 		th_minus_1=get_throughput(lambda,mu_k,m-1);
 		th_minus_2=get_throughput(lambda,mu_k,m-2);
-	}else if(m>2)
-		th_minus_1=get_throughput(lambda,mu_k,m-1);
-	if(th_minus_2 > th && th_minus_2 > th_minus_1 && m>3) {
+	}else if(m>2)th_minus_1=get_throughput(lambda,mu_k,m-1);
+	if(th_minus_2 >= th && th_minus_2 >= th_minus_1 && m>3) {
 		max_allowed_running_transactions-=2;
 		//printf("\nSelected th_minus_2");
-	}else if(th_minus_1>th){
+	}else if(th_minus_1>=th){
 		max_allowed_running_transactions--;
 		//printf("\nSelected th_minus_1");
 	}else if(m<max_concurrent_threads){
@@ -649,7 +648,7 @@ inline void stm_tune_scheduler(){
 		else u_m = ((float)total_tx_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads;
 		mu_k[m + 1]= 1.0/((w_m * average_restarted_transactions_plus_1) + u_m );
 		th_plus_1 = get_throughput(lambda,mu_k,m + 1);
-		if(th_plus_1 > th) {
+		if(th_plus_1 > 1.1* th) {
 			max_allowed_running_transactions++;
 			//printf("\nSelected th_plus_1");
 		} else {

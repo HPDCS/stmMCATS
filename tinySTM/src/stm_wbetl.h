@@ -71,12 +71,7 @@ stm_wbetl_validate(stm_tx_t *tx,int committing)
 # endif /* UNIT_TX */
         }
 #endif /* CONFLICT_TRACKING */
-#ifdef STM_MCATS
-      if(tx->i_am_the_collector_thread==1){
-    	  stm_tx_t *other = ((w_entry_t *)LOCK_GET_ADDR(l))->tx;
-    	  update_conflict_table(tx->attr.id, other->attr.id);
-      }
-#endif /* STM_MCATS_CONFLICT_TRACKING */
+
         return 0;
       }
       /* We own the lock: OK */
@@ -339,12 +334,7 @@ stm_wbetl_read_invisible(stm_tx_t *tx, volatile stm_word_t *addr)
 #  endif /* UNIT_TX */
     }
 # endif /* CONFLICT_TRACKING */
-#ifdef STM_MCATS_CONFLICT_TRACKING
-      if(tx->i_am_the_collector_thread==1){
-    	  stm_tx_t *other = ((w_entry_t *)LOCK_GET_ADDR(l))->tx;
-    	  update_conflict_table(tx->attr.id, other->attr.id);
-      }
-#endif /* STM_MCATS_CONFLICT_TRACKING */
+
     stm_rollback(tx, STM_ABORT_RW_CONFLICT);
     return 0;
   } else {
@@ -734,12 +724,7 @@ stm_wbetl_write(stm_tx_t *tx, volatile stm_word_t *addr, stm_word_t value, stm_w
 # endif /* UNIT_TX */
     }
 #endif /* CONFLICT_TRACKING */
-#ifdef STM_MCATS_CONFLICT_TRACKING
-      if(tx->i_am_the_collector_thread==1){
-    	  stm_tx_t *other = ((w_entry_t *)LOCK_GET_ADDR(l))->tx;
-    	  update_conflict_table(tx->attr.id, other->attr.id);
-      }
-#endif /* STM_MCATS_CONFLICT_TRACKING */
+
     stm_rollback(tx, STM_ABORT_WW_CONFLICT);
     return NULL;
   }
