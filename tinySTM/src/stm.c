@@ -699,7 +699,20 @@ stm_commit(void)
 	if (tx->i_am_the_collector_thread==1 && ret==1) {
 		stm_word_t active=running_transactions;
 		tx->start_no_tx_time=STM_TIMER_READ();
-		if (tx->CAS_executed) ATOMIC_FETCH_DEC_FULL(&running_transactions);
+		if (tx->CAS_executed) {
+			ATOMIC_FETCH_DEC_FULL(&running_transactions);
+			stm_tx_t *transaction=_tinystm.threads;
+			int i;
+			for (i=1;i< max_concurrent_threads-1;i++){
+				if(transaction==NULL)
+					break;
+				if(transaction->i_am_waiting==1){
+					transaction->i_am_waiting=0;
+					break;
+				}
+				transaction=transaction->next;
+			}
+		}
 
 		stm_time_t useful = tx->start_no_tx_time - tx->last_start_tx_time;
 		tx->total_wasted_time+=tx->last_start_tx_time-tx->first_start_tx_time;
@@ -715,19 +728,36 @@ stm_commit(void)
 
 	}else if(current_collector_thread==tx->thread_identifier){
 		tx->start_no_tx_time=STM_TIMER_READ();
-		if (tx->CAS_executed) ATOMIC_FETCH_DEC_FULL(&running_transactions);
-		tx->i_am_the_collector_thread=1;
-	}else if (tx->CAS_executed) ATOMIC_FETCH_DEC_FULL(&running_transactions);
-	stm_tx_t *transaction=_tinystm.threads;
-	int i;
-	for (i=1;i< max_concurrent_threads-1;i++){
-		if(transaction==NULL)
-			break;
-		if(transaction->i_am_waiting==1){
-			transaction->i_am_waiting=0;
-			break;
+		if (tx->CAS_executed) {
+			ATOMIC_FETCH_DEC_FULL(&running_transactions);
+			stm_tx_t *transaction=_tinystm.threads;
+			int i;
+			for (i=1;i< max_concurrent_threads-1;i++){
+				if(transaction==NULL)
+					break;
+				if(transaction->i_am_waiting==1){
+					transaction->i_am_waiting=0;
+					break;
+				}
+				transaction=transaction->next;
+			}
 		}
-	transaction=transaction->next;
+
+		tx->i_am_the_collector_thread=1;
+
+	} else if (tx->CAS_executed) {
+		ATOMIC_FETCH_DEC_FULL(&running_transactions);
+		stm_tx_t *transaction=_tinystm.threads;
+		int i;
+		for (i=1;i< max_concurrent_threads-1;i++){
+			if(transaction==NULL)
+				break;
+			if(transaction->i_am_waiting==1){
+				transaction->i_am_waiting=0;
+				break;
+			}
+			transaction=transaction->next;
+		}
 	}
 #endif
 
