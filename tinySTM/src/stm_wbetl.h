@@ -84,7 +84,6 @@ stm_wbetl_validate(stm_tx_t *tx,int committing)
     	stm_word_t *p=r->lock;
     	int offset=p - _tinystm.locks;
     	int other_id=*(_tinystm.last_id_tx_class + offset);
-        if(other_id>-1) update_conflict_table(tx->attr.id, other_id);
     }
 # endif /* INVISIBLE_TRACKING */
         return 0;
@@ -372,7 +371,6 @@ stm_wbetl_read_invisible(stm_tx_t *tx, volatile stm_word_t *addr)
     if (tx->i_am_the_collector_thread==1) {
         /* Call conflict callback */
     	int other_id=*(_tinystm.last_id_tx_class + LOCK_IDX(addr));
-        update_conflict_table(tx->attr.id, other_id);
     }
 # endif /* INVISIBLE_TRACKING */
         stm_rollback(tx, STM_ABORT_VAL_READ);
@@ -756,7 +754,6 @@ stm_wbetl_write(stm_tx_t *tx, volatile stm_word_t *addr, stm_word_t value, stm_w
     if (tx->i_am_the_collector_thread==1) {
         /* Call conflict callback */
     	int other_id=*(_tinystm.last_id_tx_class + LOCK_IDX(addr));
-        update_conflict_table(tx->attr.id, other_id);
     }
 # endif /* INVISIBLE_TRACKING */
       stm_rollback(tx, STM_ABORT_VAL_WRITE);

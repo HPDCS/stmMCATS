@@ -300,7 +300,6 @@ _CALLCONV struct stm_tx *stm_pre_init_thread(int id);
 void stm_wait(int id);
 void stm_signal();
 void stm_tuning();
-inline void update_conflict_table(int id1, int id2);
 inline int get_main_thread();
 void stm_tuning_one_class();
 #else
