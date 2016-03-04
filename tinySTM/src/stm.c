@@ -376,6 +376,9 @@ stm_exit_thread(void)
 {
 	TX_GET;
 
+	char target_freq[]="0";
+	write(tx->scaling_setspeed_fd, &target_freq, sizeof(target_freq_2));
+
 
   int_stm_exit_thread(tx);
 }
@@ -417,6 +420,8 @@ _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
         printf("Error opening file %s \n", filename);
         exit(1);
     }
+	char target_freq[]="2000000";
+	write(tx->scaling_setspeed_fd, &target_freq, sizeof(target_freq_2));
 
 	return tx;
 }
