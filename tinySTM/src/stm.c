@@ -465,8 +465,8 @@ inline void stm_wait(int id) {
 			}
 
 			//if (tx->thread_identifier>max_allowed_running_transactions) {
-			char target_freq_2[]="2000000";
-			write(tx->scaling_setspeed_fd, &target_freq_2, sizeof(target_freq_2));
+			//char target_freq_2[]="2000000";
+			//write(tx->scaling_setspeed_fd, &target_freq_2, sizeof(target_freq_2));
 			//}
 		}
 	}
