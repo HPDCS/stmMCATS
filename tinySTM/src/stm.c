@@ -423,12 +423,13 @@ stm_start(stm_tx_attr_t attr)
 
 #  ifdef STM_MCATS
 
-int cpu_id[16] ={0,4,8,12,16,20,24,28,1,5,9,13,17,21,25,29,2,6,10,14,18,22,26,30,3,7,11,15,19,23,27,31};
+int cpu_id[32]={0,4,8,12,16,20,24,28,1,5,9,13,17,21,25,29,2,6,10,14,18,22,26,30,3,7,11,15,19,23,27,31};
 
 
 static inline void set_affinity(int thread_id) {
 	cpu_set_t cpuset;
 	CPU_ZERO(&cpuset);
+	thread_id=thread_id%32;
 	CPU_SET(cpu_id[thread_id], &cpuset);
 	// 0 is the current thread
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
