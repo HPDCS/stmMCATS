@@ -272,24 +272,6 @@ void stm_init(int threads) {
 	running_transactions = 0;
 
 
-	char filename[512];
-	int cpu_id=0, fd;
-	for (cpu_id=0; cpu_id<sysconf(_SC_NPROCESSORS_CONF); cpu_id++) {
-		sprintf(filename, "/sys/devices/system/cpu/cpu%i/cpufreq/scaling_setspeed",cpu_id);
-		//printf("Filename: %s", filename);
-		fd=open(filename, O_WRONLY);
-		if(fd==-1){
-			printf("Error opening file %s \n", filename);
-			exit(1);
-		}
-		char target_freq[]="2000000";
-		write(fd, &target_freq, sizeof(target_freq));
-		close(fd);
-	}
-
-
-
-
   	/* Set on conflict callback */
 
 #else
@@ -450,6 +432,8 @@ _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
         printf("Error opening file %s \n", filename);
         exit(1);
     }
+	char target_freq[]="2000000";
+	write(tx->scaling_setspeed_fd, &target_freq, sizeof(target_freq));
 	return tx;
 }
 
@@ -476,7 +460,7 @@ inline void stm_wait(int id) {
 				break;
 			}
 				//if (tx->thread_identifier>max_allowed_running_transactions) {
-				char target_freq_1[]="0";
+				char target_freq_1[]="800000";
 				write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
 				//}
 
