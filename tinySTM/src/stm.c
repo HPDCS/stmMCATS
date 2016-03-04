@@ -429,11 +429,13 @@ _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
 	//printf("Filename: %s", filename);
 	tx->scaling_setspeed_fd=open(filename, O_WRONLY);
     if(tx->scaling_setspeed_fd==-1){
-        printf("Error opening file %s \n", filename);
+        printf("\nError opening file %s \n", filename);
         exit(1);
     }
 	char target_freq[]="2000000";
 	write(tx->scaling_setspeed_fd, &target_freq, sizeof(target_freq));
+	printf("\nCore %i freq = %i", cpu_id, 2000000);
+	fflush(stdout);
 	return tx;
 }
 
