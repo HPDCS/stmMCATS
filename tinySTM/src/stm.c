@@ -27,6 +27,8 @@
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include <pthread.h>
 #include <sched.h>
@@ -269,7 +271,6 @@ void stm_init(int threads) {
 	transactions_per_tuning_cycle = max_transactions_per_tuning_cycle / max_concurrent_threads;
 	running_transactions = 0;
 
-	tx->scaling_setspeed_fd
 
   	/* Set on conflict callback */
 
@@ -406,12 +407,15 @@ _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
 	tx->thread_identifier=id;
 	tx->i_am_waiting=0;
 
-	int cpu_id=
 
-	tx->scaling_setspeed_fd= open("testfile.txt", O_WRONLY);
+	char filename[512];
+	int cpu_id=sched_getcpu();
+	sprintf(filename, "/sys/devices/system/cpu/cpu%i/cpufreq/scaling_setspeed",cpu_id);
+	printf("Filename: %s", filename);
+	tx->scaling_setspeed_fd=open(filename, O_WRONLY);
     if(tx->scaling_setspeed_fd==-1){
-        printf("File file not found.\n");
-        return -1;
+        printf("Error opening file %s \n", filename);
+        exit(1);
     }
 
 	return tx;
