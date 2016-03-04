@@ -378,16 +378,15 @@ stm_exit_thread(void)
 
 	char target_freq[]="0";
 	write(tx->scaling_setspeed_fd, &target_freq, sizeof(target_freq));
-
-
+	prinf("\Thread %i exits", sched_getcpu());
+	fflush(stdout);
   int_stm_exit_thread(tx);
 }
 
 _CALLCONV void
 stm_exit_thread_tx(stm_tx_t *tx)
 {
-	char target_freq[]="0";
-	write(tx->scaling_setspeed_fd, &target_freq, sizeof(target_freq));
+
   int_stm_exit_thread(tx);
 }
 
