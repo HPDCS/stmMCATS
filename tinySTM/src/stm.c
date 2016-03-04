@@ -377,7 +377,7 @@ stm_exit_thread(void)
 	TX_GET;
 
 	char target_freq[]="0";
-	write(tx->scaling_setspeed_fd, &target_freq, sizeof(target_freq_2));
+	write(tx->scaling_setspeed_fd, &target_freq, sizeof(target_freq));
 
 
   int_stm_exit_thread(tx);
