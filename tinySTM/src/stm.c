@@ -438,8 +438,8 @@ _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
 	tx->i_am_waiting=0;
 
 
-    printf("\nSetting thread %i on cpu %i", id, id);
-    fflush(stdout);
+    //printf("\nSetting thread %i on cpu %i", id, id);
+    //fflush(stdout);
     set_affinity(id);
 
 
@@ -454,8 +454,8 @@ _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
     }
 	char target_freq[]="2000000";
 	write(tx->scaling_setspeed_fd, &target_freq, sizeof(target_freq));
-	printf("\nCore %i freq = %i", cpu_id, 2000000);
-	fflush(stdout);
+	//printf("\nCore %i freq = %i", cpu_id, 2000000);
+	//fflush(stdout);
 	return tx;
 }
 
