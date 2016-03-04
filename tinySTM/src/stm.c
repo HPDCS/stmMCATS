@@ -433,9 +433,23 @@ stm_start(stm_tx_attr_t attr)
 }
 
 #  ifdef STM_MCATS
+
+static inline void set_affinity(int core) {
+	cpu_set_t cpuset;
+	CPU_ZERO(&cpuset);
+	CPU_SET(core, &cpuset);
+	// 0 is the current thread
+	sched_setaffinity(0, sizeof(cpuset), &cpuset);
+}
+
 _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
 	stm_tx_t *tx;
 	tx=stm_init_thread();
+
+    printf("\nSetting thread %i on cpu %i", id, id);
+    fflush(stdout);
+    set_affinity(id);
+
 	tx->total_tx_wasted_per_active_transactions=(stm_time_t*)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
 	tx->total_tx_committed_per_active_transactions=(long*)malloc((max_concurrent_threads+1)*sizeof(long));
 	tx->total_tx_useful_per_active_transactions = (stm_time_t *)malloc((max_concurrent_threads +1) * sizeof(stm_time_t));
