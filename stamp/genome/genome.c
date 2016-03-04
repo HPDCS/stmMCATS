@@ -11,48 +11,48 @@
  *
  * For the license of bayes/sort.h and bayes/sort.c, please see the header
  * of the files.
- * 
+ *
  * ------------------------------------------------------------------------
- * 
+ *
  * For the license of kmeans, please see kmeans/LICENSE.kmeans
- * 
+ *
  * ------------------------------------------------------------------------
- * 
+ *
  * For the license of ssca2, please see ssca2/COPYRIGHT
- * 
+ *
  * ------------------------------------------------------------------------
- * 
+ *
  * For the license of lib/mt19937ar.c and lib/mt19937ar.h, please see the
  * header of the files.
- * 
+ *
  * ------------------------------------------------------------------------
- * 
+ *
  * For the license of lib/rbtree.h and lib/rbtree.c, please see
  * lib/LEGALNOTICE.rbtree and lib/LICENSE.rbtree
- * 
+ *
  * ------------------------------------------------------------------------
- * 
+ *
  * Unless otherwise noted, the following license applies to STAMP files:
- * 
+ *
  * Copyright (c) 2007, Stanford University
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are
  * met:
- * 
+ *
  *     * Redistributions of source code must retain the above copyright
  *       notice, this list of conditions and the following disclaimer.
- * 
+ *
  *     * Redistributions in binary form must reproduce the above copyright
  *       notice, this list of conditions and the following disclaimer in
  *       the documentation and/or other materials provided with the
  *       distribution.
- * 
+ *
  *     * Neither the name of Stanford University nor the names of its
  *       contributors may be used to endorse or promote products derived
  *       from this software without specific prior written permission.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY STANFORD UNIVERSITY ``AS IS'' AND ANY
  * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -82,6 +82,9 @@
 #include "timer.h"
 #include "tm.h"
 #include "vector.h"
+#include "../../rapl-power/rapl.h"
+
+#define STM_ENERGY_MONITOR
 
 #define TX_CLASS_NUMBER 5
 
@@ -232,6 +235,11 @@ MAIN (argc,argv)
     /* Benchmark */
     //printf("Sequencing gene... ");
     //fflush(stdout);
+
+#ifdef STM_ENERGY_MONITOR
+	startEnergy();
+#endif /* STM_ENERGY_MONITOR */
+
     TIMER_READ(start);
     GOTO_SIM();
 #ifdef OTM
@@ -244,8 +252,13 @@ MAIN (argc,argv)
 #endif
     GOTO_REAL();
     TIMER_READ(stop);
-    //puts("done.");
-    printf("Threads: %i\tElapsed time: %f", numThread, TIMER_DIFF_SECONDS(start, stop));
+#ifdef STM_ENERGY_MONITOR
+	float delta_energy = endEnergy();
+    printf("Threads: %i\tElapsed time: %f\tEnergy: %f",numThread, TIMER_DIFF_SECONDS(start, stop), delta_energy);
+#else
+    printf("Threads: %i\tElapsed time: %f",numThread, TIMER_DIFF_SECONDS(start, stop));
+#endif /* STM_ENERGY_MONITOR */
+
     //fflush(stdout);
 
     /* Check result */
