@@ -23,12 +23,21 @@
  * under the terms of the MIT license.
  */
 
+
+#ifndef __USE_GNU
+#define __USE_GNU
+#endif
+#define _GNU_SOURCE
 #include <assert.h>
 #include <signal.h>
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 #include <pthread.h>
+
+
 #include <sched.h>
 
 #include "stm.h"
@@ -446,8 +455,8 @@ _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
 	stm_tx_t *tx;
 	tx=stm_init_thread();
 
-    printf("\nSetting thread %i on cpu %i", id, id);
-    fflush(stdout);
+    //printf("\nSetting thread %i on cpu %i", id, id);
+    //fflush(stdout);
     set_affinity(id);
 
 	tx->total_tx_wasted_per_active_transactions=(stm_time_t*)malloc((max_concurrent_threads+1)*sizeof(stm_time_t));
