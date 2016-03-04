@@ -79,10 +79,6 @@
 
 #ifdef STM_MCATS
 
-#define INVISIBLE_TRACKING
-#define STM_TUNING
-
-
 	#define TX_CLASSES 1
 
 	#define STM_TIMER_READ() ({ \
