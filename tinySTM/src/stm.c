@@ -471,10 +471,10 @@ inline void stm_wait(int id) {
 	int active_txs, max_txs;
 	int entered = 0;
 	stm_time_t start_spin_time = 0;
-	tx->CAS_executed = 0;
+	//tx->CAS_executed = 0;
 
 	//check whether executing CAS
-	if (max_concurrent_threads>max_allowed_running_transactions) {
+	//if (max_concurrent_threads>max_allowed_running_transactions) {
 		while (1) {
 			active_txs = running_transactions;
 			max_txs = max_allowed_running_transactions;
@@ -512,7 +512,7 @@ inline void stm_wait(int id) {
 			write(tx->scaling_setspeed_fd, &target_freq_2, sizeof(target_freq_2));
 			//}
 		}
-	}
+	//}
 }
 
 
@@ -545,7 +545,7 @@ stm_commit(void)
 	ret=int_stm_commit(tx);
 #ifdef STM_MCATS
 	tx->committed_transactions++;
-	if (tx->CAS_executed) {
+	//if (tx->CAS_executed) {
 		ATOMIC_FETCH_DEC_FULL(&running_transactions);
 		stm_tx_t *transaction=_tinystm.threads;
 		int i;
@@ -558,7 +558,7 @@ stm_commit(void)
 			}
 			transaction=transaction->next;
 		}
-	}
+	//}
 #endif
 
 
