@@ -464,6 +464,11 @@ _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
 	return tx;
 }
 
+//if (tx->thread_identifier>max_allowed_running_transactions) {
+//char target_freq_1[] = "800000";
+//write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+//}
+
 inline void stm_wait(int id) {
 
 	TX_GET;
@@ -471,52 +476,54 @@ inline void stm_wait(int id) {
 	int active_txs, max_txs;
 	int entered = 0;
 	stm_time_t start_spin_time = 0;
-	//tx->CAS_executed = 0;
+	tx->CAS_executed = 0;
 
-	//check whether executing CAS
-	//if (max_concurrent_threads>max_allowed_running_transactions) {
+
 	while (1) {
 		active_txs = running_transactions;
 		max_txs = max_allowed_running_transactions;
 		if (active_txs < max_txs) {
-			if (ATOMIC_CAS_FULL(&running_transactions, active_txs,	active_txs + 1)
+			if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1)
 					!= 0) {
+				if (tx->i_am_the_collector_thread == 1) {
+					tx->first_start_tx_time = tx->last_start_tx_time =STM_TIMER_READ();
+					tx->total_no_tx_time += tx->last_start_tx_time - tx->start_no_tx_time;
+				}
+				entered = 1;
 				tx->CAS_executed = 1;
 				break;
 			}
-		} else {
+		} else
 			break;
-		}
 	}
 
-	//if (tx->thread_identifier>max_allowed_running_transactions) {
-	char target_freq_1[] = "800000";
-	write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
-	//}
 
-	int i, max_cycles = 300000;
-	while (1) {
-		active_txs = running_transactions;
-		max_txs = max_allowed_running_transactions;
-		if (active_txs < max_txs)
-			if (ATOMIC_CAS_FULL(&running_transactions, active_txs,
-					active_txs + 1)
-					!= 0) {
-				tx->CAS_executed = 1;
+
+	if(tx->i_am_the_collector_thread==1){
+		//collect statistics
+		start_spin_time=STM_TIMER_READ();
+		tx->total_no_tx_time+=start_spin_time - tx->start_no_tx_time;
+	}
+
+	int i, max_cycles=500000;
+	while(1){
+		active_txs=running_transactions;
+		max_txs=max_allowed_running_transactions;
+		if(active_txs<max_txs)
+			if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1)!= 0) {
+				tx->CAS_executed=1;
 				break;
 			}
-		tx->i_am_waiting = 1;
-		for (i = 0; i < max_cycles; i++) {
-			if (tx->i_am_waiting == 0)
-				break;
+		tx->i_am_waiting=1;
+		for(i=0;i<max_cycles;i++) {
+			if(tx->i_am_waiting==0)break;
 		}
-		tx->i_am_waiting = 0;
+		tx->i_am_waiting=0;
 	}
 
-	//if (tx->thread_identifier>max_allowed_running_transactions) {
-	char target_freq_2[] = "2000000";
-	write(tx->scaling_setspeed_fd, &target_freq_2, sizeof(target_freq_2));
 }
+
+
 
 
 
