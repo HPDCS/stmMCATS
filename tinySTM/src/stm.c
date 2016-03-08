@@ -474,8 +474,6 @@ inline void stm_wait(int id) {
 	TX_GET;
 
 	int active_txs, max_txs;
-	int entered = 0;
-	stm_time_t start_spin_time = 0;
 	tx->CAS_executed = 0;
 
 
@@ -483,26 +481,12 @@ inline void stm_wait(int id) {
 		active_txs = running_transactions;
 		max_txs = max_allowed_running_transactions;
 		if (active_txs < max_txs) {
-			if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1)
-					!= 0) {
-				if (tx->i_am_the_collector_thread == 1) {
-					tx->first_start_tx_time = tx->last_start_tx_time =STM_TIMER_READ();
-					tx->total_no_tx_time += tx->last_start_tx_time - tx->start_no_tx_time;
-				}
-				entered = 1;
+			if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1) != 0) {
 				tx->CAS_executed = 1;
 				break;
 			}
 		} else
 			break;
-	}
-
-
-
-	if(tx->i_am_the_collector_thread==1){
-		//collect statistics
-		start_spin_time=STM_TIMER_READ();
-		tx->total_no_tx_time+=start_spin_time - tx->start_no_tx_time;
 	}
 
 	int i, max_cycles=500000;
