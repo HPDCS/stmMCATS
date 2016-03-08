@@ -81,13 +81,12 @@ global_t _tinystm =
 #endif /* IRREVOCABLE_ENABLED */
     };
 
-#  ifdef STM_MCATS
-	volatile stm_word_t running_transactions;
-	volatile stm_word_t max_allowed_running_transactions;
-	unsigned long max_concurrent_threads;
-	int transactions_per_tuning_cycle;
 
-#endif /* ! STM_MCATS */
+volatile stm_word_t running_transactions;
+volatile stm_word_t statistics_file_lock;
+volatile stm_word_t max_allowed_running_transactions;
+unsigned long max_concurrent_threads;
+
 
 
 /* ################################################################### *
@@ -255,14 +254,12 @@ signal_catcher(int sig)
 /*
  * Called once (from main) to initialize STM infrastructure.
  */
-#  ifdef STM_MCATS
 
-void stm_init(int threads) {
+void stm_init() {
 
 	int max_transactions_per_tuning_cycle;
 
-	max_concurrent_threads = threads;
-
+	/*
 	FILE* fid;
 	if ((fid = fopen("mcats_conf.txt", "r")) == NULL) {
 		printf("\nError opening MCATS configuration file.\n");
@@ -273,19 +270,15 @@ void stm_init(int threads) {
 		printf("\nThe number of input parameters of the MCATS configuration file does not match the number of required parameters.\n");
 		exit(1);
 	}
+	*/
 
-	transactions_per_tuning_cycle = max_transactions_per_tuning_cycle / max_concurrent_threads;
+	//transactions_per_tuning_cycle = max_transactions_per_tuning_cycle / max_concurrent_threads;
 	running_transactions = 0;
+	statistics_file_lock=0;
 
 
   	/* Set on conflict callback */
 
-#else
-
-void stm_init()
-{
-
-#endif /* ! STM_MCATS */
 
 #if CM == CM_MODULAR
   char *s;
@@ -382,6 +375,23 @@ _CALLCONV void
 stm_exit_thread(void)
 {
 	TX_GET;
+
+	while (1) {
+		if (ATOMIC_CAS_FULL(&statistics_file_lock, 0, 1)!= 0) {
+			break;
+		}
+		sleep(0);
+	}
+
+	FILE *f = fopen("statistics.csv", "a");
+	int i;
+	for (i=0;i<tx->current_event;i++) {
+		fprintf(f,"%s\n", tx->events[i]);
+	}
+	fclose(f);
+
+	ATOMIC_FETCH_DEC_FULL(&statistics_file_lock);
+
 	int_stm_exit_thread(tx);
 
 }
@@ -390,7 +400,9 @@ _CALLCONV void
 stm_exit_thread_tx(stm_tx_t *tx)
 {
 
+
   int_stm_exit_thread(tx);
+
 }
 
 /*
@@ -410,10 +422,17 @@ stm_start(stm_tx_attr_t attr)
   	}
   }
 
+  if (tx->current_event<MAX_EVENTS) {
+	  sprintf(tx->events[tx->current_event], "%llu,%i,%i",STM_TIMER_READ(),active_txs, active_txs+1);
+	  tx->current_event++;
+  }
+	//printf("\nrunning_transactions %i", running_transactions);
+	//fflush(stdout);
+
   return ret;
 }
 
-#  ifdef STM_MCATS
+
 
 int cpu_id[32]={0,4,8,12,16,20,24,28,1,5,9,13,17,21,25,29,2,6,10,14,18,22,26,30,3,7,11,15,19,23,27,31};
 
@@ -430,28 +449,15 @@ static inline void set_affinity(int thread_id) {
 _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
 	stm_tx_t *tx;
 	tx=stm_init_thread();
+	tx->current_event=0;
 	tx->thread_identifier=id;
-	tx->i_am_waiting=0;
-
 
     //printf("\nSetting thread %i on cpu %i", id, id);
     //fflush(stdout);
     set_affinity(id);
 
-
 	return tx;
 }
-
-
-#else
-_CALLCONV stm_tx_t *stm_pre_init_thread(int id){
-	return stm_init_thread();
-}
-void stm_wait(int id) {
-
-}
-
-#  endif /* STM_MCATS */
 
 
 _CALLCONV sigjmp_buf *
@@ -471,8 +477,19 @@ stm_commit(void)
 
 	ret=int_stm_commit(tx);
 
-	ATOMIC_FETCH_DEC_FULL(&running_transactions);
-  return ret;
+	int active_txs;
+	while (1) {
+		active_txs = running_transactions;
+		if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs - 1)!= 0) {
+			break;
+		}
+	}
+
+	if (tx->current_event<MAX_EVENTS) {
+		sprintf(tx->events[tx->current_event], "%llu,%i,%i",STM_TIMER_READ(),active_txs, active_txs-1);
+		tx->current_event++;
+	}
+	return ret;
 }
 
 _CALLCONV int

@@ -37,6 +37,8 @@
  * DEFINES
  * ################################################################### */
 
+#define MAX_EVENTS 100000
+
 /* Designs */
 #define WRITE_BACK_ETL                  0
 #define WRITE_BACK_CTL                  1
@@ -358,14 +360,9 @@ typedef struct stm_tx {                 /* Transaction descriptor */
   unsigned int stat_locked_reads_failed;/* Failed reads of previous value */
 # endif /* READ_LOCKED_DATA */
 #endif /* TM_STATISTICS2 */
-#  ifdef STM_MCATS
-  long committed_transactions;
-  long aborted_transactions;
-  int thread_identifier;
-  volatile int i_am_waiting;
-  int CAS_executed;
-  int scaling_setspeed_fd;
-#endif /* ! STM_MCATS */
+char* events[MAX_EVENTS][128];
+int current_event;
+int thread_identifier;
 } stm_tx_t;
 
 /* This structure should be ordered by hot and cold variables */
