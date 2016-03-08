@@ -431,7 +431,7 @@ static inline void set_affinity(int thread_id) {
 	CPU_ZERO(&cpuset);
 	thread_id=thread_id%32;
 	CPU_SET(cpu_id[thread_id], &cpuset);
-	CPU_SET(thread_id, &cpuset);
+	//CPU_SET(thread_id, &cpuset);
 	// 0 is the current thread
 	sched_setaffinity(0, sizeof(cpuset), &cpuset);
 }
