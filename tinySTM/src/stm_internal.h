@@ -23,12 +23,6 @@
  * under the terms of the MIT license.
  */
 
-
-
-#ifdef STM_STATISTICS
-#define STAT_ARRAY_SIZE 10000
-#endif
-
 #ifndef _STM_INTERNAL_H_
 #define _STM_INTERNAL_H_
 #include <pthread.h>
@@ -364,12 +358,14 @@ typedef struct stm_tx {                 /* Transaction descriptor */
   unsigned int stat_locked_reads_failed;/* Failed reads of previous value */
 # endif /* READ_LOCKED_DATA */
 #endif /* TM_STATISTICS2 */
-
-#ifdef STM_STATISTICS
-  stm_time_t no_tx_times[STAT_ARRAY_SIZE];
-  stm_time_t tx_times[STAT_ARRAY_SIZE];
-#endif
-
+#  ifdef STM_MCATS
+  long committed_transactions;
+  long aborted_transactions;
+  int thread_identifier;
+  volatile int i_am_waiting;
+  int CAS_executed;
+  int scaling_setspeed_fd;
+#endif /* ! STM_MCATS */
 } stm_tx_t;
 
 /* This structure should be ordered by hot and cold variables */
@@ -1087,6 +1083,7 @@ stm_rollback(stm_tx_t *tx, unsigned int reason)
 #else /* ! IRREVOCABLE_ENABLED */
   reason |= STM_PATH_INSTRUMENTED;
 #endif /* ! IRREVOCABLE_ENABLED */
+
   LONGJMP(tx->env, reason);
 }
 
@@ -1210,13 +1207,6 @@ int_stm_init_thread(void)
 	  printf("Transaction already exists\n");
 	  return tx;
   }
-
-#ifdef STM_STATISTICS
-
-  memset(tx->no_tx_times, 0, sizeof(stm_time_t)*STAT_ARRAY_SIZE);
-  memset(tx->tx_times, 0, sizeof(stm_time_t)*STAT_ARRAY_SIZE);
-
- #endif
 
 
 #ifdef EPOCH_GC

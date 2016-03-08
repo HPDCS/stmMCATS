@@ -78,6 +78,14 @@ stm_wbetl_validate(stm_tx_t *tx,int committing)
     } else {
       if (LOCK_GET_TIMESTAMP(l) != r->version) {
         /* Other version: cannot validate */
+# ifdef INVISIBLE_TRACKING
+    if (tx->i_am_the_collector_thread==1 && committing==1) {
+        /* Call conflict callback */
+    	stm_word_t *p=r->lock;
+    	int offset=p - _tinystm.locks;
+    	int other_id=*(_tinystm.last_id_tx_class + offset);
+    }
+# endif /* INVISIBLE_TRACKING */
         return 0;
       }
       /* Same version: OK */
@@ -360,7 +368,10 @@ stm_wbetl_read_invisible(stm_tx_t *tx, volatile stm_word_t *addr)
         tx->visible_reads++;
 #endif /* CM == CM_MODULAR */
 # ifdef INVISIBLE_TRACKING
-
+    if (tx->i_am_the_collector_thread==1) {
+        /* Call conflict callback */
+    	int other_id=*(_tinystm.last_id_tx_class + LOCK_IDX(addr));
+    }
 # endif /* INVISIBLE_TRACKING */
         stm_rollback(tx, STM_ABORT_VAL_READ);
         return 0;
@@ -740,7 +751,10 @@ stm_wbetl_write(stm_tx_t *tx, volatile stm_word_t *addr, stm_word_t value, stm_w
       tx->visible_reads++;
 #endif /* CM == CM_MODULAR */
 #ifdef INVISIBLE_TRACKING
-
+    if (tx->i_am_the_collector_thread==1) {
+        /* Call conflict callback */
+    	int other_id=*(_tinystm.last_id_tx_class + LOCK_IDX(addr));
+    }
 # endif /* INVISIBLE_TRACKING */
       stm_rollback(tx, STM_ABORT_VAL_WRITE);
       return NULL;

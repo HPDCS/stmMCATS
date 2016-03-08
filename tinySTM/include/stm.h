@@ -75,9 +75,12 @@
 #ifndef _STM_H_
 # define _STM_H_
 
-#define STM_STATISTICS
+#define STM_MCATS
 
-#ifdef STM_STATISTICS
+#ifdef STM_MCATS
+
+	#define TX_CLASSES 1
+
 	#define STM_TIMER_READ() ({ \
 		unsigned int lo; \
 		unsigned int hi; \
@@ -87,7 +90,7 @@
 
 	typedef unsigned long long stm_time_t;
 
-#endif
+#endif /* STM_MCATS */
 
 # include <setjmp.h>
 # include <stdint.h>
@@ -287,13 +290,21 @@ enum {
  * the main thread, before any access to the other functions of the
  * library.
  */
-
+#  ifdef STM_MCATS
+void stm_init(int threads);
+_CALLCONV struct stm_tx *stm_pre_init_thread(int id);
+void stm_wait(int id);
+void stm_signal();
+void stm_tuning();
+inline int get_main_thread();
+void stm_tuning_one_class();
+#else
 void stm_init();
 void stm_wait(int id);
 void stm_signal();
 void stm_tuning();
 void stm_tuning_one_class();
-
+#endif /* ! STM_MCATS */
 
 
 /**
