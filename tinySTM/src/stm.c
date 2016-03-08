@@ -502,7 +502,6 @@ inline void stm_wait(int id) {
 					}
 				tx->i_am_waiting=1;
 				for(i=0;i<max_cycles;i++) {
-					printf("\nwaiting");
 					if(tx->i_am_waiting==0)break;
 				}
 				tx->i_am_waiting=0;
