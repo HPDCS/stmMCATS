@@ -85,7 +85,7 @@ global_t _tinystm =
 	volatile stm_word_t running_transactions;
 	volatile stm_word_t max_allowed_running_transactions;
 	unsigned long max_concurrent_threads;
-	int transactions_per_tuning_cycle;
+	int scaling;
 
 #endif /* ! STM_MCATS */
 
@@ -259,8 +259,6 @@ signal_catcher(int sig)
 
 void stm_init(int threads) {
 
-	int max_transactions_per_tuning_cycle;
-
 	max_concurrent_threads = threads;
 
 	FILE* fid;
@@ -269,12 +267,11 @@ void stm_init(int threads) {
 		exit(1);
 	}
 
-	if (fscanf(fid, "TX_PER_CYCLE=%d INITIAL_MAX_ADMITTED_TX=%d", &max_transactions_per_tuning_cycle, &max_allowed_running_transactions)!=2) {
+	if (fscanf(fid, "SCALING=%d INITIAL_MAX_ADMITTED_TX=%d", &scaling, &max_allowed_running_transactions)!=2) {
 		printf("\nThe number of input parameters of the MCATS configuration file does not match the number of required parameters.\n");
 		exit(1);
 	}
 
-	transactions_per_tuning_cycle = max_transactions_per_tuning_cycle / max_concurrent_threads;
 	running_transactions = 0;
 
 
@@ -474,7 +471,7 @@ inline void stm_wait(int id) {
 	TX_GET;
 
 	int active_txs, max_txs;
-	tx->CAS_executed = 0;
+	//tx->CAS_executed = 0;
 
 
 	while (1) {
@@ -482,27 +479,35 @@ inline void stm_wait(int id) {
 		max_txs = max_allowed_running_transactions;
 		if (active_txs < max_txs) {
 			if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1) != 0) {
-				tx->CAS_executed = 1;
-				break;
+				//tx->CAS_executed = 1;
+				return;
 			}
 		} else
 			break;
 	}
 
 	int i, max_cycles=500000;
+	if (scaling) {
+		char target_freq_1[] = "800000";
+		write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+	}
 	while(1){
 		active_txs=running_transactions;
 		max_txs=max_allowed_running_transactions;
 		if(active_txs<max_txs)
 			if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1)!= 0) {
-				tx->CAS_executed=1;
-				break;
+				//tx->CAS_executed=1;
+				return;
 			}
 		tx->i_am_waiting=1;
 		for(i=0;i<max_cycles;i++) {
 			if(tx->i_am_waiting==0)break;
 		}
 		tx->i_am_waiting=0;
+	}
+	if (scaling) {
+		char target_freq_1[] = "2000000";
+		write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
 	}
 
 }
