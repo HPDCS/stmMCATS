@@ -415,8 +415,8 @@ stm_start(stm_tx_attr_t attr)
 	sigjmp_buf * ret;
 	//stm_wait(attr.id);
 	if (scaling) {
-		char target_freq_1[] = "2000000";
-		write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+		//char target_freq_1[] = "2000000";
+		//write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
 	}
 	ret=int_stm_start(tx, attr);
 	return ret;
@@ -458,7 +458,7 @@ _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
         printf("\nError opening file %s \n", filename);
         exit(1);
     }
-	char target_freq[]="2000000";
+	char target_freq[]="800000";
 	write(tx->scaling_setspeed_fd, &target_freq, sizeof(target_freq));
 	//printf("\nCore %i freq = %i", cpu_id, 2000000);
 	//fflush(stdout);
@@ -549,8 +549,8 @@ stm_commit(void)
 
 	ret=int_stm_commit(tx);
 	if (scaling) {
-		char target_freq_1[] = "800000";
-		write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+		//char target_freq_1[] = "800000";
+		//write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
 	}
 
 
