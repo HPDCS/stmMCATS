@@ -491,7 +491,7 @@ inline void stm_wait(int id) {
 				char target_freq_1[]="800000";
 				write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
 				//}
-				printf("\nWaiting");
+				//printf("\nWaiting");
 			int i, max_cycles=500000;
 			while(1){
 				active_txs=running_transactions;
