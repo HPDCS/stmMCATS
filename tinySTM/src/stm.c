@@ -514,7 +514,7 @@ inline void stm_wait(int id) {
 			//}
 		}
 	//}
-		printf("\nRunning transactions %i", running_transactions);
+		//printf("\nRunning transactions %i", running_transactions);
 }
 
 inline void stm_wait_(int id) {
