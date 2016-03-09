@@ -416,16 +416,17 @@ stm_start(stm_tx_attr_t attr)
   ret=int_stm_start(tx, attr);
   int active_txs;
   while (1) {
-  	active_txs = running_transactions;
-  	if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1)!= 0) {
-  		break;
-  	}
+	  active_txs = running_transactions;
+	  if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1)!= 0) {
+		  if (tx->current_event<MAX_EVENTS) {
+			  sprintf(tx->events[tx->current_event], "%llu,%i,%i",STM_TIMER_READ(),active_txs, active_txs+1);
+			  tx->current_event++;
+		  }
+		  break;
+	  }
   }
 
-  if (tx->current_event<MAX_EVENTS) {
-	  sprintf(tx->events[tx->current_event], "%llu,%i,%i",STM_TIMER_READ(),active_txs, active_txs+1);
-	  tx->current_event++;
-  }
+
 	//printf("\nrunning_transactions %i", running_transactions);
 	//fflush(stdout);
 
@@ -481,14 +482,15 @@ stm_commit(void)
 	while (1) {
 		active_txs = running_transactions;
 		if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs - 1)!= 0) {
+			if (tx->current_event<MAX_EVENTS) {
+				sprintf(tx->events[tx->current_event], "%llu,%i,%i",STM_TIMER_READ(),active_txs, active_txs-1);
+				tx->current_event++;
+			}
 			break;
 		}
 	}
 
-	if (tx->current_event<MAX_EVENTS) {
-		sprintf(tx->events[tx->current_event], "%llu,%i,%i",STM_TIMER_READ(),active_txs, active_txs-1);
-		tx->current_event++;
-	}
+
 	return ret;
 }
 
