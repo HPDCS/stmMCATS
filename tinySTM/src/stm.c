@@ -418,10 +418,10 @@ stm_start(stm_tx_attr_t attr)
   while (1) {
 	  active_txs = running_transactions;
 	  if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1)!= 0) {
-		  if (tx->current_event<MAX_EVENTS) {
-			  sprintf(tx->events[tx->current_event], "%llu,%i,%i",STM_TIMER_READ(),active_txs, active_txs+1);
-			  tx->current_event++;
-		  }
+			if ((active_txs==4 || active_txs==8 || active_txs==16) &&(tx->current_event<MAX_EVENTS)) {
+				sprintf(tx->events[tx->current_event], "%llu,%i",STM_TIMER_READ(),active_txs);
+				tx->current_event++;
+			}
 		  break;
 	  }
   }
@@ -482,8 +482,8 @@ stm_commit(void)
 	while (1) {
 		active_txs = running_transactions;
 		if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs - 1)!= 0) {
-			if (tx->current_event<MAX_EVENTS) {
-				sprintf(tx->events[tx->current_event], "%llu,%i,%i",STM_TIMER_READ(),active_txs, active_txs-1);
+			if ((active_txs==4 || active_txs==8 || active_txs==16) &&(tx->current_event<MAX_EVENTS)) {
+				sprintf(tx->events[tx->current_event], "%llu,%i",STM_TIMER_READ(),active_txs);
 				tx->current_event++;
 			}
 			break;
