@@ -411,11 +411,15 @@ stm_exit_thread_tx(stm_tx_t *tx)
 _CALLCONV sigjmp_buf *
 stm_start(stm_tx_attr_t attr)
 {
-  TX_GET;
-  sigjmp_buf * ret;
-  stm_wait(attr.id);
-  ret=int_stm_start(tx, attr);
-  return ret;
+	TX_GET;
+	sigjmp_buf * ret;
+	//stm_wait(attr.id);
+	if (scaling) {
+		char target_freq_1[] = "2000000";
+		write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+	}
+	ret=int_stm_start(tx, attr);
+	return ret;
 }
 
 #  ifdef STM_MCATS
@@ -544,23 +548,10 @@ stm_commit(void)
 	int ret;
 
 	ret=int_stm_commit(tx);
-#ifdef STM_MCATS
-	tx->committed_transactions++;
-	//if (tx->CAS_executed) {
-		ATOMIC_FETCH_DEC_FULL(&running_transactions);
-		stm_tx_t *transaction=_tinystm.threads;
-		int i;
-		for (i=1;i< max_concurrent_threads-1;i++){
-			if(transaction==NULL)
-				break;
-			if(transaction->i_am_waiting==1){
-				transaction->i_am_waiting=0;
-				break;
-			}
-			transaction=transaction->next;
-		}
-	//}
-#endif
+	if (scaling) {
+		char target_freq_1[] = "800000";
+		write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+	}
 
 
   return ret;
