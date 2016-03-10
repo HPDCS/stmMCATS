@@ -429,7 +429,7 @@ stm_start(stm_tx_attr_t attr)
 	  tx->current_event++;
   }
   running_transactions+=1;
-  //ATOMIC_FETCH_INC_FULL(statistics_lock);
+  ATOMIC_FETCH_INC_FULL(statistics_lock);
 
 
 
@@ -496,7 +496,7 @@ stm_commit(void)
 		  tx->current_event++;
 	  }
 	  running_transactions-=1;
-	  //ATOMIC_FETCH_DEC_FULL(statistics_lock);
+	  ATOMIC_FETCH_DEC_FULL(statistics_lock);
 
 
 	return ret;
