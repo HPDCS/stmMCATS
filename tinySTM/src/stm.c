@@ -419,16 +419,16 @@ stm_start(stm_tx_attr_t attr)
 
   int stat_lock;
   while (1) {
-	  stat_lock = &statistics_lock;
-	  if (ATOMIC_CAS_FULL(&statistics_lock, stat_lock, stat_lock + 1)!= 0)  break;
+	  stat_lock = statistics_lock;
+	  if (stat_lock==0)
+		  if (ATOMIC_CAS_FULL(&statistics_lock, stat_lock, stat_lock + 1)!= 0)  break;
   }
-
   if (tx->current_event<MAX_EVENTS) {
 	  sprintf(tx->events[tx->current_event], "%llu,%i,%i",STM_TIMER_READ(),running_transactions, running_transactions+1);
 	  tx->current_event++;
   }
   running_transactions+=1;
-  ATOMIC_FETCH_INC_FULL(&statistics_lock);
+  ATOMIC_FETCH_DEC_FULL(&statistics_lock);
 
 
 
@@ -486,7 +486,8 @@ stm_commit(void)
 	  int stat_lock;
 	  while (1) {
 		  stat_lock = statistics_lock;
-		  if (ATOMIC_CAS_FULL(&statistics_lock, stat_lock, stat_lock + 1)!= 0)  break;
+		  if (stat_lock==0)
+			  if (ATOMIC_CAS_FULL(&statistics_lock, stat_lock, stat_lock + 1)!= 0)  break;
 	  }
 
 	  if (tx->current_event<MAX_EVENTS) {
