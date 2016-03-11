@@ -83,6 +83,7 @@ global_t _tinystm =
 
 
 volatile stm_word_t running_transactions;
+volatile stm_word_t statistics_lock;
 volatile stm_word_t statistics_file_lock;
 volatile stm_word_t max_allowed_running_transactions;
 unsigned long max_concurrent_threads;
@@ -274,6 +275,7 @@ void stm_init() {
 
 	//transactions_per_tuning_cycle = max_transactions_per_tuning_cycle / max_concurrent_threads;
 	running_transactions = 0;
+	statistics_lock=0;
 	statistics_file_lock=0;
 
 
@@ -414,17 +416,20 @@ stm_start(stm_tx_attr_t attr)
   TX_GET;
   sigjmp_buf * ret;
   ret=int_stm_start(tx, attr);
-  int active_txs;
+
+  int stat_lock;
   while (1) {
-	  active_txs = running_transactions;
-	  if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1)!= 0) {
-		  if (tx->current_event<MAX_EVENTS) {
-			  sprintf(tx->events[tx->current_event], "%llu,%i,%i",STM_TIMER_READ(),active_txs, active_txs+1);
-			  tx->current_event++;
-		  }
-		  break;
-	  }
+	  stat_lock = statistics_lock;
+	  if (stat_lock==0)
+		  if (ATOMIC_CAS_FULL(&statistics_lock, stat_lock, stat_lock + 1)!= 0)  break;
   }
+  if (tx->current_event<MAX_EVENTS) {
+	  sprintf(tx->events[tx->current_event], "%llu,%i,%i",STM_TIMER_READ(),running_transactions, running_transactions+1);
+	  tx->current_event++;
+  }
+  running_transactions+=1;
+  ATOMIC_FETCH_DEC_FULL(&statistics_lock);
+
 
 
 	//printf("\nrunning_transactions %i", running_transactions);
@@ -478,17 +483,19 @@ stm_commit(void)
 
 	ret=int_stm_commit(tx);
 
-	int active_txs;
-	while (1) {
-		active_txs = running_transactions;
-		if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs - 1)!= 0) {
-			if (tx->current_event<MAX_EVENTS) {
-				sprintf(tx->events[tx->current_event], "%llu,%i,%i",STM_TIMER_READ(),active_txs, active_txs-1);
-				tx->current_event++;
-			}
-			break;
-		}
-	}
+	  int stat_lock;
+	  while (1) {
+		  stat_lock = statistics_lock;
+		  if (stat_lock==0)
+			  if (ATOMIC_CAS_FULL(&statistics_lock, stat_lock, stat_lock + 1)!= 0)  break;
+	  }
+
+	  if (tx->current_event<MAX_EVENTS) {
+		  sprintf(tx->events[tx->current_event], "%llu,%i,%i",STM_TIMER_READ(),running_transactions, running_transactions-1);
+		  tx->current_event++;
+	  }
+	  running_transactions-=1;
+	  ATOMIC_FETCH_DEC_FULL(&statistics_lock);
 
 
 	return ret;
