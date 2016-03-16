@@ -86,6 +86,7 @@ global_t _tinystm =
 	volatile stm_word_t max_allowed_running_transactions;
 	unsigned long max_concurrent_threads;
 	int scaling;
+	volatile stm_tx_t *next_to_wake_up;
 
 #endif /* ! STM_MCATS */
 
@@ -273,6 +274,7 @@ void stm_init(int threads) {
 	}
 
 	running_transactions = 0;
+	next_to_wake_up=NULL;
 
 
   	/* Set on conflict callback */
@@ -489,8 +491,8 @@ inline void stm_wait(int id) {
 
 	int i, max_cycles=500000;
 	if (scaling) {
-		char target_freq_1[] = "800000";
-		write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+		//char target_freq_1[] = "200000";
+		//write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
 	}
 	while(1){
 		active_txs=running_transactions;
@@ -506,15 +508,12 @@ inline void stm_wait(int id) {
 		}
 		tx->i_am_waiting=0;
 	}
-	if (scaling) {
-		char target_freq_1[] = "2000000";
-		write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
-	}
+	//if (scaling) {
+		//char target_freq_1[] = "2000000";
+		//write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+	//}
 
 }
-
-
-
 
 
 #else
@@ -547,9 +546,47 @@ stm_commit(void)
 #ifdef STM_MCATS
 	tx->committed_transactions++;
 	//if (tx->CAS_executed) {
-		ATOMIC_FETCH_DEC_FULL(&running_transactions);
-		stm_tx_t *transaction=_tinystm.threads;
-		int i;
+	ATOMIC_FETCH_DEC_FULL(&running_transactions);
+	stm_tx_t *transaction=_tinystm.threads;
+	int i;
+
+
+	if (scaling) {
+
+		stm_tx_t *to_wake_up=next_to_wake_up;
+		if (to_wake_up!= NULL && to_wake_up->i_am_waiting==1) {
+			for (i=1;i< max_concurrent_threads-1;i++){
+				if(transaction==NULL) {
+					next_to_wake_up=NULL;
+					break;
+				}
+				if(transaction->i_am_waiting==1){
+					transaction->throttle=0;
+					next_to_wake_up=transaction;
+					break;
+				}
+				transaction=transaction->next;
+			}
+		} else {
+			int first_found=0;
+			for (i=1;i< max_concurrent_threads-1;i++){
+				if(transaction==NULL)
+					break;
+				if(transaction->i_am_waiting==1){
+					if (!first_found) {
+						transaction->i_am_waiting=0;
+						first_found=1;
+					} else {
+						next_to_wake_up= transaction;
+						break;
+					}
+				}
+				transaction=transaction->next;
+			}
+		}
+
+	} else {
+
 		for (i=1;i< max_concurrent_threads-1;i++){
 			if(transaction==NULL)
 				break;
@@ -559,6 +596,7 @@ stm_commit(void)
 			}
 			transaction=transaction->next;
 		}
+	}
 	//}
 #endif
 

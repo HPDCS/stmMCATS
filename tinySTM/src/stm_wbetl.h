@@ -942,6 +942,8 @@ stm_wbetl_commit(stm_tx_t *tx)
     return 0;
   }
 
+
+
 #ifdef IRREVOCABLE_ENABLED
   release_locks:
 #endif /* IRREVOCABLE_ENABLED */
