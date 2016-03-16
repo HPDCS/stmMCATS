@@ -489,8 +489,8 @@ inline void stm_wait(int id) {
 
 	int i, max_cycles=500000;
 	if (scaling) {
-		char target_freq_1[] = "800000";
-		write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+		//char target_freq_1[] = "800000";
+		//write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
 	}
 	while(1){
 		active_txs=running_transactions;
@@ -507,8 +507,8 @@ inline void stm_wait(int id) {
 		tx->i_am_waiting=0;
 	}
 	if (scaling) {
-		char target_freq_1[] = "2000000";
-		write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+		//char target_freq_1[] = "2000000";
+		//write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
 	}
 
 }
