@@ -496,7 +496,7 @@ inline void stm_wait(int id) {
 		//transaction enqueued
 		while (1) {
 			enqueued_txs = enqueued_transactions;
-			if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1) != 0) break;
+			if (ATOMIC_CAS_FULL(&enqueued_transactions, enqueued_txs, enqueued_txs + 1) != 0) break;
 		}
 	}
 
@@ -508,6 +508,7 @@ inline void stm_wait(int id) {
 		if(active_txs<max_txs)
 			if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs+1)!= 0) {
 				//tx->CAS_executed=1;
+				ATOMIC_FETCH_DEC_FULL(&enqueued_transactions);
 				break;
 			}
 		tx->i_am_waiting=1;
