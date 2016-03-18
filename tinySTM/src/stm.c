@@ -491,8 +491,8 @@ inline void stm_wait(int id) {
 			break;
 	}
 
+	int enqueued_txs;
 	if (scaling) {
-		int enqueued_txs;
 		//transaction enqueued
 		while (1) {
 			enqueued_txs = enqueued_transactions;
