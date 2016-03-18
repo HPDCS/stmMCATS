@@ -363,6 +363,7 @@ typedef struct stm_tx {                 /* Transaction descriptor */
   long aborted_transactions;
   int thread_identifier;
   volatile int i_am_waiting;
+  volatile scaled;
   int CAS_executed;
   int scaling_setspeed_fd;
 #endif /* ! STM_MCATS */

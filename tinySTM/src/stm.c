@@ -83,9 +83,11 @@ global_t _tinystm =
 
 #  ifdef STM_MCATS
 	volatile stm_word_t running_transactions;
+	volatile stm_word_t enqueued_transactions;
 	volatile stm_word_t max_allowed_running_transactions;
 	unsigned long max_concurrent_threads;
 	int scaling;
+	int min_queue_length_for_scaling;
 
 #endif /* ! STM_MCATS */
 
@@ -267,12 +269,13 @@ void stm_init(int threads) {
 		exit(1);
 	}
 
-	if (fscanf(fid, "SCALING=%d INITIAL_MAX_ADMITTED_TX=%d", &scaling, &max_allowed_running_transactions)!=2) {
+	if (fscanf(fid, "SCALING=%d INITIAL_MAX_ADMITTED_TX=%d MIN_QUEUE_LENGTH_FOR_SCALING=%d", &scaling, &max_allowed_running_transactions, &min_queue_length_for_scaling)!=3) {
 		printf("\nThe number of input parameters of the MCATS configuration file does not match the number of required parameters.\n");
 		exit(1);
 	}
 
-	running_transactions = 0;
+	running_transactions=0;
+	enqueued_transactions=0;
 
 
   	/* Set on conflict callback */
@@ -438,6 +441,7 @@ _CALLCONV stm_tx_t *stm_pre_init_thread(int id){
 	tx=stm_init_thread();
 	tx->thread_identifier=id;
 	tx->i_am_waiting=0;
+	tx->scaled=0;
 
 
     //printf("\nSetting thread %i on cpu %i", id, id);
@@ -487,11 +491,15 @@ inline void stm_wait(int id) {
 			break;
 	}
 
-	int i, max_cycles=500000;
-	if (scaling) {
-		//char target_freq_1[] = "800000";
-		//write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+	int enqueued_txs;
+	//transaction enqueued
+	while (1) {
+		enqueued_txs = enqueued_transactions;
+		if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1) != 0) break;
 	}
+
+
+	int i, max_cycles=500000;
 	while(1){
 		active_txs=running_transactions;
 		max_txs=max_allowed_running_transactions;
@@ -501,15 +509,32 @@ inline void stm_wait(int id) {
 				break;
 			}
 		tx->i_am_waiting=1;
+
+		if (scaling && enqueued_txs>=min_queue_length_for_scaling) {
+			char target_freq_1[] = "800000";
+			write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+			tx->scaled=1;
+		}
+
 		for(i=0;i<max_cycles;i++) {
-			if(tx->i_am_waiting==0)break;
+			if (enqueued_txs>=min_queue_length_for_scaling && !tx->scaled && scaling) {
+				char target_freq_1[] = "2000000";
+				write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+				tx->scaled=0;
+			}
+			if(tx->i_am_waiting==0) {
+				if (enqueued_txs>=min_queue_length_for_scaling && tx->scaled && scaling) {
+					char target_freq_1[] = "2000000";
+					write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+					tx->scaled=0;
+				}
+				break;
+			}
 		}
 		tx->i_am_waiting=0;
 	}
-	if (scaling) {
-		//char target_freq_1[] = "2000000";
-		//write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
-	}
+
+
 
 }
 
@@ -552,10 +577,32 @@ stm_commit(void)
 		int i;
 		for (i=1;i< max_concurrent_threads-1;i++){
 			if(transaction==NULL)
-				break;
+				return ret;
+			if(transaction->i_am_waiting==1 && !transaction->scaled){
+				transaction->i_am_waiting=0;
+				//find transaction to unscale
+				for (i=1;i< max_concurrent_threads-1;i++){
+					if(transaction==NULL)
+						return ret;
+					if(transaction->scaled==1){
+						transaction->scaled=0;
+						return ret;
+					}
+					transaction=transaction->next;
+				}
+
+				return ret;
+			}
+			transaction=transaction->next;
+		}
+
+
+		for (i=1;i< max_concurrent_threads-1;i++){
+			if(transaction==NULL)
+				return ret;
 			if(transaction->i_am_waiting==1){
 				transaction->i_am_waiting=0;
-				break;
+				return ret;
 			}
 			transaction=transaction->next;
 		}
