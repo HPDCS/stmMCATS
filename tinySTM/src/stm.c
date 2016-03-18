@@ -494,10 +494,10 @@ inline void stm_wait(int id) {
 	if (scaling) {
 		int enqueued_txs;
 		//transaction enqueued
-		//while (1) {
-		//	enqueued_txs = enqueued_transactions;
-		//	if (ATOMIC_CAS_FULL(&enqueued_transactions, enqueued_txs, enqueued_txs + 1) != 0) break;
-		//}
+		while (1) {
+			enqueued_txs = enqueued_transactions;
+			if (ATOMIC_CAS_FULL(&enqueued_transactions, enqueued_txs, enqueued_txs + 1) != 0) break;
+		}
 	}
 
 
