@@ -500,6 +500,13 @@ inline void stm_wait(int id) {
 		}
 	}
 
+	if (scaling && enqueued_txs>=min_queue_length_for_scaling) {
+		if (enqueued_txs>=min_queue_length_for_scaling) printf("\nrunning_transactions %i enqueued_txs %i", running_transactions, enqueued_transactions);
+		char target_freq_1[] = "800000";
+		write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+		tx->scaled=1;
+	}
+
 
 	int i, max_cycles=500000;
 
@@ -513,13 +520,6 @@ inline void stm_wait(int id) {
 				break;
 			}
 		tx->i_am_waiting=1;
-
-		if (scaling && enqueued_txs>=min_queue_length_for_scaling) {
-			if (enqueued_txs>=min_queue_length_for_scaling) printf("\nrunning_transactions %i enqueued_txs %i", running_transactions, enqueued_transactions);
-			char target_freq_1[] = "800000";
-			write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
-			tx->scaled=1;
-		}
 
 		for(i=0;i<max_cycles;i++) {
 			if (enqueued_txs>=min_queue_length_for_scaling && !tx->scaled && scaling) {
