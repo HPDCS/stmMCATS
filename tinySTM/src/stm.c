@@ -515,6 +515,8 @@ inline void stm_wait(int id) {
 		tx->i_am_waiting=1;
 
 		if (scaling && enqueued_txs>=min_queue_length_for_scaling) {
+			if (enqueued_txs>=min_queue_length_for_scaling) printf("\nenqueued_txs %i= ", enqueued_txs);
+		}
 			char target_freq_1[] = "800000";
 			write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
 			tx->scaled=1;
