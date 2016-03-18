@@ -514,24 +514,24 @@ inline void stm_wait(int id) {
 			}
 		tx->i_am_waiting=1;
 
-		//if (scaling && enqueued_txs>=min_queue_length_for_scaling) {
-		//	char target_freq_1[] = "800000";
-		//	write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
-		//	tx->scaled=1;
-		//}
+		if (scaling && enqueued_txs>=min_queue_length_for_scaling) {
+			char target_freq_1[] = "800000";
+			write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+			tx->scaled=1;
+		}
 
 		for(i=0;i<max_cycles;i++) {
-			//if (enqueued_txs>=min_queue_length_for_scaling && !tx->scaled && scaling) {
-			//	char target_freq_1[] = "2000000";
-			//	write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
-			//	tx->scaled=0;
-			//}
+			if (enqueued_txs>=min_queue_length_for_scaling && !tx->scaled && scaling) {
+				char target_freq_1[] = "2000000";
+				write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+				tx->scaled=0;
+			}
 			if(tx->i_am_waiting==0) {
-			//	if (enqueued_txs>=min_queue_length_for_scaling && tx->scaled && scaling) {
-			//		char target_freq_1[] = "2000000";
-			//		write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
-			//		tx->scaled=0;
-			//	}
+				if (enqueued_txs>=min_queue_length_for_scaling && tx->scaled && scaling) {
+					char target_freq_1[] = "2000000";
+					write(tx->scaling_setspeed_fd, &target_freq_1, sizeof(target_freq_1));
+					tx->scaled=0;
+				}
 				break;
 			}
 		}
