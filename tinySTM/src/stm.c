@@ -502,6 +502,7 @@ inline void stm_wait(int id) {
 
 
 	int i, max_cycles=500000;
+
 	while(1){
 		active_txs=running_transactions;
 		max_txs=max_allowed_running_transactions;
