@@ -76,6 +76,7 @@
 #include "reservation.h"
 #include "thread.h"
 #include "types.h"
+#include "math.h"
 
 
 /* =============================================================================
@@ -179,9 +180,13 @@ client_run (void* argPtr)
 
         long r = random_generate(randomPtr) % 100;
         action_t action = selectAction(r, percentUser);
-
+	//printf("\nvalues: queryRange %i,  i %i, numOperation %i", queryRange, i, numOperation);  
+        queryRange =(long)((float)numOperation/(float)2)+(long)((float)numOperation/(float)2 * sin(6.283 * (float)i/(float)numOperation));
+	printf("\nqueryRange: %i", queryRange);
+	fflush(stdout);
         switch (action) {
 
+		
             case ACTION_MAKE_RESERVATION: {
                 long maxPrices[NUM_RESERVATION_TYPE] = { -1, -1, -1 };
                 long maxIds[NUM_RESERVATION_TYPE] = { -1, -1, -1 };
