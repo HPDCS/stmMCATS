@@ -200,7 +200,9 @@ client_run (void* argPtr)
     long myId = thread_getId();
     random_t* randomPtr;
     long executed_tx=0;
-   // client_t* clientPtr = ((client_t**)argPtr)[myId];
+ 
+    randomPtr = random_alloc();
+    random_seed(randomPtr, myId);
 
     long i;
     int read;
@@ -210,8 +212,8 @@ client_run (void* argPtr)
 	long item;
  	TM_BEGIN();
 	for (l=0; l<transactionLength; l++) {
-	    item=rand() % ((numDataItems*accessedPercentage)/100)+1;
-	    if ((rand() % 100) > writesPercentage) {
+	    item=random_generate(randomPtr) % ((numDataItems*accessedPercentage)/100)+1;
+	    if ((random_generate(randomPtr) % 100) > writesPercentage) {
 	    	TM_SHARED_READ(data_items[item]);
 		//printf("\nitem: %ld, type READ", item);
 	    } else {
@@ -263,7 +265,6 @@ MAIN(argc, argv)
     accessedPercentage = (long)global_params[PARAM_ACCESSED_DATA_ITEMS];
     numDataItems = (long)global_params[PARAM_DATA_ITEMS];
     data_items= (long *) malloc(sizeof(long) * numDataItems);
-
 
     TM_STARTUP(numThread);
 
