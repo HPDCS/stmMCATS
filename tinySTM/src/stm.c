@@ -486,15 +486,14 @@ inline void stm_wait(int id) {
 	tx->CAS_executed = 0;
 
 	//check whether executing CAS
-	if (max_concurrent_threads<=max_allowed_running_transactions) {
-		entered = 1;
-	} else {
+	//if (max_concurrent_threads<=max_allowed_running_transactions) {
+	//	entered = 1;
+	//} else {
 		while (1) {
 			active_txs = running_transactions;
 			max_txs = max_allowed_running_transactions;
 			if (active_txs < max_txs) {
-				if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1)
-						!= 0) {
+				if (ATOMIC_CAS_FULL(&running_transactions, active_txs, active_txs + 1)!= 0) {
 					if (tx->i_am_the_collector_thread == 1) {
 						tx->first_start_tx_time = tx->last_start_tx_time =STM_TIMER_READ();
 						tx->total_no_tx_time += tx->last_start_tx_time - tx->start_no_tx_time;
@@ -506,7 +505,7 @@ inline void stm_wait(int id) {
 			} else
 				break;
 		}
-	}
+	//}
 
 	if (entered == 1) {
 		if (tx->i_am_the_collector_thread == 1) {
@@ -579,16 +578,20 @@ float get_throughput(float lambda, float *mu, int m) {
 	//th
 	for (k=1;k<=m;k++){
 		th+=p[k]*k*mu[k];
-		//printf("\np[%i] %f - c[%i] %f", k, p[k], k, mu[k]);
+		//printf("\np[%i] %f - c[%i] %f - term %f -  th %f", k, p[k], k, mu[k], p[k]*k*mu[k], th);
 	}
+	//printf("\n-");
 	for (k=m+1;k<=N;k++){
 		th+=p[k]*m*mu[m];
-		//printf("\np[%i] %f - c[%i] %f", k, p[k], m, mu[m]);
+		//printf("\np[%i] %f - c[%i] %f - term %f - th %f", k, p[k], m, mu[m],p[k]*m*mu[k], th);
 	}
+	//printf("\nPredicted th: %f", th);
 
 	return th;
 }
 
+//this variable is defined only within synthetic_bench.c., please remove it if synthetic_bench is not used 
+extern accessedPercentage;
 
 inline void stm_tune_scheduler(){
 	TX_GET;
@@ -631,7 +634,7 @@ inline void stm_tune_scheduler(){
 		thread=thread->next;
 	}
 	//printf("\ntotal_committed_transactions: %i, total_aborted_transactions: %i, abort_probability: %f",  total_committed_transactions, total_aborted_transactions, (float)total_aborted_transactions/((float)total_committed_transactions+(float)total_aborted_transactions));
-        fflush(stdout);	
+        //fflush(stdout);	
 	//for(i=0;i<max_concurrent_threads+1;i++) printf("\nwasted_time_k[%i] %llu", i, wasted_time_k[i]);
 	//printf("\ntotal_tx_time %llu, total_tx_wasted_time %llu, total_no_tx_time %llu, total_committed_transactions_by_collector_threads %i", total_tx_time, total_tx_wasted_time, total_no_tx_time, total_committed_transactions_by_collector_threads);
 	average_running_transactions=average_running_transactions/(float)total_committed_transactions_by_collector_threads;
@@ -642,8 +645,13 @@ inline void stm_tune_scheduler(){
 			mu_k[i]= 1.0 / ((((float) wasted_time_k[i] / (float)1000000000) / (float)committed_per_active_transactions[i]) + (((float) useful_time_k[i]/(float)1000000000) / (float) committed_per_active_transactions[i]));
 			//printf("\nk:%i\tmu_k: %f, %llu, %llu, %llu", i, mu_k[i], wasted_time_k[i], useful_time_k[i], committed_per_active_transactions[i]);
 		}else{
-			mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads));
-			//printf("\nk:%i\tmu_k: %f - average", i, mu_k[i]);
+			if(i>m) {
+				mu_k[i]= mu_k[m];
+				//printf("\nk:%i\tmu_k: %f - copied by state %i", i, mu_k[i], m);
+			} else {
+				mu_k[i]= 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads));
+				//printf("\nk:%i\tmu_k: %f - average", i, mu_k[i]);
+			}
 		}
 	}
 
@@ -673,23 +681,26 @@ inline void stm_tune_scheduler(){
 		else u_m = ((float)total_tx_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads;
 		mu_k[m + 1]= 1.0/((w_m * average_restarted_transactions_plus_1) + u_m );
 		th_plus_1 = get_throughput(lambda,mu_k,m + 1);
-		if(th_plus_1 > 1.1* th) {
+		if(th_plus_1 > 1.05 * th) {
 			max_allowed_running_transactions++;
 			//printf("\nSelected th_plus_1");
 		} else {
 			//printf("\nSelected th");
 		}
-	}//
+	}
+	
 
-	tx->start_no_tx_time=STM_TIMER_READ();
-	printf("\nMax_allowed_running_transactions: %i", max_allowed_running_transactions);
-        fflush(stdout);
+	//tx->start_no_tx_time=STM_TIMER_READ();
+	//printf("\nMax_allowed_running_transactions: %i", max_allowed_running_transactions);
+        //fflush(stdout);
 
-	printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000000), max_allowed_running_transactions);
+	//printf("\nPredicted: %f|%f|%f|%f, measured: %f, max txs: %i, ab.prob: %f, accPerc: %i", th_minus_2, th_minus_1, th, th_plus_1, (float)total_committed_transactions/((float)(now-last_tuning_time)/(float)1000000000), max_allowed_running_transactions, (float)total_aborted_transactions/((float)total_committed_transactions+(float)total_aborted_transactions), accessedPercentage);
 	//printf("\tTotal commits: %i (as a collector: %i)",total_committed_transactions, total_committed_transactions_by_collector_threads);
 	//printf("\nlambda: %f mu: %f", lambda, 1.0 / ((((float)total_tx_wasted_time/(float)1000000000)/(float)total_committed_transactions_by_collector_threads)+(((float)total_tx_time/(float)1000000000) / (float) total_committed_transactions_by_collector_threads)));
 	//printf("\naverage_running_transactions: %f", average_running_transactions, 1.0);
-	fflush(stdout);
+   	//printf("\n");
+	//for(i=1;i<=max_concurrent_threads;i++) printf("\t%.0f", get_throughput(lambda,mu_k,i));
+	//fflush(stdout);
 	last_tuning_time=STM_TIMER_READ();
 }
 

@@ -85,12 +85,7 @@
 
 	#define TX_CLASSES 1
 
-	#define STM_TIMER_READ() ({ \
-		unsigned int lo; \
-		unsigned int hi; \
-		__asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi)); \
-		((stm_time_t)hi) << 32 | lo; \
-	})
+	#define STM_TIMER_READ() (__builtin_ia32_rdtsc())
 
 	typedef unsigned long long stm_time_t;
 

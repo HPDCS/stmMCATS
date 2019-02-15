@@ -82,7 +82,11 @@
 #include "types.h"
 #include "utility.h"
 
-#define TX_CLASS_NUMBER 1
+//#define  END_ON_MAX_TRANSACTIONS 
+
+#ifndef END_ON_MAX_TRANSACTIONS 
+#define  MAX_DURATION_IN_MICROSECONDS 2000000
+#endif
 
 enum param_types {
     PARAM_THREADS      = (unsigned char)'c',
@@ -196,8 +200,12 @@ client_run (void* argPtr)
 {
 
     TM_THREAD_ENTER();
-
+    struct timeval start_time, end_time;
     long myId = thread_getId();
+    if (myId==0) {
+        gettimeofday(&start_time, 0);
+    }
+
     random_t* randomPtr;
     long executed_tx=0;
  
@@ -210,7 +218,8 @@ client_run (void* argPtr)
        // long r = random_generate(randomPtr) % 100;
 	int l;
 	long item;
- 	TM_BEGIN();
+ 	//transacition
+	TM_BEGIN();
 	for (l=0; l<transactionLength; l++) {
 	    item=random_generate(randomPtr) % ((numDataItems*accessedPercentage)/100)+1;
 	    if ((random_generate(randomPtr) % 100) > writesPercentage) {
@@ -223,16 +232,35 @@ client_run (void* argPtr)
 
 	}
         TM_END();
+        //non-transactional path
+	for (l=0; l<transactionLength; l++) {
+            random_generate(randomPtr);
+	    random_generate(randomPtr);
+        }
+
 
 	if (myId==0) {
-	    executed_tx++;
-		//accessedPercentage =50+50*sin(6.283 * (float)(executed_tx)/(float)numTransaction);
-		//if (accessedPercentage==0) accessedPercentage++;
-		//printf("\nexecuted_tx %ld, accessedPercentage %i", executed_tx, accessedPercentage);
-	    if(executed_tx==numTransaction) {
+	    executed_tx++;	
+#ifdef END_ON_MAX_TRANSACTIONS
+	    accessedPercentage =50+40*sin(6.283 * (float)(executed_tx)/(float)numTransaction);
+            if (accessedPercentage==0) accessedPercentage++;
+
+            if(executed_tx==numTransaction) {
 		stop=1;	
 		break;
-	    }
+	    }		
+#else 
+            gettimeofday(&end_time, 0);
+            long elapsed = (end_time.tv_sec-start_time.tv_sec)*1000000 + end_time.tv_usec-start_time.tv_usec;
+            accessedPercentage =50+40*sin(6.283 * (float)(elapsed)/(float)MAX_DURATION_IN_MICROSECONDS);
+            if (accessedPercentage==0) accessedPercentage++;
+
+            if (elapsed > MAX_DURATION_IN_MICROSECONDS) {
+                stop = 1;
+                break;
+            }
+#endif	
+	//printf("\nexecuted_tx %ld, accessedPercentage %i", executed_tx, accessedPercentage);
 	} else {
 	    if(stop) break;
 	}
@@ -253,6 +281,7 @@ MAIN(argc, argv)
     TIMER_T stop;
 
     GOTO_REAL();
+
 
     /* Initialization */
     setenv("STM_STATS","1",0);
